@@ -63,7 +63,7 @@ public class AuthController {
         }
         Optional<User> userOptional = userService.getUserByEmail(userDTO.getEmail());
         if (userOptional.isPresent()){
-            throw new UserAlreadyExistsException("a user with that id already exists");
+            throw new UserAlreadyExistsException("a user with that gmail already exists");
         }
 //        Optional<User> userOptional1 = userService.getUserByPhoneNumber(userDTO.getPhoneNumber());
 //        if (userOptional1.isPresent()){
@@ -109,7 +109,7 @@ public class AuthController {
         }
         authenticationProvider.authenticate(new UsernamePasswordAuthenticationToken(userOptional.get().getEmail(), loginDTO.getPassword()));
         AuthDTO authDTO = modelMapper.map(userOptional.get(), AuthDTO.class);
-        authDTO.setToken(jwtService.generateToken(authDTO.getEmail()));
+        authDTO.setToken(jwtService.generateToken(loginDTO.getEmail()));
         return new ResponseEntity<>(authDTO, HttpStatus.OK);
     }
     @PostMapping("/forgot-password")

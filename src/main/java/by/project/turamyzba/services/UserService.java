@@ -33,6 +33,7 @@ public class UserService implements UserDetailsService {
     @Transactional
     public void save(User user){
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setIsVerified(false);
         userRepository.save(user);
     }
 
@@ -42,10 +43,14 @@ public class UserService implements UserDetailsService {
         userRepository.save(user);
     }
     @Transactional
+    public void updateProfile(User user){
+        user.setUpdatedAt(Instant.now());
+        userRepository.save(user);
+    }
+    @Transactional
     public void saveUserConfirmationCode(Integer id, String code) {
         User user = userRepository.getUserById(id);
         user.setConfirmationCode(code);
-        user.setIsVerified(false);
         userRepository.save(user);
     }
     @Transactional

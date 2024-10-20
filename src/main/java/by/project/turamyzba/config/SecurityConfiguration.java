@@ -30,6 +30,7 @@ public class SecurityConfiguration {
         http.csrf(AbstractHttpConfigurer::disable);
         http.authorizeHttpRequests(request ->
                 request.requestMatchers("/auth/**").permitAll()
+                        .requestMatchers("/profile/**").permitAll()
                         .requestMatchers("/api-docs").permitAll()
                         .requestMatchers("/swagger-ui/**").permitAll().anyRequest().authenticated());
         http.sessionManagement(req -> req.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
