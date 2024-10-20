@@ -6,5 +6,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class AuthDTO {
-    private String token;
+    private String accessToken;
+    private String refreshToken;
 }

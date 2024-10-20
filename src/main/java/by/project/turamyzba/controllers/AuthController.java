@@ -13,6 +13,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,13 +21,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/auth")
@@ -52,47 +57,36 @@ public class AuthController {
     @Operation(summary = "Register a new user", description = "Registers a new user by checking for existing IDs and phone numbers.")
     @ApiResponse(responseCode = "202", description = "User registered successfully")
     @ApiResponse(responseCode = "400", description = "Invalid user data provided", content = @Content)
-    public HttpStatus register(@RequestBody @Valid UserDTO userDTO, BindingResult bindingResult) throws UserAlreadyExistsException, IncorrectJSONException {
+    public ResponseEntity<String> register(@RequestBody @Valid UserDTO userDTO, BindingResult bindingResult) throws UserAlreadyExistsException {
         if (bindingResult.hasErrors()) {
-            List<FieldError> errors = bindingResult.getFieldErrors();
-            StringBuilder str = new StringBuilder();
-            for (FieldError error : errors) {
-                str.append(error.getField()).append(": ").append(error.getDefaultMessage()).append(";\n");
-            }
-            throw new IncorrectJSONException(str.toString());
+            String errorMessages = bindingResult.getFieldErrors().stream()
+                    .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                    .collect(Collectors.joining("; "));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessages);
         }
-        Optional<User> userOptional = userService.getUserByEmail(userDTO.getEmail());
-        if (userOptional.isPresent()){
-            throw new UserAlreadyExistsException("a user with that gmail already exists");
-        }
-//        Optional<User> userOptional1 = userService.getUserByPhoneNumber(userDTO.getPhoneNumber());
-//        if (userOptional1.isPresent()){
-//            throw new UserAlreadyExistsException("a user with that phone number already exists");
-//        }
-        userService.save(convertToUser(userDTO));
-
-        Optional<User> user = userService.getUserByEmail(userDTO.getEmail());
-
-        String code = generateCode();
-        userService.saveUserConfirmationCode(user.get().getId(), code);
-
-        emailService.sendEmail(userDTO.getEmail(), "Turamyzba Verity Email", "Your code is: " + code);
-        return HttpStatus.OK;
+        userService.registerNewUser(userDTO);
+        return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully");
     }
 
     @PostMapping("/verify-email")
     @Operation(summary = "Verify Email", description = "Verifies the reset code entered by the user.")
     @ApiResponse(responseCode = "200", description = "Reset code verified successfully")
     @ApiResponse(responseCode = "401", description = "Incorrect reset code")
-    public HttpStatus verifyEmail(@RequestBody CodeDTO codeDTO) {
-        Optional<User> user = userService.getUserByEmail(codeDTO.getEmail());
-        if(!user.get().getConfirmationCode().equals(codeDTO.getCode())) {
-            throw new BadCredentialsException("Incorrect Code");
-        }
-        user.get().setIsVerified(true);
+    public ResponseEntity<?> verifyEmail(@RequestBody CodeDTO codeDTO) {
+        Optional<User> userOptional = userService.getUserByEmail(codeDTO.getEmail());
 
-        userService.update(user.get());
-        return HttpStatus.OK;
+        if (userOptional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+        }
+
+        User user = userOptional.get();
+        if (!user.getConfirmationCode().equals(codeDTO.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Incorrect Code");
+        }
+
+        user.setIsVerified(true);
+        userService.update(user);
+        return ResponseEntity.ok("Email successfully verified");
     }
 
 
@@ -100,26 +94,54 @@ public class AuthController {
     @Operation(summary = "User login", description = "Authenticates a user and returns an Auth token.")
     @ApiResponse(responseCode = "200", description = "User logged in successfully", content = @Content(schema = @Schema(implementation = AuthDTO.class)))
     @ApiResponse(responseCode = "401", description = "Incorrect ID or password")
-    public ResponseEntity<AuthDTO> login(@RequestBody LoginDTO loginDTO) {
+    public ResponseEntity<?> login(@RequestBody LoginDTO loginDTO) {
         Optional<User> userOptional = userService.getUserByEmail(loginDTO.getEmail());
-        if (userOptional.isEmpty()){
-            throw new UsernameNotFoundException("Incorrect ID or password");
+        if (userOptional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Incorrect email or password");
         } else if (!userOptional.get().getIsVerified()) {
-            throw new BadCredentialsException("This user is not verified yet");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("This user is not verified yet");
         }
         authenticationProvider.authenticate(new UsernamePasswordAuthenticationToken(userOptional.get().getEmail(), loginDTO.getPassword()));
+        Map<String, String> tokens = jwtService.generateTokens(loginDTO.getEmail());
+
         AuthDTO authDTO = modelMapper.map(userOptional.get(), AuthDTO.class);
-        authDTO.setToken(jwtService.generateToken(loginDTO.getEmail()));
-        return new ResponseEntity<>(authDTO, HttpStatus.OK);
+        authDTO.setAccessToken(tokens.get("accessToken"));
+        authDTO.setRefreshToken(tokens.get("refreshToken"));
+        return ResponseEntity.ok(authDTO);
     }
+    @PostMapping("/refresh-token")
+    public ResponseEntity<?> refreshAccessToken(HttpServletRequest request) {
+        String headerAuth = request.getHeader("Authorization");
+        if (headerAuth != null && headerAuth.startsWith("Bearer ")) {
+            String refreshToken = headerAuth.substring(7);
+            try {
+                if (jwtService.validateRefreshToken(refreshToken)) { // Проверка валидности рефреш токена
+                    String userName = jwtService.extractUsername(refreshToken);
+                    // Проверка, что пользователь существует и активен
+                    UserDetails userDetails = userService.loadUserByUsername(userName);
+                    if (userDetails != null && !jwtService.isTokenExpired(refreshToken)) {
+                        String newAccessToken = jwtService.generateTokens(userName).get("accessToken");
+                        Map<String, String> tokens = new HashMap<>();
+                        tokens.put("accessToken", newAccessToken);
+                        tokens.put("refreshToken", refreshToken); // Отправляем тот же рефреш токен обратно
+                        return ResponseEntity.ok(tokens);
+                    }
+                }
+            } catch (Exception e) {
+                throw new BadCredentialsException("Invalid refresh token");
+            }
+        }
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Invalid or expired refresh token");
+    }
+
     @PostMapping("/forgot-password")
     @Operation(summary = "Password recovery", description = "Initiates a password recovery process by sending a reset code to the user's email.")
     @ApiResponse(responseCode = "200", description = "Reset code sent successfully")
     @ApiResponse(responseCode = "404", description = "Email not found")
-    public HttpStatus forgotPassword(@RequestBody EmailDTO emailDTO) {
+    public ResponseEntity<?> forgotPassword(@RequestBody EmailDTO emailDTO) {
         Optional<User> user = userService.getUserByEmail(emailDTO.getEmail());
         if (user.isEmpty()) {
-            throw new UsernameNotFoundException("Email not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Email not found");
         }
 
         String code = generateCode();
@@ -127,36 +149,37 @@ public class AuthController {
 
         emailService.sendEmail(emailDTO.getEmail(), "Turamyzba Reset Password", "Your code is: " + code);
 
-        return HttpStatus.OK;
+        return ResponseEntity.ok("Reset password instructions have been sent to your email.");
     }
     @PostMapping("/verify-password")
     @Operation(summary = "Verify reset code", description = "Verifies the reset code entered by the user.")
     @ApiResponse(responseCode = "200", description = "Reset code verified successfully")
     @ApiResponse(responseCode = "401", description = "Incorrect reset code")
-    public HttpStatus verifyPassword(@RequestBody CodeDTO codeDTO) {
-        Optional<User> admin = userService.getUserByEmail(codeDTO.getEmail());
-        if(!admin.get().getConfirmationCode().equals(codeDTO.getCode())) {
-            throw new BadCredentialsException("Incorrect Code");
+    public ResponseEntity<?> verifyPassword(@RequestBody CodeDTO codeDTO) {
+        Optional<User> user = userService.getUserByEmail(codeDTO.getEmail());
+        if (user.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Email not found");
         }
-        return HttpStatus.OK;
+        if(!user.get().getConfirmationCode().equals(codeDTO.getCode())) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Incorrect Code");
+        }
+        return ResponseEntity.ok("Code is verified!");
     }
 
     @PostMapping("/update-password")
     @Operation(summary = "Update user password", description = "Updates the user's password after verification.")
     @ApiResponse(responseCode = "200", description = "Password updated successfully")
-    public HttpStatus updatePassword(@RequestBody LoginDTO loginDTO) {
+    public ResponseEntity<?> updatePassword(@RequestBody LoginDTO loginDTO) {
         Optional<User> user = userService.getUserByEmail(loginDTO.getEmail());
+        if (user.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Email not found");
+        }
         user.get().setPassword(loginDTO.getPassword());
         userService.updatePassword(user.get());
-        return HttpStatus.OK;
+        return ResponseEntity.ok("Password is updated!");
     }
 
     private String generateCode() {
         return Integer.toString((int)(Math.random() * 9000) + 1000);
     }
-
-    public User convertToUser(UserDTO userDTO) {
-        return modelMapper.map(userDTO, User.class);
-    }
-
 }
