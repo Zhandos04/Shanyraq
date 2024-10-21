@@ -38,12 +38,6 @@ public class UserService implements UserDetailsService {
     }
 
     @Transactional
-    public void save(User user){
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setIsVerified(false);
-        userRepository.save(user);
-    }
-    @Transactional
     public void registerNewUser(UserDTO userDTO) throws UserAlreadyExistsException {
         if (userRepository.existsByEmail(userDTO.getEmail())) {
             throw new UserAlreadyExistsException("A user with that email already exists");
