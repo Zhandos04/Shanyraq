@@ -12,6 +12,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -110,6 +111,14 @@ public class AuthController {
         return ResponseEntity.ok(authDTO);
     }
     @PostMapping("/refresh-token")
+    @Operation(summary = "Refresh Access Token", description = "Refreshes the access token using a valid refresh token.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Access token refreshed successfully"),
+                    @ApiResponse(responseCode = "403", description = "Invalid or expired refresh token"),
+                    @ApiResponse(responseCode = "401", description = "Invalid refresh token")
+            },
+            security = @SecurityRequirement(name = "bearerToken"))
+
     public ResponseEntity<?> refreshAccessToken(HttpServletRequest request) {
         String headerAuth = request.getHeader("Authorization");
         if (headerAuth != null && headerAuth.startsWith("Bearer ")) {
