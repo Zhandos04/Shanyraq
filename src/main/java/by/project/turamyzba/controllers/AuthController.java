@@ -56,7 +56,7 @@ public class AuthController {
 
     @PostMapping( "/signup")
     @Operation(summary = "Register a new user", description = "Registers a new user by checking for existing IDs and phone numbers.")
-    @ApiResponse(responseCode = "202", description = "User registered successfully")
+    @ApiResponse(responseCode = "202", description = "Code sent successfully!")
     @ApiResponse(responseCode = "400", description = "Invalid user data provided", content = @Content)
     public ResponseEntity<String> register(@RequestBody @Valid UserDTO userDTO, BindingResult bindingResult) throws UserAlreadyExistsException {
         if (bindingResult.hasErrors()) {
@@ -66,13 +66,14 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessages);
         }
         userService.registerNewUser(userDTO);
-        return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully");
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body("Code sent successfully!");
     }
 
     @PostMapping("/verify-email")
     @Operation(summary = "Verify Email", description = "Verifies the reset code entered by the user.")
-    @ApiResponse(responseCode = "200", description = "Reset code verified successfully")
-    @ApiResponse(responseCode = "401", description = "Incorrect reset code")
+    @ApiResponse(responseCode = "200", description = "User registered successfully")
+    @ApiResponse(responseCode = "400", description = "Incorrect reset code")
+    @ApiResponse(responseCode = "404", description = "User not found")
     public ResponseEntity<?> verifyEmail(@RequestBody CodeDTO codeDTO) {
         Optional<User> userOptional = userService.getUserByEmail(codeDTO.getEmail());
 
@@ -87,7 +88,7 @@ public class AuthController {
 
         user.setIsVerified(true);
         userService.update(user);
-        return ResponseEntity.ok("Email successfully verified");
+        return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully!");
     }
 
 
