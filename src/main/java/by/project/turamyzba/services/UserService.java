@@ -11,7 +11,7 @@ public interface UserService {
     void registerNewUser(UserDTO userDTO) throws UserAlreadyExistsException;
     void update(User user);
     void updateProfile(User user);
-    void saveUserConfirmationCode(Integer id, String code);
+    void saveUserConfirmationCode(Long id, String code);
     void updatePassword(User user);
     boolean isNickNameTaken(String nickName);
     Optional<User> getUserByEmail(String email);

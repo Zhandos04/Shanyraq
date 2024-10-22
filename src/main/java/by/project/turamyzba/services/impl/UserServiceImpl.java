@@ -67,7 +67,7 @@ public class UserServiceImpl implements UserService {
 
     @Transactional
     @Override
-    public void saveUserConfirmationCode(Integer id, String code) {
+    public void saveUserConfirmationCode(Long id, String code) {
         User user = userRepository.getUserById(id);
         user.setConfirmationCode(code);
         userRepository.save(user);
