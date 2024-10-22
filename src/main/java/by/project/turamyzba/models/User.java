@@ -7,11 +7,13 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 @Entity
-@Table(name = "users")
+@Table(name = "users", schema = "TURAMYZBA")
 @Getter
 @Setter
 public class User implements UserDetails {
@@ -46,6 +48,10 @@ public class User implements UserDetails {
     @Column(name = "is_verified")
     private Boolean isVerified;
 
+
+    private String info;
+    private String gender;
+
     @Override
     public boolean isAccountNonExpired() {
         return true;
@@ -65,6 +71,7 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

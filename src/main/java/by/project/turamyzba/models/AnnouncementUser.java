@@ -5,13 +5,13 @@ import lombok.Data;
 
 @Entity
 @Data
-@Table(name = "announcement_user")
+@Table(name = "announcementuser", schema = "TURAMYZBA")
 public class AnnouncementUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private Long id;
-    @Column(name = "announcement_id")
+    @Column
     private Long announcementId;
     @Column(name = "user_id")
     private Long userId;
@@ -19,9 +19,5 @@ public class AnnouncementUser {
     private Boolean isActive;
     @Column(name = "is_deleted")
     private Boolean isDeleted;
-    @Column(name = "created_at")
-    private Long createdAt;
-    @Column(name = "updated_at")
-    private Long updatedAt;
 
 }
