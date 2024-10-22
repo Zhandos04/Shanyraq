@@ -1,5 +1,7 @@
 package by.project.turamyzba.models;
 
+import by.project.turamyzba.models.usermodelenums.Gender;
+import by.project.turamyzba.models.usermodelenums.Role;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -35,19 +37,31 @@ public class User implements UserDetails {
     @Column(name = "password")
     private String password;
 
-//    @Column(name = "phone_number", unique = true)
-//    private String phoneNumber;
+    @Column(name = "phone_number", unique = true)
+    private String phoneNumber;
 
     @Column(name = "creation_at")
     private Instant createdAt;
 
     @Column(name = "updated_at")
     private Instant updatedAt;
+
     @Column(name = "confirmation_code")
     private String confirmationCode;
 
     @Column(name = "is_verified")
     private Boolean isVerified;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "gender")
+    private Gender gender;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role")
+    private Role role;
+
+    @Column(name = "is_deleted")
+    private Boolean isDeleted;
 
     @Override
     public boolean isAccountNonExpired() {
