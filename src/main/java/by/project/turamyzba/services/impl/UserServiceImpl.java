@@ -1,8 +1,10 @@
-package by.project.turamyzba.services;
+package by.project.turamyzba.services.impl;
 
 import by.project.turamyzba.dto.UserDTO;
 import by.project.turamyzba.models.User;
 import by.project.turamyzba.repositories.UserRepository;
+import by.project.turamyzba.services.EmailService;
+import by.project.turamyzba.services.UserService;
 import by.project.turamyzba.util.UserAlreadyExistsException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
