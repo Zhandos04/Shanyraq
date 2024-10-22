@@ -42,6 +42,9 @@ dependencies {
 	runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-impl', version: '0.11.2'
 	implementation group: 'org.modelmapper', name: 'modelmapper', version: '3.2.1'
 	runtimeOnly group: 'io.jsonwebtoken', name: 'jjwt-jackson', version: '0.11.2'
+	implementation group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.18.0'
+	implementation group: 'com.amazonaws', name: 'aws-java-sdk-s3', version: '1.12.776'
+	implementation group: 'javax.xml.bind', name: 'jaxb-api', version: '2.4.0-b180830.0359'
 	implementation group: 'com.twilio.sdk', name: 'twilio', version: '10.6.1'
 	//implementation 'org.flywaydb:flyway-core:6.4.3'
 }
