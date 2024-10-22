@@ -16,10 +16,10 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(readOnly = true)
 public class ProfileServiceImpl implements ProfileService {
     private final ModelMapper modelMapper;
-    private final UserService userService;
+    private final UserServiceImpl userService;
 
     @Autowired
-    public ProfileServiceImpl(ModelMapper modelMapper, UserService userService) {
+    public ProfileServiceImpl(ModelMapper modelMapper, UserServiceImpl userService) {
         this.modelMapper = modelMapper;
         this.userService = userService;
     }
@@ -62,6 +62,9 @@ public class ProfileServiceImpl implements ProfileService {
         if (fullName.length == 2) {
             user.setFirstName(fullName[0]);
             user.setLastName(fullName[1]);
+        }
+        if (!user.getNickName().equals(profileDTO.getNickName()) && userService.isNickNameTaken(profileDTO.getNickName())) {
+            throw new IllegalArgumentException("Nickname is already taken: " + profileDTO.getNickName());
         }
         user.setNickName(profileDTO.getNickName());
     }
