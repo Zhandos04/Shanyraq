@@ -2,10 +2,10 @@ package by.project.turamyzba.controllers;
 
 import by.project.turamyzba.dto.ProfileDTO;
 import by.project.turamyzba.services.ProfileService;
+import by.project.turamyzba.services.impl.ProfileServiceImpl;
 import by.project.turamyzba.util.IncorrectJSONException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -20,9 +20,9 @@ import java.util.List;
 @Tag(name="Profile", description="Взаймодействие с профильем")
 @CrossOrigin(origins = "*")
 public class ProfileController {
-    private final ProfileService profileService;
+    private final ProfileServiceImpl profileService;
 
-    public ProfileController(ProfileService profileService) {
+    public ProfileController(ProfileServiceImpl profileService) {
         this.profileService = profileService;
     }
 

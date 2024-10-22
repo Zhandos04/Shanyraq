@@ -4,9 +4,8 @@ import by.project.turamyzba.config.CustomAuthenticationProvider;
 import by.project.turamyzba.dto.*;
 import by.project.turamyzba.jwt.JwtService;
 import by.project.turamyzba.models.User;
-import by.project.turamyzba.services.EmailService;
-import by.project.turamyzba.services.UserService;
-import by.project.turamyzba.util.IncorrectJSONException;
+import by.project.turamyzba.services.impl.EmailServiceImpl;
+import by.project.turamyzba.services.impl.UserServiceImpl;
 import by.project.turamyzba.util.UserAlreadyExistsException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -23,13 +22,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -39,14 +35,14 @@ import java.util.stream.Collectors;
 @Tag(name="Auth", description="Взаймодействие с пользователями")
 @CrossOrigin(origins = "*")
 public class AuthController {
-    private final UserService userService;
+    private final UserServiceImpl userService;
     private final JwtService jwtService;
     private final CustomAuthenticationProvider authenticationProvider;
     private final ModelMapper modelMapper;
-    private final EmailService emailService;
+    private final EmailServiceImpl emailService;
 
     @Autowired
-    public AuthController(UserService userService, JwtService jwtService, CustomAuthenticationProvider authenticationProvider, ModelMapper modelMapper, EmailService emailService) {
+    public AuthController(UserServiceImpl userService, JwtService jwtService, CustomAuthenticationProvider authenticationProvider, ModelMapper modelMapper, EmailServiceImpl emailService) {
         this.userService = userService;
         this.jwtService = jwtService;
         this.authenticationProvider = authenticationProvider;
@@ -152,6 +148,9 @@ public class AuthController {
         Optional<User> user = userService.getUserByEmail(emailDTO.getEmail());
         if (user.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Email not found");
+        }
+        if(!user.get().getIsVerified()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("This user is not verified yet");
         }
 
         String code = generateCode();

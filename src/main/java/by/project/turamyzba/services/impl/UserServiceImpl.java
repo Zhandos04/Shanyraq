@@ -3,7 +3,6 @@ package by.project.turamyzba.services.impl;
 import by.project.turamyzba.dto.UserDTO;
 import by.project.turamyzba.models.User;
 import by.project.turamyzba.repositories.UserRepository;
-import by.project.turamyzba.services.EmailService;
 import by.project.turamyzba.services.UserService;
 import by.project.turamyzba.util.UserAlreadyExistsException;
 import org.modelmapper.ModelMapper;
@@ -21,10 +20,10 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final ModelMapper modelMapper;
-    private final EmailService emailService;
+    private final EmailServiceImpl emailService;
 
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, ModelMapper modelMapper, EmailService emailService) {
+    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, ModelMapper modelMapper, EmailServiceImpl emailService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.modelMapper = modelMapper;
@@ -79,6 +78,11 @@ public class UserServiceImpl implements UserService {
     public void updatePassword(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
+    }
+
+    @Override
+    public boolean isNickNameTaken(String nickName) {
+        return userRepository.existsByNickName(nickName);
     }
 
     @Override
