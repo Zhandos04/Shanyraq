@@ -1,22 +1,31 @@
 package by.project.turamyzba.services.impl;
 
 import by.project.turamyzba.dto.requests.AnnouncementRequest;
+import by.project.turamyzba.dto.responses.AnnouncementResponse;
+import by.project.turamyzba.dto.responses.UserResponse;
 import by.project.turamyzba.mappers.AnnouncementMapper;
 import by.project.turamyzba.models.Announcement;
 import by.project.turamyzba.models.Image;
+import by.project.turamyzba.models.User;
 import by.project.turamyzba.repositories.AnnouncementRepository;
 import by.project.turamyzba.services.AnnouncementService;
+import by.project.turamyzba.services.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @Slf4j
+@Transactional
 public class AnnouncementServiceImpl implements AnnouncementService {
     @Autowired
     private RestTemplate restTemplate;
@@ -28,23 +37,63 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     private String apiUrl;
 
     @Autowired
+    private UserService userService;
+
+    @Autowired
+    private ModelMapper modelMapper;
+
+    @Autowired
     private AnnouncementRepository announcementRepository;
 
-    public Announcement createAnnouncement(AnnouncementRequest announcementRequest) {
+    @Transactional
+    public AnnouncementResponse createAnnouncement(AnnouncementRequest announcementRequest) {
         String[] coords = getCoordsFromAddress(announcementRequest.getAddress());
+        //User user = userService.getCurrentUser();
+
+        //log.info("User: {}", user);
 
         Announcement announcement = AnnouncementMapper.toEntity(announcementRequest, coords);
-        List<Image> image = AnnouncementMapper.toImages(announcementRequest.getImageUrls(), announcement);
-        announcement.setPhotos(image);
-        return announcementRepository.save(announcement);
+        List<Image> images = AnnouncementMapper.toImages(announcementRequest.getImageUrls(), announcement);
+        announcement.setPhotos(images);
+        //announcement.setUser(user);
+
+        //UserResponse userResponse = modelMapper.map(user, UserResponse.class);
+
+        Announcement createdAnnouncement = announcementRepository.save(announcement);
+
+        AnnouncementResponse announcementResponse = modelMapper.map(createdAnnouncement, AnnouncementResponse.class);
+        log.info("Created Announcement: {}", announcementResponse);
+        return announcementResponse;
     }
 
-    public Announcement updateAnnouncement(Long id, AnnouncementRequest announcementRequest) {
-        //todo: добавить проверку на аутентификацию пользователя
-
+    @Transactional
+    public AnnouncementResponse updateAnnouncement(Long id, AnnouncementRequest announcementRequest) {
         Announcement announcement = announcementRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Announcement not found"));
+
+        //User user = userService.getCurrentUser();
+
+//        if(announcement.getUser().equals(user)) {
+//            throw new IllegalArgumentException("You can't update this announcement");
+//        }
+
+        if (announcement.getPhotos() != null) {
+            announcement.getPhotos().clear();
+        } else {
+            announcement.setPhotos(new ArrayList<>());
+        }
+
+        if(!announcementRequest.getAddress().equals(announcement.getAddress())) {
+            String[] coords = getCoordsFromAddress(announcementRequest.getAddress());
+            announcement.setCoordsX(coords[0]);
+            announcement.setCoordsY(coords[1]);
+        }
+
         AnnouncementMapper.updateAnnouncementFromRequest(announcement, announcementRequest);
-        return announcementRepository.save(announcement);
+
+        Announcement updatedAnnouncement = announcementRepository.save(announcement);
+        AnnouncementResponse announcementResponse = modelMapper.map(updatedAnnouncement, AnnouncementResponse.class);
+
+        return announcementResponse;
     }
 
     private String[] getCoordsFromAddress(String address) {

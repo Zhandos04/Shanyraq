@@ -4,6 +4,7 @@ import by.project.turamyzba.dto.requests.AnnouncementRequest;
 import by.project.turamyzba.models.Announcement;
 import by.project.turamyzba.models.Image;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +20,9 @@ public class AnnouncementMapper {
                 .startAt(request.getStartAt())
                 .deposit(request.getDeposit())
                 .maxPeople(request.getMaxPeople())
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .isDeleted(false)
                 .selectedGender(request.getSelectedGender())
                 .isCommunalServiceIncluded(request.getIsCommunalServiceIncluded())
                 .roomiePreferences(request.getRoomiePreferences())
@@ -29,7 +33,7 @@ public class AnnouncementMapper {
 
     public static List<Image> toImages(List<String> imageUrls, Announcement announcement) {
         List<Image> images = new ArrayList<>();
-        for (String imageUrl : imageUrls) {
+        if(imageUrls != null) for (String imageUrl : imageUrls) {
             images.add(Image.builder()
                     .url(imageUrl)
                     .announcement(announcement)
@@ -50,6 +54,6 @@ public class AnnouncementMapper {
         announcement.setRoomiePreferences(request.getRoomiePreferences());
         announcement.setMonthlyExpensePerPerson(request.getMonthlyExpensePerPerson());
         List<Image> images = toImages(request.getImageUrls(), announcement);
-        announcement.setPhotos(images);
+        announcement.getPhotos().addAll(images);
     }
 }
