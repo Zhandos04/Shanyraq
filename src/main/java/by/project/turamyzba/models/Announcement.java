@@ -14,7 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "Announcements")
+@Table(name = "announcements")
 @Builder
 public class Announcement {
     @Id
@@ -27,10 +27,11 @@ public class Announcement {
     private String apartmentsInfo;  
     @Column(name = "address")
     private String address;
-    @Column(name = "coords")
-    private String coords
-    //private String coordsX;
-    // private String coordsY;
+    @Column(name = "coordsX")
+    private String coordsX;
+    @Column(name = "coordsY")
+    private String coordsY;
+    @Column(name = "start_at")
     private String startAt;
     @Column(name = "deposit")
     private Integer deposit;
@@ -46,8 +47,11 @@ public class Announcement {
     private Integer MonthlyExpensePerPerson;
     @Column(name = "status")
     private String status;
+    @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
+    @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+    @Column(name = "is_deleted")
     private Boolean isDeleted;
 
     @OneToMany(mappedBy = "announcement", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -56,4 +60,18 @@ public class Announcement {
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
+
+    @PrePersist
+    private void prePersist() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+        if (this.isDeleted == null) {
+            this.isDeleted = false;
+        }
+    }
+
+    @PreUpdate
+    private void preUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
 }

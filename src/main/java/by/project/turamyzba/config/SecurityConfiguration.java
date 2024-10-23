@@ -32,7 +32,6 @@ public class SecurityConfiguration {
                 request.requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/profile/**").permitAll()
                         .requestMatchers("/api-docs").permitAll()
-                        .requestMatchers("/api/**").permitAll()
                         .requestMatchers("/swagger-ui/**").permitAll().anyRequest().authenticated());
         http.sessionManagement(req -> req.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         http.authenticationProvider(customAuthenticationProvider);
