@@ -54,6 +54,5 @@ public class AnnouncementRequest {
     @Positive(message = "Monthly expense per person must be positive")
     private Integer monthlyExpensePerPerson;
 
-    @NotEmpty(message = "Image URLs cannot be empty")
     private List<String> imageUrls;
 }
