@@ -15,4 +15,5 @@ public interface UserService {
     void updatePassword(User user);
     boolean isNickNameTaken(String nickName);
     Optional<User> getUserByEmail(String email);
+    UserDetails getCurrentUser();
 }

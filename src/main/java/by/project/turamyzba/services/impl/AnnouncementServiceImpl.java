@@ -2,12 +2,12 @@ package by.project.turamyzba.services.impl;
 
 import by.project.turamyzba.dto.requests.AnnouncementRequest;
 import by.project.turamyzba.dto.responses.AnnouncementResponse;
-import by.project.turamyzba.dto.responses.UserResponse;
 import by.project.turamyzba.mappers.AnnouncementMapper;
 import by.project.turamyzba.models.Announcement;
 import by.project.turamyzba.models.Image;
 import by.project.turamyzba.models.User;
 import by.project.turamyzba.repositories.AnnouncementRepository;
+import by.project.turamyzba.repositories.UserRepository;
 import by.project.turamyzba.services.AnnouncementService;
 import by.project.turamyzba.services.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,7 +19,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,19 +44,21 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     @Autowired
     private AnnouncementRepository announcementRepository;
 
+    @Autowired
+    private UserRepository userRepository;
+
     @Transactional
     public AnnouncementResponse createAnnouncement(AnnouncementRequest announcementRequest) {
         String[] coords = getCoordsFromAddress(announcementRequest.getAddress());
-        //User user = userService.getCurrentUser();
+        User user =  userRepository.findByEmail(userService.getCurrentUser().getUsername())
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        //log.info("User: {}", user);
+        log.info("User: {}", user);
 
         Announcement announcement = AnnouncementMapper.toEntity(announcementRequest, coords);
         List<Image> images = AnnouncementMapper.toImages(announcementRequest.getImageUrls(), announcement);
         announcement.setPhotos(images);
-        //announcement.setUser(user);
-
-        //UserResponse userResponse = modelMapper.map(user, UserResponse.class);
+        announcement.setUser(user);
 
         Announcement createdAnnouncement = announcementRepository.save(announcement);
 
@@ -70,11 +71,12 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     public AnnouncementResponse updateAnnouncement(Long id, AnnouncementRequest announcementRequest) {
         Announcement announcement = announcementRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Announcement not found"));
 
-        //User user = userService.getCurrentUser();
+        User user =  userRepository.findByEmail(userService.getCurrentUser().getUsername())
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-//        if(announcement.getUser().equals(user)) {
-//            throw new IllegalArgumentException("You can't update this announcement");
-//        }
+        if(!announcement.getUser().equals(user)) {
+            throw new IllegalArgumentException("You can't update this announcement");
+        }
 
         if (announcement.getPhotos() != null) {
             announcement.getPhotos().clear();
