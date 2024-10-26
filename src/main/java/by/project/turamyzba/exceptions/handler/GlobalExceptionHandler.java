@@ -43,6 +43,8 @@ public class GlobalExceptionHandler {
         ex.setStackTrace(stackTraces);
     }
 
+
+    // todo: возвращать в едином формате ErrorDto
     @ExceptionHandler(AnnouncementNotFoundException.class)
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ResponseEntity<String> handleAnnouncementNotFound(AnnouncementNotFoundException ex) {
