@@ -3,10 +3,10 @@ package by.project.turamyzba.controllers;
 import by.project.turamyzba.config.CustomAuthenticationProvider;
 import by.project.turamyzba.dto.*;
 import by.project.turamyzba.jwt.JwtService;
-import by.project.turamyzba.models.User;
+import by.project.turamyzba.entities.User;
 import by.project.turamyzba.services.impl.EmailServiceImpl;
 import by.project.turamyzba.services.impl.UserServiceImpl;
-import by.project.turamyzba.util.UserAlreadyExistsException;
+import by.project.turamyzba.exceptions.UserAlreadyExistsException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -15,6 +15,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -33,7 +34,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/auth")
 @Tag(name="Auth", description="Взаймодействие с пользователями")
-@CrossOrigin(origins = "*")
+@RequiredArgsConstructor
 public class AuthController {
     private final UserServiceImpl userService;
     private final JwtService jwtService;
@@ -41,14 +42,6 @@ public class AuthController {
     private final ModelMapper modelMapper;
     private final EmailServiceImpl emailService;
 
-    @Autowired
-    public AuthController(UserServiceImpl userService, JwtService jwtService, CustomAuthenticationProvider authenticationProvider, ModelMapper modelMapper, EmailServiceImpl emailService) {
-        this.userService = userService;
-        this.jwtService = jwtService;
-        this.authenticationProvider = authenticationProvider;
-        this.modelMapper = modelMapper;
-        this.emailService = emailService;
-    }
 
     @PostMapping( "/signup")
     @Operation(summary = "Register a new user", description = "Registers a new user by checking for existing IDs and phone numbers.")

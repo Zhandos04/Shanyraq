@@ -1,11 +1,9 @@
-package by.project.turamyzba.models;
+package by.project.turamyzba.entities;
 
-import by.project.turamyzba.models.usermodelenums.Gender;
-import by.project.turamyzba.models.usermodelenums.Role;
+import by.project.turamyzba.entities.usermodelenums.Gender;
+import by.project.turamyzba.entities.usermodelenums.Role;
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
