@@ -2,18 +2,17 @@ package by.project.turamyzba.controllers;
 
 import by.project.turamyzba.dto.requests.AnnouncementRequest;
 import by.project.turamyzba.dto.responses.AnnouncementResponse;
-import by.project.turamyzba.models.Announcement;
 import by.project.turamyzba.services.AnnouncementService;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/findroommate")
+@RequestMapping("/findroommate")
+@RequiredArgsConstructor
 public class AnnouncementController {
-    @Autowired
-    private AnnouncementService announcementService;
+    private final AnnouncementService announcementService;
 
     @PostMapping("/create")
     public ResponseEntity<AnnouncementResponse> createAnnouncement(@RequestBody @Valid AnnouncementRequest announcementRequest) {

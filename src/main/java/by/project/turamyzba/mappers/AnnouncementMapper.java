@@ -1,8 +1,8 @@
 package by.project.turamyzba.mappers;
 
 import by.project.turamyzba.dto.requests.AnnouncementRequest;
-import by.project.turamyzba.models.Announcement;
-import by.project.turamyzba.models.Image;
+import by.project.turamyzba.entities.Announcement;
+import by.project.turamyzba.entities.Image;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;

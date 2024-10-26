@@ -1,7 +1,6 @@
 package by.project.turamyzba.dto.responses;
 
-import by.project.turamyzba.models.Image;
-import by.project.turamyzba.models.User;
+import by.project.turamyzba.entities.Image;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

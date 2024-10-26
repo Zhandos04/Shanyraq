@@ -1,4 +1,4 @@
-package by.project.turamyzba.models;
+package by.project.turamyzba.entities;
 
 import jakarta.persistence.*;
 import lombok.Data;

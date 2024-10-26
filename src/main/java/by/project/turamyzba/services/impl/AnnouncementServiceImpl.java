@@ -3,18 +3,18 @@ package by.project.turamyzba.services.impl;
 import by.project.turamyzba.dto.requests.AnnouncementRequest;
 import by.project.turamyzba.dto.responses.AnnouncementResponse;
 import by.project.turamyzba.mappers.AnnouncementMapper;
-import by.project.turamyzba.models.Announcement;
-import by.project.turamyzba.models.Image;
-import by.project.turamyzba.models.User;
+import by.project.turamyzba.entities.Announcement;
+import by.project.turamyzba.entities.Image;
+import by.project.turamyzba.entities.User;
 import by.project.turamyzba.repositories.AnnouncementRepository;
 import by.project.turamyzba.repositories.UserRepository;
 import by.project.turamyzba.services.AnnouncementService;
 import by.project.turamyzba.services.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -25,9 +25,8 @@ import java.util.List;
 @Service
 @Slf4j
 @Transactional
+@RequiredArgsConstructor
 public class AnnouncementServiceImpl implements AnnouncementService {
-    @Autowired
-    private RestTemplate restTemplate;
 
     @Value("${2gis.api.key}")
     private String apiKey;
@@ -35,17 +34,16 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     @Value("${2gis.api.url}")
     private String apiUrl;
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
-    @Autowired
-    private ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
 
-    @Autowired
-    private AnnouncementRepository announcementRepository;
+    private final AnnouncementRepository announcementRepository;
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+
+    private final RestTemplate restTemplate;
+
 
     @Transactional
     public AnnouncementResponse createAnnouncement(AnnouncementRequest announcementRequest) {
