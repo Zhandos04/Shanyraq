@@ -11,6 +11,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class AnnouncementUserService {
+
     private final AnnouncementUserRepository announcementUserRepository;
 
     public List<AnnouncementUser> getUserAnnouncements(Long userId){
