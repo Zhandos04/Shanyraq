@@ -1,7 +1,11 @@
 package by.project.turamyzba.controllers;
 
 import by.project.turamyzba.config.CustomAuthenticationProvider;
-import by.project.turamyzba.dto.*;
+import by.project.turamyzba.dto.requests.CodeDTO;
+import by.project.turamyzba.dto.requests.EmailDTO;
+import by.project.turamyzba.dto.requests.LoginDTO;
+import by.project.turamyzba.dto.requests.UserDTO;
+import by.project.turamyzba.dto.responses.AuthDTO;
 import by.project.turamyzba.jwt.JwtService;
 import by.project.turamyzba.entities.User;
 import by.project.turamyzba.services.impl.EmailServiceImpl;
@@ -17,7 +21,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;

@@ -1,6 +1,6 @@
 package by.project.turamyzba.services.impl;
 
-import by.project.turamyzba.dto.UserDTO;
+import by.project.turamyzba.dto.requests.UserDTO;
 import by.project.turamyzba.entities.User;
 import by.project.turamyzba.repositories.UserRepository;
 import by.project.turamyzba.services.UserService;
