@@ -66,10 +66,10 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>("An unexpected error occurred: " + ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @ExceptionHandler
-    public ResponseEntity<String> handleUserNotFound(UsernameNotFoundException e){
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-    }
+        @ExceptionHandler
+        public ResponseEntity<String> handleUserNotFound(UsernameNotFoundException e){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
 
     @ExceptionHandler
     public ResponseEntity<String> handleUserAlreadyExists(UserAlreadyExistsException e){
