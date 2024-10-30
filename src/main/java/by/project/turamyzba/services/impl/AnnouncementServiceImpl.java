@@ -72,7 +72,7 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     public AnnouncementResponse updateAnnouncement(Long id, AnnouncementRequest announcementRequest) {
         Announcement announcement = announcementRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Announcement not found"));
 
-        User user =  userRepository.findByEmail(userService.getCurrentUser().getUsername())
+        User user = userRepository.findByEmail(userService.getCurrentUser().getUsername())
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         if(!announcement.getUser().equals(user)) {

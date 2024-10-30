@@ -1,11 +1,10 @@
-package by.project.turamyzba.dto;
+package by.project.turamyzba.dto.requests;
 
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
-public class CodeDTO {
+public class EmailDTO {
     private String email;
-    private String code;
 }
