@@ -1,6 +1,6 @@
 package by.project.turamyzba.controllers;
 
-import by.project.turamyzba.dto.ProfileDTO;
+import by.project.turamyzba.dto.requests.ProfileDTO;
 import by.project.turamyzba.services.impl.ProfileServiceImpl;
 import by.project.turamyzba.exceptions.IncorrectJSONException;
 import io.swagger.v3.oas.annotations.Operation;
