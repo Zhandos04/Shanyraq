@@ -1,4 +1,4 @@
-package by.project.turamyzba.dto;
+package by.project.turamyzba.dto.responses;
 
 import lombok.Getter;
 import lombok.Setter;

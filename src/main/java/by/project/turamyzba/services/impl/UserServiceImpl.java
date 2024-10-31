@@ -1,12 +1,12 @@
 package by.project.turamyzba.services.impl;
 
-import by.project.turamyzba.dto.UserDTO;
-import by.project.turamyzba.models.User;
+import by.project.turamyzba.dto.requests.UserDTO;
+import by.project.turamyzba.entities.User;
 import by.project.turamyzba.repositories.UserRepository;
 import by.project.turamyzba.services.UserService;
-import by.project.turamyzba.util.UserAlreadyExistsException;
+import by.project.turamyzba.exceptions.UserAlreadyExistsException;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,6 +17,7 @@ import java.time.Instant;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
@@ -24,13 +25,6 @@ public class UserServiceImpl implements UserService {
     private final ModelMapper modelMapper;
     private final EmailServiceImpl emailService;
 
-    @Autowired
-    public UserServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, ModelMapper modelMapper, EmailServiceImpl emailService) {
-        this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
-        this.modelMapper = modelMapper;
-        this.emailService = emailService;
-    }
 
     @Override
     public UserDetails loadUserByUsername(String username) {

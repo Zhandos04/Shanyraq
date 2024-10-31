@@ -1,4 +1,4 @@
-package by.project.turamyzba.util;
+package by.project.turamyzba.exceptions;
 
 public class IncorrectJSONException extends Exception{
     public IncorrectJSONException(String msg){

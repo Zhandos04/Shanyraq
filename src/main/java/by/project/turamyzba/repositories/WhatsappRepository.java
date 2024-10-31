@@ -1,6 +1,6 @@
 package by.project.turamyzba.repositories;
 
-import by.project.turamyzba.models.Whatsapp;
+import by.project.turamyzba.entities.Whatsapp;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

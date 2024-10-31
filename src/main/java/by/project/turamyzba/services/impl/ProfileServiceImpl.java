@@ -1,7 +1,7 @@
 package by.project.turamyzba.services.impl;
 
-import by.project.turamyzba.dto.ProfileDTO;
-import by.project.turamyzba.models.User;
+import by.project.turamyzba.dto.requests.ProfileDTO;
+import by.project.turamyzba.entities.User;
 import by.project.turamyzba.services.ProfileService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;

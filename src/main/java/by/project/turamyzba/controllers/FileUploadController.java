@@ -2,6 +2,7 @@ package by.project.turamyzba.controllers;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -14,12 +15,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/upload")
-@CrossOrigin(origins = "*")
+@RequestMapping("/upload")
+@RequiredArgsConstructor
 public class FileUploadController {
 
-    @Autowired
-    private AmazonS3 s3client;
+    private final AmazonS3 s3client;
 
     @Value("${aws.s3.bucket}")
     private String bucketName;

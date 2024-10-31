@@ -1,6 +1,7 @@
 package by.project.turamyzba.config;
 
 import by.project.turamyzba.jwt.JwtFilter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,27 +14,38 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @EnableWebSecurity
 @Configuration
+@RequiredArgsConstructor()
 public class SecurityConfiguration {
 
     private final JwtFilter jwtFilter;
     private final CustomAuthenticationProvider customAuthenticationProvider;
 
+    private static final String[] WHITE_LIST_URL = {
+            "/v2/api-docs",
+            "/v3/api-docs",
+            "/v3/api-docs/**",
+            "/swagger-resources",
+            "/swagger-resources/**",
+            "/swagger-ui/**",
+            "/webjars/**",
+            "/swagger-ui.html",
+            "/auth/**",
+            "/actuator/**",
+            "/profile/**",
+    };
 
-    @Autowired
-    public SecurityConfiguration(JwtFilter jwtFilter, CustomAuthenticationProvider customAuthenticationProvider) {
-        this.jwtFilter = jwtFilter;
-        this.customAuthenticationProvider = customAuthenticationProvider;
-    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable);
-        http.authorizeHttpRequests(request ->
-                request.requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/profile/**").permitAll()
-                        .requestMatchers("/api-docs").permitAll()
-                        .requestMatchers("/announcement/**").permitAll()
-                        .requestMatchers("/swagger-ui/**").permitAll().anyRequest().authenticated());
+
+        http.authorizeHttpRequests(auth -> auth
+                .requestMatchers(WHITE_LIST_URL)
+                .permitAll()
+                .anyRequest()
+                .authenticated()
+        );
+
         http.sessionManagement(req -> req.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         http.authenticationProvider(customAuthenticationProvider);
         http.addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
