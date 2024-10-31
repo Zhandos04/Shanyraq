@@ -1,6 +1,5 @@
 package by.project.turamyzba.dto.responses;
 
-import by.project.turamyzba.entities.Image;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -32,6 +31,6 @@ public class AnnouncementResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private Boolean isDeleted;
-    private List<Image> photos;
+    private List<ImageResponse> photos;
     private UserResponse user;
 }
