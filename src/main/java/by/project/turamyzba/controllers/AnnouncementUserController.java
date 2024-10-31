@@ -1,6 +1,6 @@
 package by.project.turamyzba.controllers;
 
-import by.project.turamyzba.models.AnnouncementUser;
+import by.project.turamyzba.entities.AnnouncementUser;
 import by.project.turamyzba.services.AnnouncementUserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
