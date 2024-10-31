@@ -1,6 +1,6 @@
 package by.project.turamyzba.services;
 
-import by.project.turamyzba.models.AnnouncementUser;
+import by.project.turamyzba.entities.AnnouncementUser;
 import by.project.turamyzba.repositories.AnnouncementUserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -28,7 +28,9 @@ public class AnnouncementUserService {
     public AnnouncementUser restoreAnnouncement(Long announcementId){
         AnnouncementUser announcementUser = announcementUserRepository.findById(announcementId)
                 .orElseThrow(() -> new EntityNotFoundException("Обьявление не найдено"));
-        announcementUser.setIsActive(true);
+        if(!announcementUser.getIsDeleted()){
+            announcementUser.setIsActive(true);
+        }
         return announcementUserRepository.save(announcementUser);
     }
 

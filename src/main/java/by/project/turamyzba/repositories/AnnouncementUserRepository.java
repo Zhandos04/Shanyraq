@@ -1,6 +1,6 @@
 package by.project.turamyzba.repositories;
 
-import by.project.turamyzba.models.AnnouncementUser;
+import by.project.turamyzba.entities.AnnouncementUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

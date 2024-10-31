@@ -32,6 +32,7 @@ public class SecurityConfiguration {
             "/auth/**",
             "/actuator/**",
             "/profile/**",
+            "/announcement/**"
     };
 
 
