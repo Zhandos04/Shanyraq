@@ -1,26 +1,26 @@
 package by.project.turamyzba.models;
 
+import by.project.turamyzba.models.usermodelenums.Gender;
+import by.project.turamyzba.models.usermodelenums.Role;
 import jakarta.persistence.*;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.List;
 
 @Entity
-@Table(name = "users", schema = "TURAMYZBA")
-@Getter
-@Setter
+@Table(name = "users")
+@Data
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private int id;
+    private Long id;
 
     @Column(name = "first_name")
     private String firstName;
@@ -28,29 +28,40 @@ public class User implements UserDetails {
     @Column(name = "last_name")
     private String lastName;
 
+    @Column(name = "nick_name", unique = true)
+    private String nickName;
+
     @Column(name = "email", unique = true)
     private String email;
 
     @Column(name = "password")
     private String password;
 
-//    @Column(name = "phone_number", unique = true)
-//    private String phoneNumber;
+    @Column(name = "phone_number", unique = true)
+    private String phoneNumber;
 
     @Column(name = "creation_at")
     private Instant createdAt;
 
     @Column(name = "updated_at")
     private Instant updatedAt;
+
     @Column(name = "confirmation_code")
     private String confirmationCode;
 
     @Column(name = "is_verified")
     private Boolean isVerified;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "gender")
+    private Gender gender;
 
-    private String info;
-    private String gender;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "role")
+    private Role role;
+
+    @Column(name = "is_deleted")
+    private Boolean isDeleted;
 
     @Override
     public boolean isAccountNonExpired() {
@@ -71,7 +82,6 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
-
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
