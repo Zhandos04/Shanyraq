@@ -1,12 +1,13 @@
 package by.project.turamyzba.controllers;
 
-import by.project.turamyzba.dto.ProfileDTO;
+import by.project.turamyzba.dto.requests.ProfileDTO;
 import by.project.turamyzba.services.impl.ProfileServiceImpl;
-import by.project.turamyzba.util.IncorrectJSONException;
+import by.project.turamyzba.exceptions.IncorrectJSONException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
@@ -17,13 +18,9 @@ import java.util.List;
 @RestController
 @RequestMapping("/profile")
 @Tag(name="Profile", description="Взаймодействие с профильем")
-@CrossOrigin(origins = "*")
+@RequiredArgsConstructor
 public class ProfileController {
     private final ProfileServiceImpl profileService;
-
-    public ProfileController(ProfileServiceImpl profileService) {
-        this.profileService = profileService;
-    }
 
     @GetMapping
     @Operation(summary = "Register a new user", description = "Registers a new user by checking for existing IDs and phone numbers.")
@@ -34,6 +31,8 @@ public class ProfileController {
     public ProfileDTO get() {
         return profileService.getUser();
     }
+
+
     @PutMapping("/edit")
     @Operation(summary = "Edit user profile", description = "Updates the user profile based on provided data")
     @ApiResponse(responseCode = "200", description = "Profile updated successfully")

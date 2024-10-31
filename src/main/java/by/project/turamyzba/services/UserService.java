@@ -1,8 +1,8 @@
 package by.project.turamyzba.services;
 
-import by.project.turamyzba.dto.UserDTO;
-import by.project.turamyzba.models.User;
-import by.project.turamyzba.util.UserAlreadyExistsException;
+import by.project.turamyzba.dto.requests.UserDTO;
+import by.project.turamyzba.entities.User;
+import by.project.turamyzba.exceptions.UserAlreadyExistsException;
 import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Optional;
 

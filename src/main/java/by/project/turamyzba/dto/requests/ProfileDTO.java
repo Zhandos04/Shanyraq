@@ -1,4 +1,4 @@
-package by.project.turamyzba.dto;
+package by.project.turamyzba.dto.requests;
 
 import jakarta.validation.constraints.Pattern;
 import lombok.Getter;

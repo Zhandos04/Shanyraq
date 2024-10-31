@@ -1,22 +1,26 @@
 package by.project.turamyzba.services.impl;
 
+import by.project.turamyzba.dto.requests.AnnouncementFilterRequest;
 import by.project.turamyzba.dto.requests.AnnouncementRequest;
 import by.project.turamyzba.dto.responses.AnnouncementResponse;
 import by.project.turamyzba.mappers.AnnouncementMapper;
-import by.project.turamyzba.models.Announcement;
-import by.project.turamyzba.models.Image;
-import by.project.turamyzba.models.User;
+import by.project.turamyzba.entities.Announcement;
+import by.project.turamyzba.entities.Image;
+import by.project.turamyzba.entities.User;
 import by.project.turamyzba.repositories.AnnouncementRepository;
 import by.project.turamyzba.repositories.UserRepository;
 import by.project.turamyzba.services.AnnouncementService;
 import by.project.turamyzba.services.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.transaction.Transactional;
+import jakarta.persistence.criteria.Predicate;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
@@ -24,10 +28,8 @@ import java.util.List;
 
 @Service
 @Slf4j
-@Transactional
+@RequiredArgsConstructor
 public class AnnouncementServiceImpl implements AnnouncementService {
-    @Autowired
-    private RestTemplate restTemplate;
 
     @Value("${2gis.api.key}")
     private String apiKey;
@@ -35,17 +37,16 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     @Value("${2gis.api.url}")
     private String apiUrl;
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
-    @Autowired
-    private ModelMapper modelMapper;
+    private final ModelMapper modelMapper;
 
-    @Autowired
-    private AnnouncementRepository announcementRepository;
+    private final AnnouncementRepository announcementRepository;
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+
+    private final RestTemplate restTemplate;
+
 
     @Transactional
     public AnnouncementResponse createAnnouncement(AnnouncementRequest announcementRequest) {
@@ -71,7 +72,7 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     public AnnouncementResponse updateAnnouncement(Long id, AnnouncementRequest announcementRequest) {
         Announcement announcement = announcementRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Announcement not found"));
 
-        User user =  userRepository.findByEmail(userService.getCurrentUser().getUsername())
+        User user = userRepository.findByEmail(userService.getCurrentUser().getUsername())
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         if(!announcement.getUser().equals(user)) {
@@ -114,5 +115,73 @@ public class AnnouncementServiceImpl implements AnnouncementService {
         return coords;
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public Page<Announcement> getAllRoommateListings(Pageable pageable) {
+        log.info("Getting all roommate listings");
+        return announcementRepository.findAll(pageable);
+    }
+
+    @Override
+    @Transactional
+    public Page<Announcement> searchRoommateListings(String search, Pageable pageable) {
+        log.info("Searching roommate listings by search query: {}", search);
+        return announcementRepository.findByTitleContaining(search, pageable);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Announcement getAnnouncementById(Long id) {
+        log.info("Getting announcement by id: {}", id);
+        return announcementRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Announcement not found"));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Announcement> getFilteredAnnouncements(AnnouncementFilterRequest request) {
+        return announcementRepository.findAll((root, query, criteriaBuilder) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            // Handle null values and add conditions dynamically
+
+            if (request.getAddress() != null && !request.getAddress().isEmpty()) {
+                predicates.add(criteriaBuilder.equal(root.get("address"), request.getAddress()));
+            }
+
+            if (request.getStartAt() != null && !request.getStartAt().isEmpty()) {
+                predicates.add(criteriaBuilder.equal(root.get("startAt"), request.getStartAt()));
+            }
+
+            if (request.getDeposit() != null) {
+                predicates.add(criteriaBuilder.equal(root.get("deposit"), request.getDeposit()));
+            }
+
+            if (request.getSelectedGender() != null && !request.getSelectedGender().isEmpty()) {
+                predicates.add(criteriaBuilder.equal(root.get("selectedGender"), request.getSelectedGender()));
+            }
+
+            if (request.getMonthlyExpensePerPerson() != null) {
+                predicates.add(criteriaBuilder.between(
+                        root.get("monthlyExpensePerPerson"),
+                        request.getMonthlyExpensePerPerson(),
+                        request.getMonthlyExpensePerPerson() // You can add a range here if necessary
+                ));
+            }
+
+            if (request.getIsLongTerm() != null) {
+                predicates.add(criteriaBuilder.equal(root.get("isLongTerm"), request.getIsLongTerm()));
+            }
+
+            if (request.getIsStudent() != null) {
+                predicates.add(criteriaBuilder.equal(root.get("isStudent"), request.getIsStudent()));
+            }
+
+            if (request.getAgeRange() != null) {
+                predicates.add(criteriaBuilder.equal(root.get("ageRange"), request.getAgeRange()));
+            }
+
+            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+        });
+    }
  }
 
