@@ -1,5 +1,6 @@
 package by.project.turamyzba.dto;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,14 +14,12 @@ public class UserDTO {
     @Pattern(regexp = "^[A-Z][a-z]*$", message = "LastName должно начинаться с заглавной буквы и содержать только маленькие буквы после первой")
     private String lastName;
 
-    @Pattern(regexp = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$", message = "Неверный формат email")
+    @Email(message = "Неверный формат email")
     private String email;
 
-    @Pattern(regexp = "^(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&_#])(?=.*[a-z])[A-Za-z\\d@$!%*?&_#]{8,}$",
-            message = "password")
-    private String password;
+    private String nickName;
 
-//    @Pattern(regexp = "^((\\+7)\\d{10})$",
-//            message = "phoneNumber")
-//    private String phoneNumber;
+    @Pattern(regexp = "^(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&_#])(?=.*[a-z])[A-Za-z\\d@$!%*?&_#]{8,}$",
+            message = "Password должен содержать как минимум одну заглавную букву, один чисел, и один символ. И должен быть длиной как минимум 8.")
+    private String password;
 }

@@ -25,25 +25,33 @@ public class JwtFilter extends OncePerRequestFilter {
         this.jwtService = jwtService;
         this.userService = userService;
     }
-
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String authHeader = request.getHeader("Authorization");
-        String token;
-        String username;
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            token = authHeader.substring(7);
-            username = jwtService.extractUsername(token);
-            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                UserDetails userDetails = userService.loadUserByUsername(username);
-                if (jwtService.validateToken(token, userDetails)) {
-                    UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                    authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                    SecurityContextHolder.getContext().setAuthentication(authToken);
+            String token = authHeader.substring(7);
+            try {
+                // Извлекаем имя пользователя, используя токен
+                String username = jwtService.extractUsername(token);
+                if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                    // Загружаем userDetails для дальнейшей валидации
+                    UserDetails userDetails = userService.loadUserByUsername(username);
+                    // Проверяем валидность токена
+                    if (jwtService.validateToken(token, userDetails)) {
+                        // Только если токен валиден, устанавливаем аутентификацию в контекст
+                        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                        authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                        SecurityContextHolder.getContext().setAuthentication(authToken);
+                    }
                 }
+            } catch (Exception e) {
+                // Логирование ошибки или дальнейшие действия, например, установка статуса ответа
+                // Например, если токен истек или неверен
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                return;
             }
-
         }
-        filterChain.doFilter(request, response);
+        filterChain.    doFilter(request, response);
     }
+
 }
