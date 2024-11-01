@@ -31,6 +31,7 @@ public class AnnouncementResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private Boolean isDeleted;
+    private Boolean isArchived;
     private List<ImageResponse> photos;
     private UserResponse user;
 }

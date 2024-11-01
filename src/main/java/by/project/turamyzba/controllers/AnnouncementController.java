@@ -4,11 +4,13 @@ import by.project.turamyzba.dto.requests.AnnouncementFilterRequest;
 import by.project.turamyzba.dto.requests.AnnouncementRequest;
 import by.project.turamyzba.dto.responses.AnnouncementResponse;
 import by.project.turamyzba.entities.Announcement;
+import by.project.turamyzba.entities.AnnouncementUser;
 import by.project.turamyzba.services.AnnouncementService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,12 +21,15 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/findroommate")
 @RequiredArgsConstructor
 public class AnnouncementController {
     private final AnnouncementService announcementService;
+
+    private ModelMapper modelMapper = new ModelMapper();
 
     @PostMapping("/create")
     @Operation(summary = "Create a new announcement", description = "Creates a new announcement with provided parameters.")
@@ -72,13 +77,42 @@ public class AnnouncementController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getAnnouncementById(@PathVariable Long id) {
-        Announcement announcement = announcementService.getAnnouncementById(id);
-        return ResponseEntity.ok(announcement);
+        AnnouncementResponse announcementResponse = modelMapper.map(announcementService.getAnnouncementById(id), AnnouncementResponse.class);
+        return ResponseEntity.ok(announcementResponse);
     }
 
     @GetMapping("/search")
     public ResponseEntity<?> getFilteredAnnouncements(@RequestBody AnnouncementFilterRequest request) {
-        List<Announcement> announcements = announcementService.getFilteredAnnouncements(request);
-        return ResponseEntity.ok(announcements);
+        List<AnnouncementResponse> announcementResponses = announcementService.getFilteredAnnouncements(request).stream()
+                .map(announcement -> modelMapper.map(announcement, AnnouncementResponse.class))
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(announcementResponses);
+    }
+
+    @Operation(summary = "Получение объявлений пользователя", description = "Получение всех объявлений пользователя")
+    @GetMapping("/my-announcement")
+    public ResponseEntity<List<AnnouncementResponse>> getMyAnnouncement(@RequestParam Long id){
+        List<AnnouncementResponse> announcementResponses = announcementService.getUserAnnouncements(id).stream()
+                .map(announcement -> modelMapper.map(announcement, AnnouncementResponse.class))
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(announcementResponses);
+    }
+
+    @Operation(summary = "Архивация объявления", description = "Пользователь архивирует объявление")
+    @PostMapping("/archive-announcement/{id}")
+    public ResponseEntity<?> archiveAnnouncement(@PathVariable Long id){
+        return ResponseEntity.ok(announcementService.archiveAnnouncement(id));
+    }
+
+    @Operation(summary = "Возвращает объявление в топ", description = "Пользователь возвращает объявление в топ")
+    @PostMapping("/restore-announcement/{id}")
+    public ResponseEntity<?> restoreAnnouncement(@PathVariable Long id){
+        return ResponseEntity.ok(announcementService.restoreAnnouncement(id));
+    }
+
+    @Operation(summary = "Удаление объявление с архива", description = "Пользователь удаляет архивиронное объявление")
+    @DeleteMapping("/delete-announcement/{id}")
+    public void deleteAnnouncement(@PathVariable Long id){
+        announcementService.deleteAnnouncement(id);
     }
 }
