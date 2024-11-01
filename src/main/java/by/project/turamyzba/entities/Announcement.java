@@ -24,7 +24,7 @@ public class Announcement {
     @Column(name = "title", nullable = false)
     private String title;
     @Column(name = "apartments_info")
-    private String apartmentsInfo;  
+    private String apartmentsInfo;
     @Column(name = "address")
     private String address;
     @Column(name = "coordsX")
@@ -53,13 +53,18 @@ public class Announcement {
     private LocalDateTime updatedAt;
     @Column(name = "is_deleted")
     private Boolean isDeleted;
+    @Column(name = "is_archived")
+    private Boolean isArchived;
 
     @OneToMany(mappedBy = "announcement", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Image> photos;
-  
+
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
+
+    @OneToMany(mappedBy = "announcement", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<AnnouncementUser> announcementUsers;
 
     @PrePersist
     private void prePersist() {

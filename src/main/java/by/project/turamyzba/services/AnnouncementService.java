@@ -5,6 +5,7 @@ import by.project.turamyzba.dto.requests.AnnouncementFilterRequest;
 import by.project.turamyzba.dto.requests.AnnouncementRequest;
 import by.project.turamyzba.dto.responses.AnnouncementResponse;
 import by.project.turamyzba.entities.Announcement;
+import by.project.turamyzba.entities.AnnouncementUser;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -21,4 +22,12 @@ public interface AnnouncementService {
     Announcement getAnnouncementById(Long id);
 
     List<Announcement> getFilteredAnnouncements(AnnouncementFilterRequest request);
+
+    List<Announcement> getUserAnnouncements(Long userId);
+
+    AnnouncementResponse archiveAnnouncement(Long announcementId);
+
+    AnnouncementResponse restoreAnnouncement(Long announcementId);
+
+    void deleteAnnouncement(Long announcementId);
 }

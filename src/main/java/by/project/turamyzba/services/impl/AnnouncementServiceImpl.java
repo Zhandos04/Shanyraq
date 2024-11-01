@@ -3,6 +3,7 @@ package by.project.turamyzba.services.impl;
 import by.project.turamyzba.dto.requests.AnnouncementFilterRequest;
 import by.project.turamyzba.dto.requests.AnnouncementRequest;
 import by.project.turamyzba.dto.responses.AnnouncementResponse;
+import by.project.turamyzba.entities.AnnouncementUser;
 import by.project.turamyzba.mappers.AnnouncementMapper;
 import by.project.turamyzba.entities.Announcement;
 import by.project.turamyzba.entities.Image;
@@ -12,6 +13,7 @@ import by.project.turamyzba.repositories.UserRepository;
 import by.project.turamyzba.services.AnnouncementService;
 import by.project.turamyzba.services.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -183,5 +185,42 @@ public class AnnouncementServiceImpl implements AnnouncementService {
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         });
     }
- }
+
+    public List<Announcement> getUserAnnouncements(Long userId){
+        return announcementRepository.findByUserId(userId);
+    }
+
+    public AnnouncementResponse archiveAnnouncement(Long announcementId){
+        Announcement announcement = announcementRepository.findById(announcementId)
+                .orElseThrow(() -> new EntityNotFoundException("Обьявление не найдено"));
+        announcement.setIsArchived(true);
+
+        Announcement archivedAnnouncement = announcementRepository.save(announcement);
+        AnnouncementResponse announcementResponse = modelMapper.map(archivedAnnouncement, AnnouncementResponse.class);
+
+        return announcementResponse;
+    }
+
+    public AnnouncementResponse restoreAnnouncement(Long announcementId){
+        Announcement announcement = announcementRepository.findById(announcementId)
+                .orElseThrow(() -> new EntityNotFoundException("Обьявление не найдено"));
+        if(!announcement.getIsDeleted()){
+            announcement.setIsArchived(false);
+        }
+
+        Announcement archivedAnnouncement = announcementRepository.save(announcement);
+        AnnouncementResponse announcementResponse = modelMapper.map(archivedAnnouncement, AnnouncementResponse.class);
+
+        return announcementResponse;
+    }
+
+    public void deleteAnnouncement(Long announcementId){
+        Announcement announcement = announcementRepository.findById(announcementId)
+                .orElseThrow(() -> new EntityNotFoundException("Обьявление не найдено"));
+        if(!announcement.getIsArchived()) {
+            announcement.setIsDeleted(true);
+        }
+        announcementRepository.save(announcement);
+    }
+}
 

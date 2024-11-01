@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -60,6 +61,9 @@ public class User implements UserDetails {
 
     @Column(name = "is_deleted")
     private Boolean isDeleted;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<AnnouncementUser> announcementUsers;
 
     @Override
     public boolean isAccountNonExpired() {

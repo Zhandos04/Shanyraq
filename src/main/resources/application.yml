@@ -4,10 +4,9 @@ spring:
 
   datasource:
     driverClassName: org.postgresql.Driver
-    url: jdbc:postgresql://localhost:5432/turamyzba
-    username: postgres
-    password: Codemedy175A369_
-
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/turamyzba}
+    username: ${DATABASE_USERNAME:test}
+    password: ${DATABASE_PASSWORD:12345678}
   jpa:
     properties:
       hibernate:
