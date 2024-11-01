@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 public class AnnouncementController {
     private final AnnouncementService announcementService;
 
-    private ModelMapper modelMapper = new ModelMapper();
+    private final ModelMapper modelMapper = new ModelMapper();
 
     @PostMapping("/create")
     @Operation(summary = "Create a new announcement", description = "Creates a new announcement with provided parameters.")
@@ -51,7 +51,7 @@ public class AnnouncementController {
         return ResponseEntity.ok(announcementResponse);
     }
 
-    @GetMapping("/findroommates")
+    @GetMapping("/all")
     public ResponseEntity<?> findRoommates(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "40") int limit,
@@ -66,11 +66,15 @@ public class AnnouncementController {
             roommatePage = announcementService.getAllRoommateListings(pageable);
         }
 
+        List<AnnouncementResponse> announcementResponses = roommatePage.getContent().stream()
+                .map(announcement -> modelMapper.map(announcement, AnnouncementResponse.class))
+                .collect(Collectors.toList());
+
         Map<String, Object> response = new HashMap<>();
         response.put("total", roommatePage.getTotalElements());
         response.put("page", page);
         response.put("limit", limit);
-        response.put("data", roommatePage.getContent());
+        response.put("data", announcementResponses);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
