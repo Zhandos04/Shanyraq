@@ -1,12 +1,12 @@
 spring:
   application:
-    name: Turamyzba
+    name: Shanyraq
 
   datasource:
     driverClassName: org.postgresql.Driver
-    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/turamyzba}
-    username: ${DATABASE_USERNAME:test}
-    password: ${DATABASE_PASSWORD:12345678}
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5433/Turamyzba}
+    username: ${DATABASE_USERNAME:postgres}
+    password: ${DATABASE_PASSWORD:zhandos04}
   jpa:
     properties:
       hibernate:
@@ -40,15 +40,15 @@ spring:
 
 2gis:
   api:
-    key: ${2GIS_API_KEY}
+    key: ${2GIS_API_KEY:c7835904-39d4-4503-b8eb-916f4011d2fa}
     url: https://catalog.api.2gis.com/3.0/items
 
 aws:
-  accessKey: ${AWS_ACCESS_KEY_ID}
-  secretKey: ${AWS_SECRET_ACCESS_KEY}
+  accessKey: ${AWS_ACCESS_KEY_ID:AKIAU6GDZF7KB27CUXDX}
+  secretKey: ${AWS_SECRET_ACCESS_KEY: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}
   s3:
-    region: ${AWS_REGION}
-    bucket: ${S3_BUCKET_NAME}
+    region: ${AWS_REGION:eu-north-1}
+    bucket: ${S3_BUCKET_NAME:findroommate}
 
 jwt:
   secret: f20be2a4a63bb8c9f2b5ecbed7f0971a96d66e30f3f7c76b56a6e0361ea8e76a

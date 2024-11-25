@@ -5,7 +5,6 @@ import by.project.turamyzba.dto.requests.AnnouncementFilterRequest;
 import by.project.turamyzba.dto.requests.AnnouncementRequest;
 import by.project.turamyzba.dto.responses.AnnouncementResponse;
 import by.project.turamyzba.entities.Announcement;
-import by.project.turamyzba.entities.AnnouncementUser;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

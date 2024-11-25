@@ -1,13 +1,13 @@
 package by.project.turamyzba.controllers;
 
 import by.project.turamyzba.config.CustomAuthenticationProvider;
-import by.project.turamyzba.dto.requests.CodeDTO;
-import by.project.turamyzba.dto.requests.EmailDTO;
-import by.project.turamyzba.dto.requests.LoginDTO;
-import by.project.turamyzba.dto.requests.UserDTO;
+import by.project.turamyzba.dto.requests.*;
 import by.project.turamyzba.dto.responses.AuthDTO;
 import by.project.turamyzba.jwt.JwtService;
 import by.project.turamyzba.entities.User;
+import by.project.turamyzba.services.EmailService;
+import by.project.turamyzba.services.TokenBlacklistService;
+import by.project.turamyzba.services.UserService;
 import by.project.turamyzba.services.impl.EmailServiceImpl;
 import by.project.turamyzba.services.impl.UserServiceImpl;
 import by.project.turamyzba.exceptions.UserAlreadyExistsException;
@@ -29,6 +29,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -39,11 +40,12 @@ import java.util.stream.Collectors;
 @Tag(name="Auth", description="Взаймодействие с пользователями")
 @RequiredArgsConstructor
 public class AuthController {
-    private final UserServiceImpl userService;
+    private final UserService userService;
     private final JwtService jwtService;
     private final CustomAuthenticationProvider authenticationProvider;
     private final ModelMapper modelMapper;
-    private final EmailServiceImpl emailService;
+    private final EmailService emailService;
+    private final TokenBlacklistService tokenBlacklistService;
 
 
     @PostMapping( "/signup")
@@ -92,16 +94,34 @@ public class AuthController {
         Optional<User> userOptional = userService.getUserByEmail(loginDTO.getEmail());
         if (userOptional.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Incorrect email or password");
-        } else if (!userOptional.get().getIsVerified()) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("This user is not verified yet");
         }
         authenticationProvider.authenticate(new UsernamePasswordAuthenticationToken(userOptional.get().getEmail(), loginDTO.getPassword()));
+        if (!userOptional.get().getIsVerified()) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("This user is not verified yet");
+        }
         Map<String, String> tokens = jwtService.generateTokens(loginDTO.getEmail());
 
         AuthDTO authDTO = modelMapper.map(userOptional.get(), AuthDTO.class);
         authDTO.setAccessToken(tokens.get("accessToken"));
         authDTO.setRefreshToken(tokens.get("refreshToken"));
         return ResponseEntity.ok(authDTO);
+    }
+    @PostMapping("/logout")
+    @Operation(summary = "User logout.")
+    public ResponseEntity<?> logout(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            String token = authHeader.substring(7);
+
+            // Извлекаем дату истечения токена
+            Date expirationTime = jwtService.extractExpiration(token);
+
+            // Добавляем токен в черный список
+            tokenBlacklistService.addTokenToBlacklist(token, expirationTime);
+
+            return ResponseEntity.ok("Logged out successfully");
+        }
+        return ResponseEntity.badRequest().body("Invalid token");
     }
     @PostMapping("/refresh-token")
     @Operation(summary = "Refresh Access Token", description = "Refreshes the access token using a valid refresh token.",
@@ -152,11 +172,11 @@ public class AuthController {
         String code = generateCode();
         userService.saveUserConfirmationCode(user.get().getId(), code);
 
-        emailService.sendEmail(emailDTO.getEmail(), "Turamyzba Reset Password", "Your code is: " + code);
+        emailService.sendEmail(emailDTO.getEmail(), "Shanyraq Reset Password", "Your code is: " + code);
 
         return ResponseEntity.ok("Reset password instructions have been sent to your email.");
     }
-    @PostMapping("/verify-password")
+    @PostMapping("/verify-code")
     @Operation(summary = "Verify reset code", description = "Verifies the reset code entered by the user.")
     @ApiResponse(responseCode = "200", description = "Reset code verified successfully")
     @ApiResponse(responseCode = "401", description = "Incorrect reset code")
@@ -174,17 +194,23 @@ public class AuthController {
     @PostMapping("/update-password")
     @Operation(summary = "Update user password", description = "Updates the user's password after verification.")
     @ApiResponse(responseCode = "200", description = "Password updated successfully")
-    public ResponseEntity<?> updatePassword(@RequestBody LoginDTO loginDTO) {
-        Optional<User> user = userService.getUserByEmail(loginDTO.getEmail());
+    public ResponseEntity<?> updatePassword(@RequestBody @Valid UpdatePasswordDTO updatePasswordDTO, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            String errorMessages = bindingResult.getFieldErrors().stream()
+                    .map(error -> error.getField() + ": " + error.getDefaultMessage())
+                    .collect(Collectors.joining("; "));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessages);
+        }
+        Optional<User> user = userService.getUserByEmail(updatePasswordDTO.getEmail());
         if (user.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Email not found");
         }
-        user.get().setPassword(loginDTO.getPassword());
+        user.get().setPassword(updatePasswordDTO.getPassword());
         userService.updatePassword(user.get());
         return ResponseEntity.ok("Password is updated!");
     }
 
     private String generateCode() {
-        return Integer.toString((int)(Math.random() * 9000) + 1000);
+        return Integer.toString((int)(Math.random() * 900000) + 100000);
     }
 }
