@@ -2,6 +2,7 @@ package by.project.turamyzba.services.impl;
 
 import by.project.turamyzba.dto.requests.UserDTO;
 import by.project.turamyzba.entities.User;
+import by.project.turamyzba.entities.usermodelenums.Role;
 import by.project.turamyzba.repositories.UserRepository;
 import by.project.turamyzba.services.UserService;
 import by.project.turamyzba.exceptions.UserAlreadyExistsException;
@@ -10,6 +11,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -100,5 +102,18 @@ public class UserServiceImpl implements UserService {
         }
 
         return null;
+    }
+
+    @Override
+    @Transactional
+    public void chooseRole(String role) {
+        User user = getUserByEmail(getCurrentUser().getUsername())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        if(role.equals("Я хозяин")) {
+            user.setRole(Role.ROLE_OWNER);
+        }else {
+            user.setRole(Role.ROLE_RESIDENT);
+        }
+        userRepository.save(user);
     }
 }

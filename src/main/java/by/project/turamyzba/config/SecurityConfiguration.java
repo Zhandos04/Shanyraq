@@ -2,7 +2,6 @@ package by.project.turamyzba.config;
 
 import by.project.turamyzba.jwt.JwtFilter;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -32,7 +31,6 @@ public class SecurityConfiguration {
             "/swagger-ui.html",
             "/auth/**",
             "/actuator/**",
-            "/profile/**",
             "/announcement/**"
     };
 
@@ -43,10 +41,8 @@ public class SecurityConfiguration {
                 .cors(Customizer.withDefaults());
 
         http.authorizeHttpRequests(auth -> auth
-                .requestMatchers(WHITE_LIST_URL)
-                .permitAll()
-                .anyRequest()
-                .authenticated()
+                .requestMatchers(WHITE_LIST_URL).permitAll()
+                .anyRequest().authenticated()
         );
 
         http.sessionManagement(req -> req.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.time.LocalDate;
 
 @Service
@@ -54,5 +55,6 @@ public class ProfileServiceImpl implements ProfileService {
         user.setFirstName(profileDTO.getFirstName());
         user.setLastName(profileDTO.getLastName());
         user.setPhoneNumber(profileDTO.getPhoneNumber());
+        user.setUpdatedAt(Instant.now());
     }
 }
