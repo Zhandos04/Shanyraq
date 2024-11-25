@@ -25,7 +25,7 @@ public class ProfileServiceImpl implements ProfileService {
 
     @Override
     public ProfileDTO getUser() {
-        String email = getEmail();
+        String email = userService.getCurrentUser().getUsername();
         User user = userService.getUserByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
         return convertToProfileDTO(user);
@@ -34,20 +34,11 @@ public class ProfileServiceImpl implements ProfileService {
     @Override
     @Transactional
     public void editProfile(ProfileDTO profileDTO) {
-        String email = getEmail();
+        String email = userService.getCurrentUser().getUsername();
         User updatedUser = userService.getUserByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
         updateUserData(updatedUser, profileDTO);
         userService.updateProfile(updatedUser);
-    }
-
-    private String getEmail() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.getPrincipal() instanceof UserDetails) {
-            UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-            return userDetails.getUsername();
-        }
-        return null;
     }
 
     private ProfileDTO convertToProfileDTO(User user) {
@@ -62,9 +53,5 @@ public class ProfileServiceImpl implements ProfileService {
             user.setFirstName(fullName[0]);
             user.setLastName(fullName[1]);
         }
-        if (!user.getNickName().equals(profileDTO.getNickName()) && userService.isNickNameTaken(profileDTO.getNickName())) {
-            throw new IllegalArgumentException("Nickname is already taken: " + profileDTO.getNickName());
-        }
-        user.setNickName(profileDTO.getNickName());
     }
 }

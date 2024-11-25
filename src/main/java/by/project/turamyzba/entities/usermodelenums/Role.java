@@ -1,4 +1,4 @@
 package by.project.turamyzba.entities.usermodelenums;
 public enum Role {
-    ADMIN, USER
+    ROLE_ADMIN, ROLE_USER
 }

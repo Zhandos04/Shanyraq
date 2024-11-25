@@ -44,7 +44,7 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
         String code = generateCode();
         saveUserConfirmationCode(user.getId(), code);
-        emailService.sendEmail(userDTO.getEmail(), "Turamyzba Verity Email", "Your code is: " + code);
+        emailService.sendEmail(userDTO.getEmail(), "Shanyraq Verity Email", "Your code is: " + code);
     }
 
     @Transactional
@@ -77,11 +77,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean isNickNameTaken(String nickName) {
-        return userRepository.existsByNickName(nickName);
-    }
-
-    @Override
     public Optional<User> getUserByEmail(String email) {
         return userRepository.findByEmail(email);
     }
@@ -91,7 +86,7 @@ public class UserServiceImpl implements UserService {
     }
 
     private String generateCode() {
-        return Integer.toString((int)(Math.random() * 9000) + 1000);
+        return Integer.toString((int)(Math.random() * 900000) + 100000);
     }
 
     public UserDetails getCurrentUser() {
