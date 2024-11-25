@@ -17,7 +17,6 @@ public class AnnouncementMapper {
                 .address(request.getAddress())
                 .coordsX(coords[0])
                 .coordsY(coords[1])
-                .startAt(request.getStartAt())
                 .deposit(request.getDeposit())
                 .maxPeople(request.getMaxPeople())
                 .createdAt(LocalDateTime.now())
@@ -25,9 +24,6 @@ public class AnnouncementMapper {
                 .isDeleted(false)
                 .selectedGender(request.getSelectedGender())
                 .isCommunalServiceIncluded(request.getIsCommunalServiceIncluded())
-                .roomiePreferences(request.getRoomiePreferences())
-                .MonthlyExpensePerPerson(request.getMonthlyExpensePerPerson())
-                .status("ACTIVE")
                 .build();
     }
 
@@ -46,13 +42,10 @@ public class AnnouncementMapper {
         announcement.setTitle(request.getTitle());
         announcement.setApartmentsInfo(request.getApartmentsInfo());
         announcement.setAddress(request.getAddress());
-        announcement.setStartAt(request.getStartAt());
         announcement.setDeposit(request.getDeposit());
         announcement.setMaxPeople(request.getMaxPeople());
         announcement.setSelectedGender(request.getSelectedGender());
         announcement.setIsCommunalServiceIncluded(request.getIsCommunalServiceIncluded());
-        announcement.setRoomiePreferences(request.getRoomiePreferences());
-        announcement.setMonthlyExpensePerPerson(request.getMonthlyExpensePerPerson());
         List<Image> images = toImages(request.getImageUrls(), announcement);
         announcement.getPhotos().addAll(images);
     }

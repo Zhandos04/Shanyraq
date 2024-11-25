@@ -1,6 +1,7 @@
 package by.project.turamyzba.controllers;
 
 import by.project.turamyzba.dto.requests.ProfileDTO;
+import by.project.turamyzba.services.UserService;
 import by.project.turamyzba.services.impl.ProfileServiceImpl;
 import by.project.turamyzba.exceptions.IncorrectJSONException;
 import io.swagger.v3.oas.annotations.Operation;
@@ -9,6 +10,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +23,13 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ProfileController {
     private final ProfileServiceImpl profileService;
+    private final UserService userService;
 
+    @PostMapping("/role")
+    public ResponseEntity<?> chooseRole(@RequestParam String role) {
+        userService.chooseRole(role);
+        return ResponseEntity.ok("Role is choosen!");
+    }
     @GetMapping
     @Operation(summary = "Register a new user", description = "Registers a new user by checking for existing IDs and phone numbers.")
     @ApiResponse(responseCode = "200", description = "Successfully retrieved profile")

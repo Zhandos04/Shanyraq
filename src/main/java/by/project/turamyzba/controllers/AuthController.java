@@ -209,7 +209,6 @@ public class AuthController {
         userService.updatePassword(user.get());
         return ResponseEntity.ok("Password is updated!");
     }
-
     private String generateCode() {
         return Integer.toString((int)(Math.random() * 900000) + 100000);
     }

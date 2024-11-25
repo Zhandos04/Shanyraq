@@ -65,7 +65,8 @@ public class JwtFilter extends OncePerRequestFilter {
                     // Проверяем валидность токена
                     if (jwtService.validateToken(token, userDetails)) {
                         // Только если токен валиден, устанавливаем аутентификацию в контекст
-                        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
+                                userDetails, null, userDetails.getAuthorities());
                         authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                         SecurityContextHolder.getContext().setAuthentication(authToken);
                     }
