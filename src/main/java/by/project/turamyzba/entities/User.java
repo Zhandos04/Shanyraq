@@ -8,6 +8,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -35,6 +36,9 @@ public class User implements UserDetails {
 
     @Column(name = "phone_number", unique = true)
     private String phoneNumber;
+
+    @Column(name = "birth_date")
+    private LocalDate birthDate;
 
     @Column(name = "creation_at")
     private Instant createdAt;
