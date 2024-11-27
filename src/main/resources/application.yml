@@ -40,7 +40,7 @@ spring:
 
 2gis:
   api:
-    key: ${2GIS_API_KEY:c7835904-39d4-4503-b8eb-916f4011d2fa}
+    key: ${2GIS_API_KEY:d419b4a6-8b9a-4a5c-9a69-ca5946b1bb76}
     url: https://catalog.api.2gis.com/3.0/items
 
 aws:

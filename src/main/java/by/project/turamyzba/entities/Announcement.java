@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 @Data
 @AllArgsConstructor
@@ -25,36 +26,83 @@ public class Announcement {
     private String title;
     @Column(name = "selected_gender")
     private String selectedGender;
-    @Column(name = "apartments_info")
-    private String apartmentsInfo;
-    @Column(name = "max_people")
-    private Integer maxPeople;
-    @Column(name = "number_of_rooms_in_the_apartment")
-    private Integer numberOfRoomsInTheApartment;
+    @Column(name = "do_you_in_this_house")
+    private Boolean doYouLiveInThisHouse;
+    @Column(name = "how_many_people_live_in_this_apartment?")
+    private String howManyPeopleLiveInThisApartment;
+    @Column(name = "number_of_people_are_you_accommodating")
+    private Integer numberOfPeopleAreYouAccommodating;
     @Column(name = "min_age")
     private Integer minAge;
     @Column(name = "max_age")
     private Integer maxAge;
+    @Column(name = "region")
+    private String region;
+    @Column(name = "district")
+    private String district;
+    @Column(name = "micro_district")
+    private String microDistrict;
     @Column(name = "address")
     private String address;
-    @Column(name = "coordsX")
-    private String coordsX;
-    @Column(name = "coordsY")
-    private String coordsY;
     @Column(name = "arrive_data")
     private LocalDate arriveDate;
     @Column(name = "cost")
     private Integer cost;
+    @Column(name = "quantity_of_rooms")
+    private String quantityOfRooms;
     @Column(name = "is_deposit_required")
     private Boolean isDepositRequired;
     @Column(name = "deposit")
     private Integer deposit;
-    @Column(name = "is_communal_service_include")
-    private Boolean isCommunalServiceIncluded;
     @Column(name = "are_pets_allowed")
     private Boolean arePetsAllowed;
+    @Column(name = "is_communal_service_include")
+    private Boolean isCommunalServiceIncluded;
+    @Column(name = "min_amount_of_communal_service")
+    private Integer minAmountOfCommunalService;
+    @Column(name = "max_amount_of_communal_service")
+    private Integer maxAmountOfCommunalService;
     @Column(name = "intended_for_students")
     private Boolean intendedForStudents;
+    @Column(name = "are_bad_habits_allowed")
+    private Boolean areBadHabitsAllowed;
+    @Column(name = "apartments_info")
+    private String apartmentsInfo;
+    @OneToMany(mappedBy = "announcement", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Image> photos;
+    @Column(name = "type_of_housing")
+    private String typeOfHousing;
+    @Column(name = "number_of_floor")
+    private Integer numberOfFloor;
+    @Column(name = "max_floor_in the_building")
+    private Integer maxFloorInTheBuilding;
+    @Column(name = "area_of_the_apartment")
+    private Integer areaOfTheApartment;
+    @Column(name = "residential_complex")
+    private String residentialComplex;
+    @Column(name = "intersection_with")
+    private String intersectionWith;
+    @Column(name = "for_a_long_time")
+    private Boolean forALongTime;
+    @Column(name = "owners_name")
+    private String ownersName;
+    @ElementCollection
+    @CollectionTable(name = "advertisement_phone_numbers", joinColumns = @JoinColumn(name = "advertisement_id"))
+    @Column(name = "phone_number")
+    private List<String> phoneNumbers;
+    @ElementCollection
+    @CollectionTable(name = "advertisement_residents", joinColumns = @JoinColumn(name = "advertisement_id"))
+    @MapKeyColumn(name = "resident_name")
+    @Column(name = "phone_number")
+    private Map<String, String> residents;
+    @ElementCollection
+    @CollectionTable(name = "advertisement_preferences", joinColumns = @JoinColumn(name = "advertisement_id"))
+    @Column(name = "preference")
+    private List<String> preferences;
+    @Column(name = "coordsX")
+    private String coordsX;
+    @Column(name = "coordsY")
+    private String coordsY;
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
     @Column(name = "updated_at")
@@ -63,8 +111,6 @@ public class Announcement {
     private Boolean isDeleted;
     @Column(name = "is_archived")
     private Boolean isArchived;
-    @OneToMany(mappedBy = "announcement", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Image> photos;
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;

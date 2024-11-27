@@ -3,7 +3,6 @@ package by.project.turamyzba.services.impl;
 import by.project.turamyzba.dto.requests.AnnouncementFilterRequest;
 import by.project.turamyzba.dto.requests.AnnouncementRequest;
 import by.project.turamyzba.dto.responses.AnnouncementResponse;
-import by.project.turamyzba.entities.AnnouncementUser;
 import by.project.turamyzba.mappers.AnnouncementMapper;
 import by.project.turamyzba.entities.Announcement;
 import by.project.turamyzba.entities.Image;
@@ -17,6 +16,7 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.coyote.BadRequestException;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,26 +49,26 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     private final UserRepository userRepository;
 
     private final RestTemplate restTemplate;
-
-
     @Transactional
-    public AnnouncementResponse createAnnouncement(AnnouncementRequest announcementRequest) {
-        String[] coords = getCoordsFromAddress(announcementRequest.getAddress());
+    @Override
+    public void createAnnouncement(AnnouncementRequest announcementRequest) throws IOException {
+        String[] coords = getCoordsFromAddress(announcementRequest.getMicroDistrict() + ", " + announcementRequest.getDistrict() + ", "
+                + announcementRequest.getRegion());
+
+        if (coords.length < 2) {
+            throw new BadRequestException("Unable to determine coordinates for the given address");
+        }
         User user =  userRepository.findByEmail(userService.getCurrentUser().getUsername())
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
         log.info("User: {}", user);
 
         Announcement announcement = AnnouncementMapper.toEntity(announcementRequest, coords);
-        List<Image> images = AnnouncementMapper.toImages(announcementRequest.getImageUrls(), announcement);
+
+        List<Image> images = AnnouncementMapper.toImages(announcementRequest.getImages(), announcement);
         announcement.setPhotos(images);
         announcement.setUser(user);
-
-        Announcement createdAnnouncement = announcementRepository.save(announcement);
-
-        AnnouncementResponse announcementResponse = modelMapper.map(createdAnnouncement, AnnouncementResponse.class);
-        log.info("Created Announcement: {}", announcementResponse);
-        return announcementResponse;
+        announcementRepository.save(announcement);
     }
 
     @Transactional
@@ -108,8 +109,8 @@ public class AnnouncementServiceImpl implements AnnouncementService {
 
         ObjectMapper objectMapper = new ObjectMapper();
         try {
-            coords[0] = objectMapper.readTree(response).get("result").get("items").get(0).get("point").get("lon").asText();
-            coords[1] = objectMapper.readTree(response).get("result").get("items").get(0).get("point").get("lat").asText();
+            coords[0] = objectMapper.readTree(response).get("result").get("items").get(0).get("point").get("lat").asText();
+            coords[1] = objectMapper.readTree(response).get("result").get("items").get(0).get("point").get("lon").asText();
         } catch (Exception e) {
             log.error("Error while parsing 2GIS API response: {}", e.getMessage());
         }

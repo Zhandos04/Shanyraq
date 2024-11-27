@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @RestController
-@RequestMapping("/upload")
+@RequestMapping("/file")
 @RequiredArgsConstructor
 public class FileUploadController {
 
@@ -23,7 +23,7 @@ public class FileUploadController {
     @Value("${aws.s3.bucket}")
     private String bucketName;
 
-    @PostMapping
+    @PostMapping("/upload")
     public ResponseEntity<List<String>> uploadFiles(@RequestParam("files") MultipartFile[] files) {
         List<String> fileUrls = new ArrayList<>();
 
