@@ -8,10 +8,11 @@ import by.project.turamyzba.entities.Announcement;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.io.IOException;
 import java.util.List;
 
 public interface AnnouncementService {
-    AnnouncementResponse createAnnouncement(AnnouncementRequest announcementRequest);
+    void createAnnouncement(AnnouncementRequest announcementRequest) throws IOException;
     AnnouncementResponse updateAnnouncement(Long id, AnnouncementRequest announcementRequest);
 
     Page<Announcement> getAllRoommateListings(Pageable pageable);

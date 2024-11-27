@@ -51,8 +51,9 @@ public class JwtService {
                 .compact();
     }
 
-    public Map<String, String> generateTokens(String userName) {
+    public Map<String, String> generateTokens(String userName, String role) {
         Map<String, Object> claims = new HashMap<>();
+        claims.put("role", role);
         String accessToken = createToken(claims, userName, ACCESS_TOKEN_VALIDITY, "access");
         String refreshToken = createToken(claims, userName, REFRESH_TOKEN_VALIDITY, "refresh");
         Map<String, String> tokens = new HashMap<>();
@@ -77,7 +78,13 @@ public class JwtService {
     public Boolean validateToken(String token, UserDetails userDetails) {
         final String username = extractUsername(token);
         String tokenType = extractClaim(token, claims -> claims.get("typ", String.class));
-        return username.equals(userDetails.getUsername()) && !isTokenExpired(token) && "access".equals(tokenType);
+        String tokenRole = extractClaim(token, claims -> claims.get("role", String.class));
+
+        boolean hasRequiredRole = userDetails.getAuthorities().stream()
+                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals(tokenRole));
+
+        return username.equals(userDetails.getUsername()) && !isTokenExpired(token)
+                && "access".equals(tokenType) && hasRequiredRole;
     }
 
 

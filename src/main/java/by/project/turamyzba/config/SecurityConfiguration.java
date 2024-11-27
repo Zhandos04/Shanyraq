@@ -30,8 +30,7 @@ public class SecurityConfiguration {
             "/webjars/**",
             "/swagger-ui.html",
             "/auth/**",
-            "/actuator/**",
-            "/announcement/**"
+            "/actuator/**"
     };
 
 
@@ -42,6 +41,7 @@ public class SecurityConfiguration {
 
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers(WHITE_LIST_URL).permitAll()
+                .requestMatchers("/announcement/create", "/file/upload").hasRole("OWNER")
                 .anyRequest().authenticated()
         );
 

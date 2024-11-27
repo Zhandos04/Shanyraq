@@ -17,13 +17,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/findroommate")
+@RequestMapping("/announcement")
 @RequiredArgsConstructor
 public class AnnouncementController {
     private final AnnouncementService announcementService;
@@ -34,9 +35,17 @@ public class AnnouncementController {
     @Operation(summary = "Create a new announcement", description = "Creates a new announcement with provided parameters.")
     @ApiResponse(responseCode = "200", description = "Successfully created announcement")
     @ApiResponse(responseCode = "400", description = "Parameters are invalid")
-    public ResponseEntity<AnnouncementResponse> createAnnouncement(@RequestBody @Valid AnnouncementRequest announcementRequest) {
-        AnnouncementResponse announcementResponse = announcementService.createAnnouncement(announcementRequest);
-        return ResponseEntity.ok(announcementResponse);
+    public ResponseEntity<?> createAnnouncement(@RequestBody @Valid AnnouncementRequest announcementRequest) {
+        try {
+            announcementService.createAnnouncement(announcementRequest);
+            return ResponseEntity.ok("Announcement created successfully!");
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error creating announcement: " + e.getMessage());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(e.getMessage());
+        }
     }
 
     @PutMapping("/update/{id}")

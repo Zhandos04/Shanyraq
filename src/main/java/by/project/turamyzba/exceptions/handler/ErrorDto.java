@@ -1,7 +1,6 @@
 package by.project.turamyzba.exceptions.handler;
 
 import lombok.Data;
-import org.slf4j.MDC;
 
 import java.time.LocalDateTime;
 

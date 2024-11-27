@@ -8,8 +8,6 @@ import by.project.turamyzba.entities.User;
 import by.project.turamyzba.services.EmailService;
 import by.project.turamyzba.services.TokenBlacklistService;
 import by.project.turamyzba.services.UserService;
-import by.project.turamyzba.services.impl.EmailServiceImpl;
-import by.project.turamyzba.services.impl.UserServiceImpl;
 import by.project.turamyzba.exceptions.UserAlreadyExistsException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -26,6 +24,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -99,7 +98,7 @@ public class AuthController {
         if (!userOptional.get().getIsVerified()) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("This user is not verified yet");
         }
-        Map<String, String> tokens = jwtService.generateTokens(loginDTO.getEmail());
+        Map<String, String> tokens = jwtService.generateTokens(loginDTO.getEmail(), userOptional.get().getRole().name());
 
         AuthDTO authDTO = modelMapper.map(userOptional.get(), AuthDTO.class);
         authDTO.setAccessToken(tokens.get("accessToken"));
@@ -139,10 +138,12 @@ public class AuthController {
             try {
                 if (jwtService.validateRefreshToken(refreshToken)) { // Проверка валидности рефреш токена
                     String userName = jwtService.extractUsername(refreshToken);
+                    User user = userService.getUserByEmail(userName)
+                            .orElseThrow(() -> new UsernameNotFoundException("User not found!"));
                     // Проверка, что пользователь существует и активен
                     UserDetails userDetails = userService.loadUserByUsername(userName);
                     if (userDetails != null && !jwtService.isTokenExpired(refreshToken)) {
-                        String newAccessToken = jwtService.generateTokens(userName).get("accessToken");
+                        String newAccessToken = jwtService.generateTokens(userName, user.getRole().name()).get("accessToken");
                         Map<String, String> tokens = new HashMap<>();
                         tokens.put("accessToken", newAccessToken);
                         tokens.put("refreshToken", refreshToken); // Отправляем тот же рефреш токен обратно
