@@ -1,10 +1,16 @@
 package by.project.turamyzba.services.impl;
 
+import by.project.turamyzba.dto.requests.PasswordDTO;
 import by.project.turamyzba.dto.requests.ProfileDTO;
 import by.project.turamyzba.entities.User;
 import by.project.turamyzba.entities.usermodelenums.Gender;
+import by.project.turamyzba.repositories.UserRepository;
 import by.project.turamyzba.services.ProfileService;
+import by.project.turamyzba.services.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,8 +21,9 @@ import java.time.LocalDate;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class ProfileServiceImpl implements ProfileService {
-    private final UserServiceImpl userService;
-
+    private final UserService userService;
+    private final PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
 
     @Override
     public ProfileDTO getUser() {
@@ -34,6 +41,19 @@ public class ProfileServiceImpl implements ProfileService {
                 .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
         updateUserData(updatedUser, profileDTO);
         userService.updateProfile(updatedUser);
+    }
+
+    @Override
+    @Transactional
+    public void updatePassword(PasswordDTO passwordDTO) {
+        User user = userService.getUserByEmail(userService.getCurrentUser().getUsername())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        if(passwordEncoder.matches(passwordDTO.getOldPassword(), user.getPassword())) {
+            user.setPassword(passwordEncoder.encode(passwordDTO.getNewPassword()));
+        } else {
+            throw new BadCredentialsException("Старый пароль неверный");
+        }
+        userRepository.save(user);
     }
 
     private ProfileDTO convertToProfileDTO(User user) {
