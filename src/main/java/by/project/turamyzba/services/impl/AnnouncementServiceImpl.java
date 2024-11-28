@@ -115,7 +115,7 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     public List<AnnouncementResponse> getUserAnnouncements(){
         User user = userService.getUserByEmail(userService.getCurrentUser().getUsername())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found!"));
-        return announcementRepository.findAllByUserAndIsArchivedFalse(user).stream()
+        return announcementRepository.findAllByUserAndIsArchivedFalseAndIsDeletedFalse(user).stream()
                 .map(this::toAnnouncementResponse)
                 .collect(Collectors.toList());
     }
@@ -125,7 +125,7 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     public List<AnnouncementResponse> getUserArchiveAnnouncements() {
         User user = userService.getUserByEmail(userService.getCurrentUser().getUsername())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found!"));
-        return announcementRepository.findAllByUserAndIsArchivedTrue(user).stream()
+        return announcementRepository.findAllByUserAndIsArchivedTrueAndIsDeletedFalse(user).stream()
                 .map(this::toAnnouncementResponse)
                 .collect(Collectors.toList());
     }
@@ -140,6 +140,39 @@ public class AnnouncementServiceImpl implements AnnouncementService {
 
         if(announcement.getUser().equals(user)) {
             announcement.setIsArchived(true);
+        } else {
+            throw new BadRequestException("bad request!");
+        }
+        announcementRepository.save(announcement);
+    }
+
+    @Override
+    @Transactional
+    public void restoreAnnouncement(Long announcementId) throws BadRequestException {
+        Announcement announcement = announcementRepository.findById(announcementId)
+                .orElseThrow(() -> new EntityNotFoundException("Обьявление не найдено"));
+        User user = userService.getUserByEmail(userService.getCurrentUser().getUsername())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found!"));
+
+        if(!announcement.getIsDeleted() && announcement.getUser().equals(user)){
+            announcement.setIsArchived(false);
+        } else {
+            throw new BadRequestException("bad request!");
+        }
+
+        announcementRepository.save(announcement);
+    }
+
+    @Override
+    @Transactional
+    public void deleteAnnouncement(Long announcementId) throws BadRequestException {
+        Announcement announcement = announcementRepository.findById(announcementId)
+                .orElseThrow(() -> new EntityNotFoundException("Обьявление не найдено"));
+        User user = userService.getUserByEmail(userService.getCurrentUser().getUsername())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found!"));
+
+        if(announcement.getIsArchived() && announcement.getUser().equals(user)) {
+            announcement.setIsDeleted(true);
         } else {
             throw new BadRequestException("bad request!");
         }
@@ -222,28 +255,6 @@ public class AnnouncementServiceImpl implements AnnouncementService {
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         });
-    }
-
-    public AnnouncementResponse restoreAnnouncement(Long announcementId){
-        Announcement announcement = announcementRepository.findById(announcementId)
-                .orElseThrow(() -> new EntityNotFoundException("Обьявление не найдено"));
-        if(!announcement.getIsDeleted()){
-            announcement.setIsArchived(false);
-        }
-
-        Announcement archivedAnnouncement = announcementRepository.save(announcement);
-        AnnouncementResponse announcementResponse = modelMapper.map(archivedAnnouncement, AnnouncementResponse.class);
-
-        return announcementResponse;
-    }
-
-    public void deleteAnnouncement(Long announcementId){
-        Announcement announcement = announcementRepository.findById(announcementId)
-                .orElseThrow(() -> new EntityNotFoundException("Обьявление не найдено"));
-        if(!announcement.getIsArchived()) {
-            announcement.setIsDeleted(true);
-        }
-        announcementRepository.save(announcement);
     }
 
     public AnnouncementResponse toAnnouncementResponse(Announcement announcement) {

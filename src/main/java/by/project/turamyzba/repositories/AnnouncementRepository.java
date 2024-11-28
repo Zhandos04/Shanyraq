@@ -14,8 +14,8 @@ import java.util.Optional;
 
 @Repository
 public interface AnnouncementRepository extends JpaRepository<Announcement, Integer>, JpaSpecificationExecutor<Announcement> {
-    List<Announcement> findAllByUserAndIsArchivedFalse(User user);
-    List<Announcement> findAllByUserAndIsArchivedTrue(User user);
+    List<Announcement> findAllByUserAndIsArchivedFalseAndIsDeletedFalse(User user);
+    List<Announcement> findAllByUserAndIsArchivedTrueAndIsDeletedFalse(User user);
     Optional<Announcement> findById(Long id);
 
     Page<Announcement> findByTitleContainingAndIsDeletedFalse(

@@ -30,8 +30,8 @@ public interface AnnouncementService {
 
     List<Announcement> getFilteredAnnouncements(AnnouncementFilterRequest request);
 
-    AnnouncementResponse restoreAnnouncement(Long announcementId);
-    void deleteAnnouncement(Long announcementId);
+    void restoreAnnouncement(Long announcementId) throws BadRequestException;
+    void deleteAnnouncement(Long announcementId) throws BadRequestException;
 
     AnnouncementResponse toAnnouncementResponse(Announcement announcement);
 }
