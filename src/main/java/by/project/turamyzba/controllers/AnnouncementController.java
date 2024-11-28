@@ -102,6 +102,20 @@ public class AnnouncementController {
         return ResponseEntity.ok("Объявления успешно архивирован");
     }
 
+    @Operation(summary = "Возвращает объявление в топ", description = "Пользователь возвращает объявление в топ")
+    @PostMapping("/restore-announcement/{id}")
+    public ResponseEntity<?> restoreAnnouncement(@PathVariable Long id) throws BadRequestException {
+        announcementService.restoreAnnouncement(id);
+        return ResponseEntity.ok("Объявления успешно возрващен в топ");
+    }
+
+    @Operation(summary = "Удаление объявление с архива", description = "Пользователь удаляет архивиронное объявление")
+    @DeleteMapping("/delete-announcement/{id}")
+    public ResponseEntity<?> deleteAnnouncement(@PathVariable Long id) throws BadRequestException {
+        announcementService.deleteAnnouncement(id);
+        return ResponseEntity.ok("Объявления успешно удален");
+    }
+
     @PutMapping("/update/{id}")
     @Operation(summary = "Update an announcement", description = "Updates an announcement with provided parameters.")
     @ApiResponse(responseCode = "200", description = "Successfully updated announcement")
@@ -119,17 +133,5 @@ public class AnnouncementController {
                 .map(announcement -> modelMapper.map(announcement, AnnouncementResponse.class))
                 .collect(Collectors.toList());
         return ResponseEntity.ok(announcementResponses);
-    }
-
-    @Operation(summary = "Возвращает объявление в топ", description = "Пользователь возвращает объявление в топ")
-    @PostMapping("/restore-announcement/{id}")
-    public ResponseEntity<?> restoreAnnouncement(@PathVariable Long id){
-        return ResponseEntity.ok(announcementService.restoreAnnouncement(id));
-    }
-
-    @Operation(summary = "Удаление объявление с архива", description = "Пользователь удаляет архивиронное объявление")
-    @DeleteMapping("/delete-announcement/{id}")
-    public void deleteAnnouncement(@PathVariable Long id){
-        announcementService.deleteAnnouncement(id);
     }
 }

@@ -44,7 +44,7 @@ public class SecurityConfiguration {
         http.authorizeHttpRequests(auth -> auth
                 .requestMatchers(WHITE_LIST_URL).permitAll()
                 .requestMatchers("/announcement/create", "/file/upload","/announcement/my-active-announcements"
-                ,"/announcement/my-archive-announcements", "/announcement/archive-announcement/*").hasRole("OWNER")
+                ,"/announcement/my-archive-announcements", "/announcement/archive-announcement/*", "announcement/restore-announcement/*").hasRole("OWNER")
                 .anyRequest().authenticated()
         );
 
