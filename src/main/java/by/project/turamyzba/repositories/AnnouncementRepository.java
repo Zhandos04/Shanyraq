@@ -14,13 +14,13 @@ import java.util.Optional;
 
 @Repository
 public interface AnnouncementRepository extends JpaRepository<Announcement, Integer>, JpaSpecificationExecutor<Announcement> {
-    List<Announcement> findByUserId(Long userId);
+    List<Announcement> findAllByUserAndIsArchivedFalse(User user);
+    List<Announcement> findAllByUserAndIsArchivedTrue(User user);
     Optional<Announcement> findById(Long id);
 
     Page<Announcement> findByTitleContainingAndIsDeletedFalse(
             @Param("title") String title,
             Pageable pageable
     );
-    Announcement findByUser(User user);
     Page<Announcement> findAllByIsDeletedFalse(Pageable pageable);
 }

@@ -73,36 +73,6 @@ public class AnnouncementServiceImpl implements AnnouncementService {
         announcementRepository.save(announcement);
     }
 
-    @Transactional
-    public AnnouncementResponse updateAnnouncement(Long id, AnnouncementRequest announcementRequest) {
-        Announcement announcement = announcementRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Announcement not found"));
-
-        User user = userRepository.findByEmail(userService.getCurrentUser().getUsername())
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
-
-        if(!announcement.getUser().equals(user)) {
-            throw new IllegalArgumentException("You can't update this announcement");
-        }
-
-        if (announcement.getPhotos() != null) {
-            announcement.getPhotos().clear();
-        } else {
-            announcement.setPhotos(new ArrayList<>());
-        }
-
-        if(!announcementRequest.getAddress().equals(announcement.getAddress())) {
-            String[] coords = getCoordsFromAddress(announcementRequest.getAddress());
-            announcement.setCoordsX(coords[0]);
-            announcement.setCoordsY(coords[1]);
-        }
-
-        AnnouncementMapper.updateAnnouncementFromRequest(announcement, announcementRequest);
-
-        Announcement updatedAnnouncement = announcementRepository.save(announcement);
-
-        return modelMapper.map(updatedAnnouncement, AnnouncementResponse.class);
-    }
-
     private String[] getCoordsFromAddress(String address) {
         String[] coords = new String[2];
         String response = restTemplate.getForObject(apiUrl + "/geocode?q=" + address + "&fields=items.point&key=" + apiKey, String.class);
@@ -138,6 +108,72 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     public AnnouncementResponse getAnnouncementById(Long id) {
         log.info("Getting announcement by id: {}", id);
         return toAnnouncementResponse(announcementRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Announcement not found")));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<AnnouncementResponse> getUserAnnouncements(){
+        User user = userService.getUserByEmail(userService.getCurrentUser().getUsername())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found!"));
+        return announcementRepository.findAllByUserAndIsArchivedFalse(user).stream()
+                .map(this::toAnnouncementResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<AnnouncementResponse> getUserArchiveAnnouncements() {
+        User user = userService.getUserByEmail(userService.getCurrentUser().getUsername())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found!"));
+        return announcementRepository.findAllByUserAndIsArchivedTrue(user).stream()
+                .map(this::toAnnouncementResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public void archiveAnnouncement(Long announcementId) throws BadRequestException {
+        Announcement announcement = announcementRepository.findById(announcementId)
+                .orElseThrow(() -> new EntityNotFoundException("Обьявление не найдено"));
+        User user = userService.getUserByEmail(userService.getCurrentUser().getUsername())
+                        .orElseThrow(() -> new UsernameNotFoundException("User not found!"));
+
+        if(announcement.getUser().equals(user)) {
+            announcement.setIsArchived(true);
+        } else {
+            throw new BadRequestException("bad request!");
+        }
+        announcementRepository.save(announcement);
+    }
+
+    @Transactional
+    public AnnouncementResponse updateAnnouncement(Long id, AnnouncementRequest announcementRequest) {
+        Announcement announcement = announcementRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Announcement not found"));
+
+        User user = userRepository.findByEmail(userService.getCurrentUser().getUsername())
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        if(!announcement.getUser().equals(user)) {
+            throw new IllegalArgumentException("You can't update this announcement");
+        }
+
+        if (announcement.getPhotos() != null) {
+            announcement.getPhotos().clear();
+        } else {
+            announcement.setPhotos(new ArrayList<>());
+        }
+
+        if(!announcementRequest.getAddress().equals(announcement.getAddress())) {
+            String[] coords = getCoordsFromAddress(announcementRequest.getAddress());
+            announcement.setCoordsX(coords[0]);
+            announcement.setCoordsY(coords[1]);
+        }
+
+        AnnouncementMapper.updateAnnouncementFromRequest(announcement, announcementRequest);
+
+        Announcement updatedAnnouncement = announcementRepository.save(announcement);
+
+        return modelMapper.map(updatedAnnouncement, AnnouncementResponse.class);
     }
 
     @Override
@@ -188,21 +224,6 @@ public class AnnouncementServiceImpl implements AnnouncementService {
         });
     }
 
-    public List<Announcement> getUserAnnouncements(Long userId){
-        return announcementRepository.findByUserId(userId);
-    }
-
-    public AnnouncementResponse archiveAnnouncement(Long announcementId){
-        Announcement announcement = announcementRepository.findById(announcementId)
-                .orElseThrow(() -> new EntityNotFoundException("Обьявление не найдено"));
-        announcement.setIsArchived(true);
-
-        Announcement archivedAnnouncement = announcementRepository.save(announcement);
-        AnnouncementResponse announcementResponse = modelMapper.map(archivedAnnouncement, AnnouncementResponse.class);
-
-        return announcementResponse;
-    }
-
     public AnnouncementResponse restoreAnnouncement(Long announcementId){
         Announcement announcement = announcementRepository.findById(announcementId)
                 .orElseThrow(() -> new EntityNotFoundException("Обьявление не найдено"));
@@ -223,13 +244,6 @@ public class AnnouncementServiceImpl implements AnnouncementService {
             announcement.setIsDeleted(true);
         }
         announcementRepository.save(announcement);
-    }
-
-    @Override
-    public AnnouncementResponse getAnnouncementByUser() {
-        User user = userService.getUserByEmail(userService.getCurrentUser().getUsername())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found!"));
-        return toAnnouncementResponse(announcementRepository.findByUser(user));
     }
 
     public AnnouncementResponse toAnnouncementResponse(Announcement announcement) {

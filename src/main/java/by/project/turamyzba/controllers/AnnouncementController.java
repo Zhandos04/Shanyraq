@@ -10,6 +10,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.BadRequestException;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -82,6 +83,25 @@ public class AnnouncementController {
         return ResponseEntity.ok(announcementService.getAnnouncementById(id));
     }
 
+    @Operation(summary = "Получение объявлений пользователя", description = "Получение всех объявлений пользователя")
+    @GetMapping("/my-active-announcements")
+    public ResponseEntity<List<AnnouncementResponse>> getMyAnnouncements(){
+        return ResponseEntity.ok(announcementService.getUserAnnouncements());
+    }
+
+    @Operation(summary = "Получение объявлений пользователя", description = "Получение всех объявлений пользователя")
+    @GetMapping("/my-archive-announcements")
+    public ResponseEntity<List<AnnouncementResponse>> getMyArchiveAnnouncements(){
+        return ResponseEntity.ok(announcementService.getUserArchiveAnnouncements());
+    }
+
+    @PostMapping("/archive-announcement/{id}")
+    @Operation(summary = "Архивация объявления", description = "Пользователь архивирует объявление")
+    public ResponseEntity<?> archiveAnnouncement(@PathVariable Long id) throws BadRequestException {
+        announcementService.archiveAnnouncement(id);
+        return ResponseEntity.ok("Объявления успешно архивирован");
+    }
+
     @PutMapping("/update/{id}")
     @Operation(summary = "Update an announcement", description = "Updates an announcement with provided parameters.")
     @ApiResponse(responseCode = "200", description = "Successfully updated announcement")
@@ -93,33 +113,12 @@ public class AnnouncementController {
         return ResponseEntity.ok(announcementResponse);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getAnnouncementById(@PathVariable Long id) {
-        AnnouncementResponse announcementResponse = modelMapper.map(announcementService.getAnnouncementById(id), AnnouncementResponse.class);
-        return ResponseEntity.ok(announcementResponse);
-    }
-
     @GetMapping("/search")
     public ResponseEntity<?> getFilteredAnnouncements(@RequestBody AnnouncementFilterRequest request) {
         List<AnnouncementResponse> announcementResponses = announcementService.getFilteredAnnouncements(request).stream()
                 .map(announcement -> modelMapper.map(announcement, AnnouncementResponse.class))
                 .collect(Collectors.toList());
         return ResponseEntity.ok(announcementResponses);
-    }
-
-    @Operation(summary = "Получение объявлений пользователя", description = "Получение всех объявлений пользователя")
-    @GetMapping("/my-announcement")
-    public ResponseEntity<List<AnnouncementResponse>> getMyAnnouncement(@RequestParam Long id){
-        List<AnnouncementResponse> announcementResponses = announcementService.getUserAnnouncements(id).stream()
-                .map(announcement -> modelMapper.map(announcement, AnnouncementResponse.class))
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(announcementResponses);
-    }
-
-    @Operation(summary = "Архивация объявления", description = "Пользователь архивирует объявление")
-    @PostMapping("/archive-announcement/{id}")
-    public ResponseEntity<?> archiveAnnouncement(@PathVariable Long id){
-        return ResponseEntity.ok(announcementService.archiveAnnouncement(id));
     }
 
     @Operation(summary = "Возвращает объявление в топ", description = "Пользователь возвращает объявление в топ")
