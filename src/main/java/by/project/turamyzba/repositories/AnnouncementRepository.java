@@ -17,10 +17,5 @@ public interface AnnouncementRepository extends JpaRepository<Announcement, Inte
     List<Announcement> findAllByUserAndIsArchivedFalseAndIsDeletedFalse(User user);
     List<Announcement> findAllByUserAndIsArchivedTrueAndIsDeletedFalse(User user);
     Optional<Announcement> findById(Long id);
-
-    Page<Announcement> findByTitleContainingAndIsDeletedFalse(
-            @Param("title") String title,
-            Pageable pageable
-    );
     Page<Announcement> findAllByIsDeletedFalse(Pageable pageable);
 }

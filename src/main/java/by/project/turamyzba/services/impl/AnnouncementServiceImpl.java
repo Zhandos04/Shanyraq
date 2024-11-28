@@ -21,6 +21,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -98,9 +99,28 @@ public class AnnouncementServiceImpl implements AnnouncementService {
 
     @Override
     @Transactional
-    public Page<Announcement> searchRoommateListings(String search, Pageable pageable) {
-        log.info("Searching roommate listings by search query: {}", search);
-        return announcementRepository.findByTitleContainingAndIsDeletedFalse(search, pageable);
+    public Page<Announcement> searchRoommateListings(String region, Integer minPrice, Integer maxPrice, String gender, Integer roommatesCount, Pageable pageable) {
+        log.info("Searching roommate listings with filters: city={}, minPrice={}, maxPrice={}, gender={}, roommatesCount={}",
+                region, minPrice, maxPrice, gender, roommatesCount);
+        Specification<Announcement> spec = Specification.where(null);
+
+        if (region != null && !region.isEmpty()) {
+            spec = spec.and((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("region"), region));
+        }
+        if (minPrice != null) {
+            spec = spec.and((root, query, criteriaBuilder) -> criteriaBuilder.greaterThanOrEqualTo(root.get("cost"), minPrice));
+        }
+        if (maxPrice != null) {
+            spec = spec.and((root, query, criteriaBuilder) -> criteriaBuilder.lessThanOrEqualTo(root.get("cost"), maxPrice));
+        }
+        if (gender != null && !gender.isEmpty()) {
+            spec = spec.and((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("selectedGender"), gender));
+        }
+        if (roommatesCount != null) {
+            spec = spec.and((root, query, criteriaBuilder) -> criteriaBuilder.equal(root.get("numberOfPeopleAreYouAccommodating"), roommatesCount));
+        }
+
+        return announcementRepository.findAll(spec, pageable);
     }
 
     @Override
