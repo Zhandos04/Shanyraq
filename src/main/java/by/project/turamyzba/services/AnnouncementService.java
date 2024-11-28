@@ -5,6 +5,7 @@ import by.project.turamyzba.dto.requests.AnnouncementFilterRequest;
 import by.project.turamyzba.dto.requests.AnnouncementRequest;
 import by.project.turamyzba.dto.responses.AnnouncementResponse;
 import by.project.turamyzba.entities.Announcement;
+import org.apache.coyote.BadRequestException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -13,24 +14,24 @@ import java.util.List;
 
 public interface AnnouncementService {
     void createAnnouncement(AnnouncementRequest announcementRequest) throws IOException;
-    AnnouncementResponse updateAnnouncement(Long id, AnnouncementRequest announcementRequest);
-
     Page<Announcement> getAllRoommateListings(Pageable pageable);
 
     Page<Announcement> searchRoommateListings(String search, Pageable pageable);
 
     AnnouncementResponse getAnnouncementById(Long id);
 
+    List<AnnouncementResponse> getUserAnnouncements();
+
+    List<AnnouncementResponse> getUserArchiveAnnouncements();
+
+    void archiveAnnouncement(Long announcementId) throws BadRequestException;
+
+    AnnouncementResponse updateAnnouncement(Long id, AnnouncementRequest announcementRequest);
+
     List<Announcement> getFilteredAnnouncements(AnnouncementFilterRequest request);
 
-    List<Announcement> getUserAnnouncements(Long userId);
-
-    AnnouncementResponse archiveAnnouncement(Long announcementId);
-
     AnnouncementResponse restoreAnnouncement(Long announcementId);
-
     void deleteAnnouncement(Long announcementId);
 
-    AnnouncementResponse getAnnouncementByUser();
     AnnouncementResponse toAnnouncementResponse(Announcement announcement);
 }
