@@ -1,8 +1,9 @@
 package by.project.turamyzba.controllers;
 
+import by.project.turamyzba.dto.requests.PasswordDTO;
 import by.project.turamyzba.dto.requests.ProfileDTO;
+import by.project.turamyzba.services.ProfileService;
 import by.project.turamyzba.services.UserService;
-import by.project.turamyzba.services.impl.ProfileServiceImpl;
 import by.project.turamyzba.exceptions.IncorrectJSONException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -22,7 +23,7 @@ import java.util.List;
 @Tag(name="Profile", description="Взаймодействие с профильем")
 @RequiredArgsConstructor
 public class ProfileController {
-    private final ProfileServiceImpl profileService;
+    private final ProfileService profileService;
     private final UserService userService;
 
     @PostMapping("/role")
@@ -57,5 +58,11 @@ public class ProfileController {
         }
         profileService.editProfile(profileDTO);
         return HttpStatus.OK;
+    }
+
+    @PatchMapping("/update-password")
+    public ResponseEntity<?> updatePassword(@RequestBody @Valid PasswordDTO passwordDTO) {
+        profileService.updatePassword(passwordDTO);
+        return ResponseEntity.ok("Пароль успешно изменен");
     }
 }
