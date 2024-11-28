@@ -43,6 +43,7 @@ public class UserServiceImpl implements UserService {
         User user = convertToUser(userDTO);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setIsVerified(false);
+        user.setRole(Role.ROLE_OWNER);
         userRepository.save(user);
         String code = generateCode();
         saveUserConfirmationCode(user.getId(), code);

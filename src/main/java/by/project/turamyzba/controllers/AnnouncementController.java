@@ -4,6 +4,7 @@ import by.project.turamyzba.dto.requests.AnnouncementFilterRequest;
 import by.project.turamyzba.dto.requests.AnnouncementRequest;
 import by.project.turamyzba.dto.responses.AnnouncementResponse;
 import by.project.turamyzba.entities.Announcement;
+import by.project.turamyzba.mappers.AnnouncementMapper;
 import by.project.turamyzba.services.AnnouncementService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -48,21 +49,10 @@ public class AnnouncementController {
         }
     }
 
-    @PutMapping("/update/{id}")
-    @Operation(summary = "Update an announcement", description = "Updates an announcement with provided parameters.")
-    @ApiResponse(responseCode = "200", description = "Successfully updated announcement")
-    @ApiResponse(responseCode = "400", description = "Parameters are invalid")
-    @ApiResponse(responseCode = "403", description = "User not authorized to update this announcement")
-    @ApiResponse(responseCode = "404", description = "Announcement not found")
-    public ResponseEntity<AnnouncementResponse> updateAnnouncement(@PathVariable Long id, @RequestBody @Valid AnnouncementRequest announcementRequest) {
-        AnnouncementResponse announcementResponse = announcementService.updateAnnouncement(id, announcementRequest);
-        return ResponseEntity.ok(announcementResponse);
-    }
-
     @GetMapping("/all")
     public ResponseEntity<?> findRoommates(
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "40") int limit,
+            @RequestParam(defaultValue = "41") int limit,
             @RequestParam(required = false) String search) {
 
         Pageable pageable = PageRequest.of(page - 1, limit);
@@ -75,7 +65,7 @@ public class AnnouncementController {
         }
 
         List<AnnouncementResponse> announcementResponses = roommatePage.getContent().stream()
-                .map(announcement -> modelMapper.map(announcement, AnnouncementResponse.class))
+                .map(announcementService::toAnnouncementResponse)
                 .collect(Collectors.toList());
 
         Map<String, Object> response = new HashMap<>();
@@ -85,6 +75,22 @@ public class AnnouncementController {
         response.put("data", announcementResponses);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/detail/{id}")
+    public ResponseEntity<?> detail(@PathVariable Long id) {
+        return ResponseEntity.ok(announcementService.getAnnouncementById(id));
+    }
+
+    @PutMapping("/update/{id}")
+    @Operation(summary = "Update an announcement", description = "Updates an announcement with provided parameters.")
+    @ApiResponse(responseCode = "200", description = "Successfully updated announcement")
+    @ApiResponse(responseCode = "400", description = "Parameters are invalid")
+    @ApiResponse(responseCode = "403", description = "User not authorized to update this announcement")
+    @ApiResponse(responseCode = "404", description = "Announcement not found")
+    public ResponseEntity<AnnouncementResponse> updateAnnouncement(@PathVariable Long id, @RequestBody @Valid AnnouncementRequest announcementRequest) {
+        AnnouncementResponse announcementResponse = announcementService.updateAnnouncement(id, announcementRequest);
+        return ResponseEntity.ok(announcementResponse);
     }
 
     @GetMapping("/{id}")

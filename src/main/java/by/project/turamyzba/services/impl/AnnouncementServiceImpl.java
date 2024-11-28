@@ -21,6 +21,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
@@ -28,6 +29,7 @@ import org.springframework.web.client.RestTemplate;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -97,9 +99,8 @@ public class AnnouncementServiceImpl implements AnnouncementService {
         AnnouncementMapper.updateAnnouncementFromRequest(announcement, announcementRequest);
 
         Announcement updatedAnnouncement = announcementRepository.save(announcement);
-        AnnouncementResponse announcementResponse = modelMapper.map(updatedAnnouncement, AnnouncementResponse.class);
 
-        return announcementResponse;
+        return modelMapper.map(updatedAnnouncement, AnnouncementResponse.class);
     }
 
     private String[] getCoordsFromAddress(String address) {
@@ -122,21 +123,21 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     @Transactional(readOnly = true)
     public Page<Announcement> getAllRoommateListings(Pageable pageable) {
         log.info("Getting all roommate listings");
-        return announcementRepository.findAll(pageable);
+        return announcementRepository.findAllByIsDeletedFalse(pageable);
     }
 
     @Override
     @Transactional
     public Page<Announcement> searchRoommateListings(String search, Pageable pageable) {
         log.info("Searching roommate listings by search query: {}", search);
-        return announcementRepository.findByTitleContaining(search, pageable);
+        return announcementRepository.findByTitleContainingAndIsDeletedFalse(search, pageable);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Announcement getAnnouncementById(Long id) {
+    public AnnouncementResponse getAnnouncementById(Long id) {
         log.info("Getting announcement by id: {}", id);
-        return announcementRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Announcement not found"));
+        return toAnnouncementResponse(announcementRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Announcement not found")));
     }
 
     @Override
@@ -223,5 +224,24 @@ public class AnnouncementServiceImpl implements AnnouncementService {
         }
         announcementRepository.save(announcement);
     }
+
+    @Override
+    public AnnouncementResponse getAnnouncementByUser() {
+        User user = userService.getUserByEmail(userService.getCurrentUser().getUsername())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found!"));
+        return toAnnouncementResponse(announcementRepository.findByUser(user));
+    }
+
+    public AnnouncementResponse toAnnouncementResponse(Announcement announcement) {
+        AnnouncementResponse response = modelMapper.map(announcement, AnnouncementResponse.class);
+
+        response.setPhotos(announcement.getPhotos().stream()
+                .map(AnnouncementMapper::toImageResponse)
+                .collect(Collectors.toList()));
+        response.setUser(AnnouncementMapper .toUserResponse(announcement.getUser()));
+
+        return response;
+    }
+
 }
 

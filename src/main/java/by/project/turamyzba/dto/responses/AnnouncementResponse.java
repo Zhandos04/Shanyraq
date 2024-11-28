@@ -5,8 +5,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 
 @Data
@@ -15,23 +16,80 @@ import java.util.List;
 @Builder
 public class AnnouncementResponse {
     private Long id;
+
     private String title;
-    private String apartmentsInfo;
-    private String address;
-    private String coordsX;
-    private String coordsY;
-    private String startAt;
-    private Integer deposit;
-    private Integer maxPeople;
+
     private String selectedGender;
+
+    private Boolean doYouLiveInThisHouse;
+
+    private String howManyPeopleLiveInThisApartment;
+
+    private Integer numberOfPeopleAreYouAccommodating;
+
+    private Integer minAge;
+
+    private Integer maxAge;
+
+    private String region;
+
+    private String district;
+
+    private String microDistrict;
+
+    private String address;
+
+    private LocalDate arriveDate;
+
+    private Integer cost;
+
+    private String quantityOfRooms;
+
+    private Boolean isDepositRequired;
+
+    private Integer deposit;
+
+    private Boolean arePetsAllowed;
+
     private Boolean isCommunalServiceIncluded;
-    private String roomiePreferences;
-    private Integer MonthlyExpensePerPerson;
-    private String status;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
-    private Boolean isDeleted;
-    private Boolean isArchived;
+
+    private Integer minAmountOfCommunalService;
+
+    private Integer maxAmountOfCommunalService;
+
+    private Boolean intendedForStudents;
+
+    private Boolean areBadHabitsAllowed;
+
+    private String apartmentsInfo;
+
+    private String typeOfHousing;
+
+    private Integer numberOfFloor;
+
+    private Integer maxFloorInTheBuilding;
+
+    private Integer areaOfTheApartment;
+
+    private String residentialComplex;
+
+    private String intersectionWith;
+
+    private Boolean forALongTime;
+
+    private String ownersName;
+
+    private List<String> phoneNumbers;
+
+    private Map<String, String> residents;
+
+    private List<String> preferences;
+
+    private String coordsX;
+
+    private String coordsY;
+
     private List<ImageResponse> photos;
+
     private UserResponse user;
 }
