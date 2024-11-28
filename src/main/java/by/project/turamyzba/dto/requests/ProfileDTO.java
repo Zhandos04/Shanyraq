@@ -13,8 +13,6 @@ public class ProfileDTO {
     private String firstName;
     @Pattern(regexp = "^[A-Z][a-z]*$", message = "LastName должно начинаться с заглавной буквы и содержать только маленькие буквы после первой")
     private String lastName;
-    @Email(message = "Неверный формат email")
-    private String email;
     @NotBlank(message = "Birth date cannot be empty")
     @Pattern(regexp = "\\d{4}-\\d{2}-\\d{2}", message = "Invalid date format. Expected yyyy-MM-dd")
     private String birthDate;

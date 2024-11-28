@@ -44,11 +44,11 @@ spring:
     url: https://catalog.api.2gis.com/3.0/items
 
 aws:
-  accessKey: ${AWS_ACCESS_KEY_ID:AKIAU6GDZF7KB27CUXDX}
-  secretKey: ${AWS_SECRET_ACCESS_KEY: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}
+  accessKey: AKIAU6GDZF7KB27CUXDX
+  secretKey: 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
   s3:
-    region: ${AWS_REGION:eu-north-1}
-    bucket: ${S3_BUCKET_NAME:findroommate}
+    region: eu-north-1
+    bucket: findroommate
 
 jwt:
   secret: f20be2a4a63bb8c9f2b5ecbed7f0971a96d66e30f3f7c76b56a6e0361ea8e76a
