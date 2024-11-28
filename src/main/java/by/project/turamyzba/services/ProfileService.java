@@ -2,9 +2,12 @@ package by.project.turamyzba.services;
 
 import by.project.turamyzba.dto.requests.PasswordDTO;
 import by.project.turamyzba.dto.requests.ProfileDTO;
+import by.project.turamyzba.dto.responses.ProfileResponse;
 
 public interface ProfileService {
-    ProfileDTO getUser();
-    void editProfile(ProfileDTO profileDTO);
+    ProfileResponse getUser();
+    ProfileResponse editProfile(ProfileDTO profileDTO);
     void updatePassword(PasswordDTO passwordDTO);
+
+    void uploadProfilePhoto(String fileUrl);
 }

@@ -67,6 +67,9 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<AnnouncementUser> announcementUsers;
 
+    @Column(name = "profile_photo")
+    private String profilePhoto;
+
     @Override
     public boolean isAccountNonExpired() {
         return true;
