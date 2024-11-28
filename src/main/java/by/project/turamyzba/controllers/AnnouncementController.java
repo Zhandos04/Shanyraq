@@ -4,7 +4,6 @@ import by.project.turamyzba.dto.requests.AnnouncementFilterRequest;
 import by.project.turamyzba.dto.requests.AnnouncementRequest;
 import by.project.turamyzba.dto.responses.AnnouncementResponse;
 import by.project.turamyzba.entities.Announcement;
-import by.project.turamyzba.mappers.AnnouncementMapper;
 import by.project.turamyzba.services.AnnouncementService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -15,6 +14,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -54,13 +54,19 @@ public class AnnouncementController {
     public ResponseEntity<?> findRoommates(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "41") int limit,
-            @RequestParam(required = false) String search) {
+            @RequestParam(required = false) String region,
+            @RequestParam(required = false) Integer minPrice,
+            @RequestParam(required = false) Integer maxPrice,
+            @RequestParam(required = false) String gender,
+            @RequestParam(required = false) Integer roommatesCount,
+            @RequestParam(required = false, defaultValue = "Самые подходящие") String sort) {
+        Sort sortBy = getSort(sort);
 
-        Pageable pageable = PageRequest.of(page - 1, limit);
+        Pageable pageable = PageRequest.of(page - 1, limit, sortBy);
         Page<Announcement> roommatePage;
 
-        if (search != null && !search.isEmpty()) {
-            roommatePage = announcementService.searchRoommateListings(search, pageable);
+        if (region != null || minPrice != null || maxPrice != null || gender != null || roommatesCount != null) {
+            roommatePage = announcementService.searchRoommateListings(region, minPrice, maxPrice, gender, roommatesCount, pageable);
         } else {
             roommatePage = announcementService.getAllRoommateListings(pageable);
         }
@@ -76,6 +82,15 @@ public class AnnouncementController {
         response.put("data", announcementResponses);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+    private Sort getSort(String sort) {
+        return switch (sort) {
+            case "По возрастанию цены" -> Sort.by(Sort.Order.asc("cost")); // по возрастанию цены
+            case "По убыванию цены" -> Sort.by(Sort.Order.desc("cost")); // по убыванию цены
+            case "По новизне" -> Sort.by(Sort.Order.desc("arriveDate")); // по дате (новизне), по убыванию
+            case "Самые подходящие" -> Sort.by(Sort.Order.desc("arriveDate"));
+            default -> Sort.by(Sort.Order.desc("arriveDate")); // по умолчанию сортировка по новизне (убывание)
+        };
     }
 
     @GetMapping("/detail/{id}")
