@@ -1,8 +1,11 @@
 package by.project.turamyzba.mappers;
 
 import by.project.turamyzba.dto.requests.AnnouncementRequest;
+import by.project.turamyzba.dto.responses.ImageResponse;
+import by.project.turamyzba.dto.responses.UserResponse;
 import by.project.turamyzba.entities.Announcement;
 import by.project.turamyzba.entities.Image;
+import by.project.turamyzba.entities.User;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,6 +69,21 @@ public class AnnouncementMapper {
                     .build());
         }
         return images;
+    }
+
+    public static ImageResponse toImageResponse(Image image) {
+        return ImageResponse.builder()
+                .url(image.getUrl())
+                .id(image.getId())
+                .build();
+    }
+
+    public static UserResponse toUserResponse(User user) {
+        return UserResponse.builder()
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .email(user.getEmail())
+                .build();
     }
 
 

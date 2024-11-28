@@ -19,7 +19,7 @@ public interface AnnouncementService {
 
     Page<Announcement> searchRoommateListings(String search, Pageable pageable);
 
-    Announcement getAnnouncementById(Long id);
+    AnnouncementResponse getAnnouncementById(Long id);
 
     List<Announcement> getFilteredAnnouncements(AnnouncementFilterRequest request);
 
@@ -30,4 +30,7 @@ public interface AnnouncementService {
     AnnouncementResponse restoreAnnouncement(Long announcementId);
 
     void deleteAnnouncement(Long announcementId);
+
+    AnnouncementResponse getAnnouncementByUser();
+    AnnouncementResponse toAnnouncementResponse(Announcement announcement);
 }

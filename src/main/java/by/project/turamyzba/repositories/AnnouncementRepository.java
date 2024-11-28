@@ -1,6 +1,7 @@
 package by.project.turamyzba.repositories;
 
 import by.project.turamyzba.entities.Announcement;
+import by.project.turamyzba.entities.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,8 +17,10 @@ public interface AnnouncementRepository extends JpaRepository<Announcement, Inte
     List<Announcement> findByUserId(Long userId);
     Optional<Announcement> findById(Long id);
 
-    Page<Announcement> findByTitleContaining(
+    Page<Announcement> findByTitleContainingAndIsDeletedFalse(
             @Param("title") String title,
             Pageable pageable
     );
+    Announcement findByUser(User user);
+    Page<Announcement> findAllByIsDeletedFalse(Pageable pageable);
 }
