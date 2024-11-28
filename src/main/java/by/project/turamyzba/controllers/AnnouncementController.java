@@ -131,6 +131,18 @@ public class AnnouncementController {
         return ResponseEntity.ok("Объявления успешно удален");
     }
 
+    @GetMapping("/great-deals")
+    public ResponseEntity<?> greatDeals() {
+        Sort sortBy = getSort("По возрастанию цены");
+        Pageable pageable = PageRequest.of(0, 10, sortBy);
+        Page<Announcement> roommatePage = announcementService.getAllRoommateListings(pageable);
+        List<AnnouncementResponse> announcementResponses = roommatePage.getContent().stream()
+                .map(announcementService::toAnnouncementResponse)
+                .collect(Collectors.toList());
+
+        return new ResponseEntity<>(announcementResponses, HttpStatus.OK);
+    }
+
     @PutMapping("/update/{id}")
     @Operation(summary = "Update an announcement", description = "Updates an announcement with provided parameters.")
     @ApiResponse(responseCode = "200", description = "Successfully updated announcement")

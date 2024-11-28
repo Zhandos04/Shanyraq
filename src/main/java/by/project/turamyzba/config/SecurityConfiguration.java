@@ -32,7 +32,8 @@ public class SecurityConfiguration {
             "/auth/**",
             "/actuator/**",
             "/announcement/all",
-            "/announcement/detail/*"
+            "/announcement/detail/*",
+            "/announcement/great-deals"
     };
 
 
