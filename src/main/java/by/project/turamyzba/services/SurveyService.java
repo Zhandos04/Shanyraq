@@ -10,5 +10,4 @@ import java.util.List;
 public interface SurveyService {
     List<QuestionDTO> getAllQuestions();
     void saveUserAnswers(User user, List<UserAnswerDTO> userAnswers);
-    boolean isSurveyCompleted(User user);
 }

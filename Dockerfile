@@ -3,8 +3,8 @@ COPY . /app
 WORKDIR /app
 RUN gradle build -x test
 
-FROM openjdk:21-slim
-COPY --from=build /app/build/libs/turamyzba-0.0.1-SNAPSHOT.jar /app/turamyzba.jar
 
+FROM openjdk:21-slim
+COPY --from=build /app/build/libs/*.jar app.jar
 EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "/app/turamyzba.jar"]
+CMD ["java", "-jar", "app.jar"]

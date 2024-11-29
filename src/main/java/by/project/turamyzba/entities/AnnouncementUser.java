@@ -19,5 +19,4 @@ public class AnnouncementUser {
     @ManyToOne
     @JoinColumn(name = "announcement_id")
     private Announcement announcement;
-
 }

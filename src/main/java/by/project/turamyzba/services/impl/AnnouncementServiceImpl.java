@@ -3,6 +3,7 @@ package by.project.turamyzba.services.impl;
 import by.project.turamyzba.dto.requests.AnnouncementFilterRequest;
 import by.project.turamyzba.dto.requests.AnnouncementRequest;
 import by.project.turamyzba.dto.responses.AnnouncementResponse;
+import by.project.turamyzba.entities.AnnouncementUser;
 import by.project.turamyzba.mappers.AnnouncementMapper;
 import by.project.turamyzba.entities.Announcement;
 import by.project.turamyzba.entities.Image;
@@ -70,6 +71,7 @@ public class AnnouncementServiceImpl implements AnnouncementService {
         List<Image> images = AnnouncementMapper.toImages(announcementRequest.getImages(), announcement);
         announcement.setPhotos(images);
         announcement.setUser(user);
+
         announcementRepository.save(announcement);
     }
 

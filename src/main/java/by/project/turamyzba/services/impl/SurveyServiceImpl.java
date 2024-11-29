@@ -7,10 +7,9 @@ import by.project.turamyzba.entities.User;
 import by.project.turamyzba.entities.anketa.Option;
 import by.project.turamyzba.entities.anketa.Question;
 import by.project.turamyzba.entities.anketa.UserAnswer;
-import by.project.turamyzba.entities.anketa.UserStatus;
+import by.project.turamyzba.repositories.UserRepository;
 import by.project.turamyzba.repositories.anketa.QuestionRepository;
 import by.project.turamyzba.repositories.anketa.UserAnswerRepository;
-import by.project.turamyzba.repositories.anketa.UserStatusRepository;
 import by.project.turamyzba.services.SurveyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,7 +22,7 @@ import java.util.List;
 public class SurveyServiceImpl implements SurveyService {
     private final QuestionRepository questionRepository;
     private final UserAnswerRepository userAnswerRepository;
-    private final UserStatusRepository userStatusRepository;
+    private final UserRepository userRepository;
 
     // Получение всех вопросов с преобразованием в DTO
     @Override
@@ -59,19 +58,8 @@ public class SurveyServiceImpl implements SurveyService {
         userAnswerRepository.saveAll(answers);
 
         // Обновить статус пользователя
-        UserStatus status = userStatusRepository.findByUser(user)
-                .orElse(new UserStatus());
-        status.setUser(user);
-        status.setSurveyCompleted(true);
-        userStatusRepository.save(status);
-    }
-
-    // Проверка, прошел ли пользователь анкету
-    @Override
-    public boolean isSurveyCompleted(User user) {
-        return userStatusRepository.findByUser(user)
-                .map(UserStatus::isSurveyCompleted)
-                .orElse(false);
+        user.setIsSurveyCompleted(true);
+        userRepository.save(user);
     }
 
     // Вспомогательный метод для преобразования Question в DTO

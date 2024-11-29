@@ -69,7 +69,8 @@ public class User implements UserDetails {
 
     @Column(name = "profile_photo")
     private String profilePhoto;
-
+    @Column(name = "is_survey_completed")
+    private Boolean isSurveyCompleted;
     @Override
     public boolean isAccountNonExpired() {
         return true;
