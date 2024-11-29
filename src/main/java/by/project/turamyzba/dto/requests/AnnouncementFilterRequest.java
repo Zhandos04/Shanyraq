@@ -5,6 +5,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Data
@@ -12,18 +13,26 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class AnnouncementFilterRequest {
-    private String title;
-    private String apartmentsInfo;
-    private String address; // область/город
-    private String startAt; // Время заезда (селект дата)
-    private Integer deposit; // есть/нет депозита
-    private Integer maxPeople; // кол-во людей
     private String selectedGender; // гендер
+    private String region;
+    private String district;
+    private String microDistrict;
+    private String residentialComplex;
+    private Integer minPrice;
+    private Integer maxPrice;
+    private Integer numberOfPeopleAreYouAccommodating;
+    private String quantityOfRooms;
+    private Integer minAge;
+    private Integer maxAge;
+    private LocalDate arriveDate;
+    private Integer minArea;
+    private Integer maxArea;
+    private Boolean notTheFirstFloor;
+    private Boolean notTheTopFloor;
+    private Boolean arePetsAllowed;
     private Boolean isCommunalServiceIncluded;
-    private String roomiePreferences;
-    private Integer monthlyExpensePerPerson; // ценовой диапазон
-    private List<String> imageUrls;
-    private Boolean isStudent; // студенты/не студенты
-    private Boolean isLongTerm; // долгосрок/краткосрок
-    private Integer ageRange; // возрастной
+    private Boolean intendedForStudents;
+    private Boolean onlyApartmentsWithoutResidents;
+    private String fromWhom; // от хозяев - от жителей
+    private String typeOfHousing; // дом - квартира
 }
