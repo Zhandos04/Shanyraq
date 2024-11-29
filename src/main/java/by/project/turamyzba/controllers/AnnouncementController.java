@@ -10,7 +10,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
-import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -31,12 +30,8 @@ import java.util.stream.Collectors;
 public class AnnouncementController {
     private final AnnouncementService announcementService;
 
-    private final ModelMapper modelMapper = new ModelMapper();
-
     @PostMapping("/create")
-    @Operation(summary = "Create a new announcement", description = "Creates a new announcement with provided parameters.")
-    @ApiResponse(responseCode = "200", description = "Successfully created announcement")
-    @ApiResponse(responseCode = "400", description = "Parameters are invalid")
+    @Operation(summary = "Объявление создать ету", description = "Осы announcementRequest бойынша объявление создать ету.")
     public ResponseEntity<?> createAnnouncement(@RequestBody @Valid AnnouncementRequest announcementRequest) {
         try {
             announcementService.createAnnouncement(announcementRequest);
@@ -51,6 +46,8 @@ public class AnnouncementController {
     }
 
     @GetMapping("/all")
+    @Operation(summary = "Барлык объявлениелерди алу.", description = "По дефолту 41 объявление береди. Показать еще баскан кезде" +
+            "page ди инкремент жасап обратно осы эндпоинтка жибересиндер. sort ка дал дизайнда тургандай жибересиндер например Самые подходящие деп ешкандай ошибкасыз")
     public ResponseEntity<?> findRoommates(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "41") int limit,
@@ -94,37 +91,41 @@ public class AnnouncementController {
     }
 
     @GetMapping("/detail/{id}")
+    @Operation(summary = "Объявление детально алу.", description = "Барлык объявление алган кезде ар объявлениенин айдишкасыда барады" +
+            " вот сол айдишканы осы эндпоинт жибересиндер детально алу ушин.")
     public ResponseEntity<?> detail(@PathVariable Long id) {
         return ResponseEntity.ok(announcementService.getAnnouncementById(id));
     }
 
-    @Operation(summary = "Получение объявлений пользователя", description = "Получение всех объявлений пользователя")
+    @Operation(summary = "Определенный пользовательдин активный объявлениелерин алу.", description = "Ешкандай зат жибермейсиндер кроме токена токен аркылы кай " +
+            "пользователь жиберип тур соны аныктап сонын объявлениелерин жиберемин.")
     @GetMapping("/my-active-announcements")
     public ResponseEntity<List<AnnouncementResponse>> getMyAnnouncements(){
         return ResponseEntity.ok(announcementService.getUserAnnouncements());
     }
 
-    @Operation(summary = "Получение объявлений пользователя", description = "Получение всех объявлений пользователя")
+    @Operation(summary = "Определенный пользовательдин архивный объявлениелерин алу.", description = "Ешкандай зат жибермейсиндер кроме токена токен аркылы кай " +
+            "пользователь жиберип тур соны аныктап сонын объявлениелерин жиберемин.")
     @GetMapping("/my-archive-announcements")
     public ResponseEntity<List<AnnouncementResponse>> getMyArchiveAnnouncements(){
         return ResponseEntity.ok(announcementService.getUserArchiveAnnouncements());
     }
 
     @PostMapping("/archive-announcement/{id}")
-    @Operation(summary = "Архивация объявления", description = "Пользователь архивирует объявление")
+    @Operation(summary = "Архивация объявления", description = "Пользователь архивирует объявление. Объявлениенин айдиын жибересиндер.")
     public ResponseEntity<?> archiveAnnouncement(@PathVariable Long id) throws BadRequestException {
         announcementService.archiveAnnouncement(id);
         return ResponseEntity.ok("Объявления успешно архивирован");
     }
 
-    @Operation(summary = "Возвращает объявление в топ", description = "Пользователь возвращает объявление в топ")
+    @Operation(summary = "Возвращает объявление в топ", description = "Пользователь возвращает объявление в топ. Объявлениенин айдиын жибересиндер.")
     @PostMapping("/restore-announcement/{id}")
     public ResponseEntity<?> restoreAnnouncement(@PathVariable Long id) throws BadRequestException {
         announcementService.restoreAnnouncement(id);
         return ResponseEntity.ok("Объявления успешно возрващен в топ");
     }
 
-    @Operation(summary = "Удаление объявление с архива", description = "Пользователь удаляет архивиронное объявление")
+    @Operation(summary = "Удаление объявление с архива", description = "Пользователь удаляет архивиронное объявление. Объявлениенин айдиын жибересиндер.")
     @DeleteMapping("/delete-announcement/{id}")
     public ResponseEntity<?> deleteAnnouncement(@PathVariable Long id) throws BadRequestException {
         announcementService.deleteAnnouncement(id);
@@ -132,6 +133,7 @@ public class AnnouncementController {
     }
 
     @GetMapping("/great-deals")
+    @Operation(summary = "Выгодные предложения", description = "Пока что чисто по возрастнию цены объявлениелер кайтарады 10 штук.")
     public ResponseEntity<?> greatDeals() {
         Sort sortBy = getSort("По возрастанию цены");
         Pageable pageable = PageRequest.of(0, 10, sortBy);
@@ -144,6 +146,7 @@ public class AnnouncementController {
     }
 
     @GetMapping("/search")
+    @Operation(summary = "Фильтр")
     public ResponseEntity<?> getFilteredAnnouncements(@RequestBody AnnouncementFilterRequest request) {
         List<AnnouncementResponse> announcementResponses = announcementService.getFilteredAnnouncements(request).stream()
                 .map(announcementService::toAnnouncementResponse)
@@ -153,10 +156,6 @@ public class AnnouncementController {
 
     @PutMapping("/update/{id}")
     @Operation(summary = "Update an announcement", description = "Updates an announcement with provided parameters.")
-    @ApiResponse(responseCode = "200", description = "Successfully updated announcement")
-    @ApiResponse(responseCode = "400", description = "Parameters are invalid")
-    @ApiResponse(responseCode = "403", description = "User not authorized to update this announcement")
-    @ApiResponse(responseCode = "404", description = "Announcement not found")
     public ResponseEntity<AnnouncementResponse> updateAnnouncement(@PathVariable Long id, @RequestBody @Valid AnnouncementRequest announcementRequest) {
         AnnouncementResponse announcementResponse = announcementService.updateAnnouncement(id, announcementRequest);
         return ResponseEntity.ok(announcementResponse);

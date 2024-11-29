@@ -2,6 +2,7 @@ package by.project.turamyzba.controllers;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -24,6 +25,7 @@ public class FileUploadController {
     private String bucketName;
 
     @PostMapping("/upload")
+    @Operation(summary = "Объявление суреттерин загружать ету", description = "Объявление создать либо обновить еткенде биринши осы эндпоинтка жибересиндер суреттерди барлык потом ссылкаларын алып барып создать етуге жибересиндер ссылкаларымен")
     public ResponseEntity<List<String>> uploadFiles(@RequestParam("files") MultipartFile[] files) {
         List<String> fileUrls = new ArrayList<>();
 
