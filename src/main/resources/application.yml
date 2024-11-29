@@ -4,9 +4,9 @@ spring:
 
   datasource:
     driverClassName: org.postgresql.Driver
-    url: ${DATABASE_URL:jdbc:postgresql://db:5432/${POSTGRES_DB}}
-    username: ${DATABASE_USERNAME:${POSTGRES_USER}}
-    password: ${DATABASE_PASSWORD:${POSTGRES_PASSWORD}}
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5433/Turamyzba}
+    username: ${DATABASE_USERNAME:postgres}
+    password: ${DATABASE_PASSWORD:zhandos04}
   jpa:
     properties:
       hibernate:
@@ -21,9 +21,9 @@ spring:
 
   flyway:
     enabled: true
-    url: ${DATABASE_URL:jdbc:postgresql://db:5432/${POSTGRES_DB}}
-    user: ${DATABASE_USERNAME:${POSTGRES_USER}}
-    password: ${DATABASE_PASSWORD:${POSTGRES_PASSWORD}}
+    url: jdbc:postgresql://localhost:5432/turamyzba
+    user: test
+    password: 12345678
     locations: classpath:db/migration
 
   mail:
@@ -37,6 +37,10 @@ spring:
           auth: true
           starttls:
             enable: true
+  data:
+    redis:
+      host: ${SPRING_REDIS_HOST:localhost}
+      port: ${SPRING_REDIS_PORT:6379}
 
 2gis:
   api:
