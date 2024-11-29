@@ -25,34 +25,6 @@ CREATE TABLE IF NOT EXISTS turamyzba."User"
     isDeleted BOOLEAN   DEFAULT FALSE
     );
 
-
--- Phone Table
-CREATE TABLE IF NOT EXISTS turamyzba.Phone
-(
-    ID          SERIAL PRIMARY KEY,
-    userId      INT,
-    phoneNumber VARCHAR(15) UNIQUE,
-    isVerify    BOOLEAN   DEFAULT FALSE,
-    createdAt   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updatedAt   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    isDeleted   BOOLEAN   DEFAULT FALSE,
-    CONSTRAINT FK_Phone_User FOREIGN KEY (userId) REFERENCES turamyzba."User" (ID)
-    );
-
--- WhatsApp Table
-CREATE TABLE IF NOT EXISTS turamyzba.WhatsApp
-(
-    ID          SERIAL PRIMARY KEY,
-    userId      INT,
-    phoneNumber VARCHAR(15) UNIQUE,
-    isVerify    BOOLEAN   DEFAULT FALSE,
-    createdAt   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updatedAt   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    isDeleted   BOOLEAN   DEFAULT FALSE,
-    CONSTRAINT FK_WhatsApp_User FOREIGN KEY (userId) REFERENCES turamyzba."User" (ID)
-    );
-
-
 -- Announcement Table
 CREATE TABLE IF NOT EXISTS turamyzba.Announcement
 (
@@ -117,34 +89,4 @@ CREATE TABLE IF NOT EXISTS turamyzba.AnnouncementPhone
     isDeleted      BOOLEAN   DEFAULT FALSE,
     CONSTRAINT FK_AnnouncementPhone_Announcement FOREIGN KEY (announcementId) REFERENCES turamyzba.Announcement (ID),
     CONSTRAINT FK_AnnouncementPhone_Phone FOREIGN KEY (phoneId) REFERENCES turamyzba.Phone (ID)
-    );
-
-
--- Review Table
-CREATE TABLE IF NOT EXISTS turamyzba.Review
-(
-    ID          SERIAL PRIMARY KEY,
-    createdBy   INT,
-    addressedTo INT,
-    content     TEXT,
-    createdAt   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updatedAt   TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    isDeleted   BOOLEAN   DEFAULT FALSE,
-    CONSTRAINT FK_Review_CreatedBy FOREIGN KEY (createdBy) REFERENCES turamyzba."User" (ID),
-    CONSTRAINT FK_Review_AddressedTo FOREIGN KEY (addressedTo) REFERENCES turamyzba."User" (ID)
-    );
-
-
--- ReviewVotes Table
-CREATE TABLE IF NOT EXISTS turamyzba.ReviewVotes
-(
-    ID        SERIAL PRIMARY KEY,
-    reviewId  INT,
-    userId    INT,
-    isUp      BOOLEAN,
-    createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    isDeleted BOOLEAN   DEFAULT FALSE,
-    CONSTRAINT FK_ReviewVotes_Review FOREIGN KEY (reviewId) REFERENCES turamyzba.Review (ID),
-    CONSTRAINT FK_ReviewVotes_User FOREIGN KEY (userId) REFERENCES turamyzba."User" (ID)
     );
