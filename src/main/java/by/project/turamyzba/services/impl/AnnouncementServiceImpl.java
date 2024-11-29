@@ -55,8 +55,7 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     @Transactional
     @Override
     public void createAnnouncement(AnnouncementRequest announcementRequest) throws IOException {
-        String[] coords = getCoordsFromAddress(announcementRequest.getMicroDistrict() + ", " + announcementRequest.getDistrict() + ", "
-                + announcementRequest.getRegion());
+        String[] coords = getCoordsFromAddress(announcementRequest.getAddress());
 
         if (coords.length < 2) {
             throw new BadRequestException("Unable to determine coordinates for the given address");
@@ -199,36 +198,6 @@ public class AnnouncementServiceImpl implements AnnouncementService {
         announcementRepository.save(announcement);
     }
 
-    @Transactional
-    public AnnouncementResponse updateAnnouncement(Long id, AnnouncementRequest announcementRequest) {
-        Announcement announcement = announcementRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Announcement not found"));
-
-        User user = userRepository.findByEmail(userService.getCurrentUser().getUsername())
-                .orElseThrow(() -> new IllegalArgumentException("User not found"));
-
-        if(!announcement.getUser().equals(user)) {
-            throw new IllegalArgumentException("You can't update this announcement");
-        }
-
-        if (announcement.getPhotos() != null) {
-            announcement.getPhotos().clear();
-        } else {
-            announcement.setPhotos(new ArrayList<>());
-        }
-
-        if(!announcementRequest.getAddress().equals(announcement.getAddress())) {
-            String[] coords = getCoordsFromAddress(announcementRequest.getAddress());
-            announcement.setCoordsX(coords[0]);
-            announcement.setCoordsY(coords[1]);
-        }
-
-        AnnouncementMapper.updateAnnouncementFromRequest(announcement, announcementRequest);
-
-        Announcement updatedAnnouncement = announcementRepository.save(announcement);
-
-        return modelMapper.map(updatedAnnouncement, AnnouncementResponse.class);
-    }
-
     @Override
     @Transactional(readOnly = true)
     public List<Announcement> getFilteredAnnouncements(AnnouncementFilterRequest request) {
@@ -342,6 +311,40 @@ public class AnnouncementServiceImpl implements AnnouncementService {
             // Строим окончательный запрос
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         });
+    }
+
+    @Transactional
+    @Override
+    public AnnouncementResponse updateAnnouncement(Long id, AnnouncementRequest announcementRequest) {
+        Announcement announcement = announcementRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Announcement not found"));
+
+        User user = userRepository.findByEmail(userService.getCurrentUser().getUsername())
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+        if(!announcement.getUser().equals(user)) {
+            throw new IllegalArgumentException("You can't update this announcement");
+        }
+
+        if (announcement.getPhotos() != null) {
+            announcement.getPhotos().clear();
+        } else {
+            announcement.setPhotos(new ArrayList<>());
+        }
+
+        if(!announcementRequest.getAddress().equals(announcement.getAddress())) {
+            String[] coords = getCoordsFromAddress(announcementRequest.getAddress());
+            announcement.setCoordsX(coords[0]);
+            announcement.setCoordsY(coords[1]);
+        }
+
+        AnnouncementMapper.updateAnnouncementFromRequest(announcement, announcementRequest);
+
+        List<Image> images = AnnouncementMapper.toImages(announcementRequest.getImages(), announcement);
+        announcement.setPhotos(images);
+
+        Announcement updatedAnnouncement = announcementRepository.save(announcement);
+
+        return toAnnouncementResponse(updatedAnnouncement);
     }
 
 
