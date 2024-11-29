@@ -3,8 +3,6 @@ package by.project.turamyzba.controllers;
 import by.project.turamyzba.dto.responses.QuestionDTO;
 import by.project.turamyzba.dto.responses.UserAnswerDTO;
 import by.project.turamyzba.entities.User;
-import by.project.turamyzba.entities.anketa.Question;
-import by.project.turamyzba.entities.anketa.UserAnswer;
 import by.project.turamyzba.services.SurveyService;
 import by.project.turamyzba.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
