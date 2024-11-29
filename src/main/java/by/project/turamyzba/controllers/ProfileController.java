@@ -8,7 +8,6 @@ import by.project.turamyzba.services.UserService;
 import by.project.turamyzba.exceptions.IncorrectJSONException;
 import by.project.turamyzba.services.impl.S3Service;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -38,10 +37,6 @@ public class ProfileController {
     }
     @GetMapping
     @Operation(summary = "Register a new user", description = "Registers a new user by checking for existing IDs and phone numbers.")
-    @ApiResponse(responseCode = "200", description = "Successfully retrieved profile")
-    @ApiResponse(responseCode = "401", description = "You are not authorized to view the resource")
-    @ApiResponse(responseCode = "403", description = "Accessing the resource you were trying to reach is forbidden")
-    @ApiResponse(responseCode = "404", description = "The resource you were trying to reach is not found")
     public ProfileResponse get() {
         return profileService.getUser();
     }
@@ -49,9 +44,6 @@ public class ProfileController {
 
     @PutMapping("/edit")
     @Operation(summary = "Edit user profile", description = "Updates the user profile based on provided data")
-    @ApiResponse(responseCode = "200", description = "Profile updated successfully")
-    @ApiResponse(responseCode = "400", description = "Invalid input")
-    @ApiResponse(responseCode = "500", description = "Internal server error")
     public ResponseEntity<?> edit(@RequestBody @Valid ProfileDTO profileDTO, BindingResult bindingResult) throws IncorrectJSONException {
         if (bindingResult.hasErrors()) {
             List<FieldError> errors = bindingResult.getFieldErrors();
@@ -65,11 +57,13 @@ public class ProfileController {
     }
 
     @PatchMapping("/update-password")
+    @Operation(summary = "Пароль озгерту")
     public ResponseEntity<?> updatePassword(@RequestBody @Valid PasswordDTO passwordDTO) {
         profileService.updatePassword(passwordDTO);
         return ResponseEntity.ok("Пароль успешно изменен");
     }
     @PatchMapping("/upload-photo")
+    @Operation(summary = "Фото профилья")
     public ResponseEntity<?> uploadPhoto(@RequestParam("file") MultipartFile file) {
         try {
             // Загружаем файл на S3
