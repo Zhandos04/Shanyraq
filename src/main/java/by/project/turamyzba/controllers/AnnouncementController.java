@@ -143,6 +143,14 @@ public class AnnouncementController {
         return new ResponseEntity<>(announcementResponses, HttpStatus.OK);
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<?> getFilteredAnnouncements(@RequestBody AnnouncementFilterRequest request) {
+        List<AnnouncementResponse> announcementResponses = announcementService.getFilteredAnnouncements(request).stream()
+                .map(announcementService::toAnnouncementResponse)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(announcementResponses);
+    }
+
     @PutMapping("/update/{id}")
     @Operation(summary = "Update an announcement", description = "Updates an announcement with provided parameters.")
     @ApiResponse(responseCode = "200", description = "Successfully updated announcement")
@@ -152,13 +160,5 @@ public class AnnouncementController {
     public ResponseEntity<AnnouncementResponse> updateAnnouncement(@PathVariable Long id, @RequestBody @Valid AnnouncementRequest announcementRequest) {
         AnnouncementResponse announcementResponse = announcementService.updateAnnouncement(id, announcementRequest);
         return ResponseEntity.ok(announcementResponse);
-    }
-
-    @GetMapping("/search")
-    public ResponseEntity<?> getFilteredAnnouncements(@RequestBody AnnouncementFilterRequest request) {
-        List<AnnouncementResponse> announcementResponses = announcementService.getFilteredAnnouncements(request).stream()
-                .map(announcement -> modelMapper.map(announcement, AnnouncementResponse.class))
-                .collect(Collectors.toList());
-        return ResponseEntity.ok(announcementResponses);
     }
 }
