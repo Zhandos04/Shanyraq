@@ -89,10 +89,37 @@ public class AnnouncementMapper {
 
     public static void updateAnnouncementFromRequest(Announcement announcement, AnnouncementRequest request) {
         announcement.setTitle(request.getTitle());
-        announcement.setApartmentsInfo(request.getApartmentsInfo());
-        announcement.setAddress(request.getAddress());
-        announcement.setDeposit(request.getDeposit());
         announcement.setSelectedGender(request.getSelectedGender());
+        announcement.setDoYouLiveInThisHouse(request.getDoYouLiveInThisHouse());
+        announcement.setHowManyPeopleLiveInThisApartment(request.getHowManyPeopleLiveInThisApartment());
+        announcement.setNumberOfPeopleAreYouAccommodating(request.getNumberOfPeopleAreYouAccommodating());
+        announcement.setMinAge(request.getMinAge());
+        announcement.setMaxAge(request.getMaxAge());
+        announcement.setRegion(request.getRegion());
+        announcement.setDistrict(request.getDistrict());
+        announcement.setMicroDistrict(request.getMicroDistrict());
+        announcement.setAddress(request.getAddress());
+        announcement.setArriveDate(request.getArriveDate());
+        announcement.setQuantityOfRooms(request.getQuantityOfRooms());
+        announcement.setIsDepositRequired(request.getIsDepositRequired());
+        announcement.setDeposit(request.getDeposit());
+        announcement.setArePetsAllowed(request.getArePetsAllowed());
         announcement.setIsCommunalServiceIncluded(request.getIsCommunalServiceIncluded());
+        announcement.setMinAmountOfCommunalService(request.getMinAmountOfCommunalService());
+        announcement.setMaxAmountOfCommunalService(request.getMaxAmountOfCommunalService());
+        announcement.setIntendedForStudents(request.getIntendedForStudents());
+        announcement.setAreBadHabitsAllowed(request.getAreBadHabitsAllowed());
+        announcement.setApartmentsInfo(request.getApartmentsInfo());
+        announcement.setTypeOfHousing(request.getTypeOfHousing());
+        announcement.setNumberOfFloor(request.getNumberOfFloor());
+        announcement.setMaxFloorInTheBuilding(request.getMaxFloorInTheBuilding());
+        announcement.setAreaOfTheApartment(request.getAreaOfTheApartment());
+        announcement.setResidentialComplex(request.getResidentialComplex());
+        announcement.setIntersectionWith(request.getIntersectionWith());
+        announcement.setForALongTime(request.getForALongTime());
+        announcement.setOwnersName(request.getOwnersName());
+        announcement.setPhoneNumbers(request.getPhoneNumbers());
+        announcement.setResidents(request.getResidents());
+        announcement.setPreferences(request.getPreferences());
     }
 }
