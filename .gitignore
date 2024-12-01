@@ -39,3 +39,4 @@ out/
 # Ignore .env file containing sensitive data
 .env
 
+./src/main/resources/application.yml
