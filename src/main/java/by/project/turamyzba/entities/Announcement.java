@@ -22,6 +22,8 @@ public class Announcement {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    @Column(name = "role")
+    private String role;
     @Column(name = "title", nullable = false)
     private String title;
     @Column(name = "selected_gender")

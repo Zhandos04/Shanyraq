@@ -30,13 +30,8 @@ public class ProfileController {
     private final UserService userService;
     private final S3Service s3Service;
 
-    @PostMapping("/role")
-    public ResponseEntity<?> chooseRole(@RequestParam String role) {
-        userService.chooseRole(role);
-        return ResponseEntity.ok("Role is choosen!");
-    }
     @GetMapping
-    @Operation(summary = "Register a new user", description = "Registers a new user by checking for existing IDs and phone numbers.")
+    @Operation(summary = "Профиль данные алу")
     public ProfileResponse get() {
         return profileService.getUser();
     }

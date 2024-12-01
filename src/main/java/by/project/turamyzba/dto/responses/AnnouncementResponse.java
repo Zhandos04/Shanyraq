@@ -17,6 +17,8 @@ import java.util.Map;
 public class AnnouncementResponse {
     private Long id;
 
+    private String role;
+
     private String title;
 
     private String selectedGender;
