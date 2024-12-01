@@ -16,6 +16,8 @@ import java.util.Map;
 @Builder
 public class AnnouncementRequest {
 
+    private String role;
+
     @NotNull(message = "Title cannot be null")
     @Size(min = 5, max = 100, message = "Title must be between 5 and 100 characters")
     private String title;
