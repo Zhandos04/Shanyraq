@@ -36,7 +36,7 @@ public class JwtService {
         return claimsResolver.apply(claims);
     }
 
-    private final long ACCESS_TOKEN_VALIDITY = 1_800_000; // 30 минут
+    private final long ACCESS_TOKEN_VALIDITY = 604_800_000; // 30 минут
     private final long REFRESH_TOKEN_VALIDITY = 604_800_000; // 7 дней
 
 

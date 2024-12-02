@@ -102,7 +102,6 @@ public class AuthController {
 
         AuthDTO authDTO = modelMapper.map(userOptional.get(), AuthDTO.class);
         authDTO.setAccessToken(tokens.get("accessToken"));
-        authDTO.setRefreshToken(tokens.get("refreshToken"));
         return ResponseEntity.ok(authDTO);
     }
     @PostMapping("/logout")

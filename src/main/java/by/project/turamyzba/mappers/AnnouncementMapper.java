@@ -15,6 +15,7 @@ public class AnnouncementMapper {
     public static Announcement toEntity(AnnouncementRequest request, String[] coords) {
         return Announcement.builder()
                 .title(request.getTitle())
+                .role(request.getRole())
                 .selectedGender(request.getSelectedGender())
                 .doYouLiveInThisHouse(request.getDoYouLiveInThisHouse())
                 .howManyPeopleLiveInThisApartment(request.getHowManyPeopleLiveInThisApartment())
@@ -89,6 +90,7 @@ public class AnnouncementMapper {
 
     public static void updateAnnouncementFromRequest(Announcement announcement, AnnouncementRequest request) {
         announcement.setTitle(request.getTitle());
+        announcement.setRole(request.getRole());
         announcement.setSelectedGender(request.getSelectedGender());
         announcement.setDoYouLiveInThisHouse(request.getDoYouLiveInThisHouse());
         announcement.setHowManyPeopleLiveInThisApartment(request.getHowManyPeopleLiveInThisApartment());

@@ -56,7 +56,7 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     @Transactional
     @Override
     public void createAnnouncement(AnnouncementRequest announcementRequest) throws IOException {
-        String[] coords = getCoordsFromAddress(announcementRequest.getAddress());
+        String[] coords = getCoordsFromAddress(announcementRequest.getRegion() + ", " + announcementRequest.getDistrict() + ", " + announcementRequest.getMicroDistrict() + ", " + announcementRequest.getAddress());
 
         if (coords.length < 2) {
             throw new BadRequestException("Unable to determine coordinates for the given address");
