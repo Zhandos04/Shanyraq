@@ -70,7 +70,7 @@ public class ProfileServiceImpl implements ProfileService {
     private ProfileResponse convertToProfileResponse(User user) {
         ProfileResponse profileDTO = new ProfileResponse();
         profileDTO.setPhoneNumber(user.getPhoneNumber());
-        profileDTO.setGender(user.getGender().name());
+        profileDTO.setGender(user.getGender() != null ? user.getGender().name() : "Not Provided");
         profileDTO.setFirstName(user.getFirstName());
         profileDTO.setLastName(user.getLastName());
         profileDTO.setBirthDate(String.valueOf(user.getBirthDate()));
@@ -81,7 +81,12 @@ public class ProfileServiceImpl implements ProfileService {
     }
 
     private void updateUserData(User user, ProfileDTO profileDTO) {
-        user.setGender(Gender.valueOf(profileDTO.getGender().toUpperCase()));
+        if (profileDTO.getGender() != null && !profileDTO.getGender().isEmpty()) {
+            user.setGender(Gender.valueOf(profileDTO.getGender().toUpperCase()));
+        } else {
+            // Handle the case where gender is missing, e.g., set default value
+            user.setGender(Gender.NOT_PROVIDED); // Assuming NOT_PROVIDED is an enum value
+        }
         user.setBirthDate(LocalDate.parse(profileDTO.getBirthDate()));
         user.setFirstName(profileDTO.getFirstName());
         user.setLastName(profileDTO.getLastName());

@@ -55,7 +55,7 @@ public class User implements UserDetails {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "gender")
-    private Gender gender;
+    private Gender gender = Gender.NOT_PROVIDED; // Default value
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role")
