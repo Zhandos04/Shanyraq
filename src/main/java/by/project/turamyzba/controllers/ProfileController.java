@@ -3,9 +3,9 @@ package by.project.turamyzba.controllers;
 import by.project.turamyzba.dto.requests.PasswordDTO;
 import by.project.turamyzba.dto.requests.ProfileDTO;
 import by.project.turamyzba.dto.responses.ProfileResponse;
+import by.project.turamyzba.exceptions.IncorrectJSONException;
 import by.project.turamyzba.services.ProfileService;
 import by.project.turamyzba.services.UserService;
-import by.project.turamyzba.exceptions.IncorrectJSONException;
 import by.project.turamyzba.services.impl.S3Service;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -57,14 +57,27 @@ public class ProfileController {
         profileService.updatePassword(passwordDTO);
         return ResponseEntity.ok("Пароль успешно изменен");
     }
-    @PatchMapping("/upload-photo")
+
+    @PatchMapping(value = "/upload-photo", consumes = "multipart/form-data")
     @Operation(summary = "Фото профилья")
     public ResponseEntity<?> uploadPhoto(@RequestParam("file") MultipartFile file) {
+        if (file.isEmpty()) {
+            return ResponseEntity.badRequest().body("No file provided");
+        }
+
+        String contentType = file.getContentType();
+        if (contentType == null || !contentType.startsWith("image/")) {
+            return ResponseEntity.badRequest().body("Invalid file type. Only image files are allowed.");
+        }
+
+        if (file.getSize() > 10 * 1024 * 1024) { // 10MB
+            return ResponseEntity.badRequest().body("File is too large. Maximum size is 10MB.");
+        }
+
         try {
-            // Загружаем файл на S3
             String fileUrl = s3Service.uploadFile(file);
             profileService.uploadProfilePhoto(fileUrl);
-            // Возвращаем URL загруженного фото
+
             return ResponseEntity.ok(fileUrl);
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
