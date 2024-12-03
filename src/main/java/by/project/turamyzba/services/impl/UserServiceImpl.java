@@ -2,7 +2,6 @@ package by.project.turamyzba.services.impl;
 
 import by.project.turamyzba.dto.requests.UserDTO;
 import by.project.turamyzba.entities.User;
-import by.project.turamyzba.entities.usermodelenums.Role;
 import by.project.turamyzba.repositories.UserRepository;
 import by.project.turamyzba.services.UserService;
 import by.project.turamyzba.exceptions.UserAlreadyExistsException;
@@ -30,7 +29,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDetails loadUserByUsername(String username) {
-        User user = getUserByEmail(username).get();
+        User user = getUserByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found!"));
         return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(), user.getAuthorities());
     }
 
@@ -44,11 +44,10 @@ public class UserServiceImpl implements UserService {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setIsVerified(false);
         user.setGender("Любой");
-        user.setRole(Role.ROLE_OWNER);
         userRepository.save(user);
         String code = generateCode();
         saveUserConfirmationCode(user.getId(), code);
-        emailService.sendEmail(userDTO.getEmail(), "Shanyraq Verity Email", "Your code is: " + code);
+        emailService.sendEmail(userDTO.getEmail(), "Shanyraq Verify Email", "Your code is: " + code);
     }
 
     @Transactional
@@ -108,14 +107,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void chooseRole(String role) {
-        User user = getUserByEmail(getCurrentUser().getUsername())
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        if(role.equals("Я хозяин")) {
-            user.setRole(Role.ROLE_OWNER);
-        }else {
-            user.setRole(Role.ROLE_RESIDENT);
-        }
-        userRepository.save(user);
+    public void resentCode(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found!"));
+        String code = generateCode();
+        saveUserConfirmationCode(user.getId(), code);
+        emailService.sendEmail(email, "Shanyraq Verify Email", "Your code is: " + code);
     }
 }

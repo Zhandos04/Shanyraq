@@ -15,5 +15,5 @@ public interface UserService {
     void updatePassword(User user);
     Optional<User> getUserByEmail(String email);
     UserDetails getCurrentUser();
-    void chooseRole(String role);
+    void resentCode(String email);
 }

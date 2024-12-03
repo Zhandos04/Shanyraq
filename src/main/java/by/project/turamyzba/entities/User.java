@@ -55,10 +55,6 @@ public class User implements UserDetails {
     @Column(name = "gender")
     private String gender;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "role")
-    private Role role;
-
     @Column(name = "is_deleted")
     private Boolean isDeleted;
 
@@ -91,7 +87,7 @@ public class User implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singleton(new SimpleGrantedAuthority(role.name()));
+        return Collections.emptyList();
     }
 
     @Override
