@@ -66,11 +66,10 @@ public class JwtFilter extends OncePerRequestFilter {
                     UserDetails userDetails = userService.loadUserByUsername(username);
                     // Проверяем валидность токена
                     if (jwtService.validateToken(token, userDetails)) {
-                        String tokenRole = jwtService.extractClaim(token, claims -> claims.get("role", String.class));
                         UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                                 userDetails,
                                 null,
-                                Collections.singleton(new SimpleGrantedAuthority(tokenRole))
+                                userDetails.getAuthorities()
                         );
                         authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                         SecurityContextHolder.getContext().setAuthentication(authToken);

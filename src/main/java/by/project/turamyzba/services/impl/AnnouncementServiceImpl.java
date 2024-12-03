@@ -3,7 +3,6 @@ package by.project.turamyzba.services.impl;
 import by.project.turamyzba.dto.requests.AnnouncementFilterRequest;
 import by.project.turamyzba.dto.requests.AnnouncementRequest;
 import by.project.turamyzba.dto.responses.AnnouncementResponse;
-import by.project.turamyzba.entities.AnnouncementUser;
 import by.project.turamyzba.mappers.AnnouncementMapper;
 import by.project.turamyzba.entities.Announcement;
 import by.project.turamyzba.entities.Image;
@@ -226,10 +225,10 @@ public class AnnouncementServiceImpl implements AnnouncementService {
                 predicates.add(criteriaBuilder.equal(root.get("microDistrict"), request.getMicroDistrict()));
             }
 
-            // Фильтрация по жилому комплексу (residentialComplex)
-            if (request.getResidentialComplex() != null && !request.getResidentialComplex().isEmpty()) {
-                predicates.add(criteriaBuilder.equal(root.get("residentialComplex"), request.getResidentialComplex()));
-            }
+//            // Фильтрация по жилому комплексу (residentialComplex)
+//            if (request.getResidentialComplex() != null && !request.getResidentialComplex().isEmpty()) {
+//                predicates.add(criteriaBuilder.equal(root.get("residentialComplex"), request.getResidentialComplex()));
+//            }
 
             // Фильтрация по стоимости (minPrice и maxPrice)
             if (request.getMinPrice() != null) {
@@ -298,13 +297,13 @@ public class AnnouncementServiceImpl implements AnnouncementService {
                 predicates.add(criteriaBuilder.equal(root.get("intendedForStudents"), request.getIntendedForStudents()));
             }
 
-            if (request.getOnlyApartmentsWithoutResidents() != null) {
-                predicates.add(criteriaBuilder.equal(root.get("doYouLiveInThisHouse"), request.getOnlyApartmentsWithoutResidents()));
-            }
-
-            if (request.getFromWhom() != null && !request.getFromWhom().isEmpty()) {
-                predicates.add(criteriaBuilder.equal(root.get("fromWhom"), request.getFromWhom()));
-            }
+//            if (request.getOnlyApartmentsWithoutResidents() != null) {
+//                predicates.add(criteriaBuilder.equal(root.get("doYouLiveInThisHouse"), request.getOnlyApartmentsWithoutResidents()));
+//            }
+//
+//            if (request.getFromWhom() != null && !request.getFromWhom().isEmpty()) {
+//                predicates.add(criteriaBuilder.equal(root.get("fromWhom"), request.getFromWhom()));
+//            }
 
             if (request.getTypeOfHousing() != null && !request.getTypeOfHousing().isEmpty()) {
                 predicates.add(criteriaBuilder.equal(root.get("typeOfHousing"), request.getTypeOfHousing()));
@@ -356,7 +355,7 @@ public class AnnouncementServiceImpl implements AnnouncementService {
         response.setPhotos(announcement.getPhotos().stream()
                 .map(AnnouncementMapper::toImageResponse)
                 .collect(Collectors.toList()));
-        response.setUser(AnnouncementMapper .toUserResponse(announcement.getUser()));
+        response.setUser(AnnouncementMapper.toUserResponse(announcement.getUser()));
 
         return response;
     }

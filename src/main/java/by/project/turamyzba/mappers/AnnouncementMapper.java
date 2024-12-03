@@ -42,12 +42,12 @@ public class AnnouncementMapper {
                 .numberOfFloor(request.getNumberOfFloor())
                 .maxFloorInTheBuilding(request.getMaxFloorInTheBuilding())
                 .areaOfTheApartment(request.getAreaOfTheApartment())
-                .residentialComplex(request.getResidentialComplex())
-                .intersectionWith(request.getIntersectionWith())
+//                .residentialComplex(request.getResidentialComplex())
+//                .intersectionWith(request.getIntersectionWith())
                 .forALongTime(request.getForALongTime())
-                .ownersName(request.getOwnersName())
-                .phoneNumbers(request.getPhoneNumbers()) // Список телефонов
-                .residents(request.getResidents()) // Map "имя - телефон"
+//                .ownersName(request.getOwnersName())
+//                .phoneNumbers(request.getPhoneNumbers()) // Список телефонов
+//                .residents(request.getResidents()) // Map "имя - телефон"
                 .preferences(request.getPreferences()) // Список предпочтений
                 .coordsX(coords != null && coords.length > 0 ? coords[0] : null) // Проверяем, что координаты не пустые
                 .coordsY(coords != null && coords.length > 1 ? coords[1] : null) // Проверяем, что координаты не пустые
@@ -84,6 +84,7 @@ public class AnnouncementMapper {
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .email(user.getEmail())
+                .profilePhoto(user.getProfilePhoto())
                 .build();
     }
 
@@ -116,12 +117,12 @@ public class AnnouncementMapper {
         announcement.setNumberOfFloor(request.getNumberOfFloor());
         announcement.setMaxFloorInTheBuilding(request.getMaxFloorInTheBuilding());
         announcement.setAreaOfTheApartment(request.getAreaOfTheApartment());
-        announcement.setResidentialComplex(request.getResidentialComplex());
-        announcement.setIntersectionWith(request.getIntersectionWith());
+//        announcement.setResidentialComplex(request.getResidentialComplex());
+//        announcement.setIntersectionWith(request.getIntersectionWith());
         announcement.setForALongTime(request.getForALongTime());
-        announcement.setOwnersName(request.getOwnersName());
-        announcement.setPhoneNumbers(request.getPhoneNumbers());
-        announcement.setResidents(request.getResidents());
+//        announcement.setOwnersName(request.getOwnersName());
+//        announcement.setPhoneNumbers(request.getPhoneNumbers());
+//        announcement.setResidents(request.getResidents());
         announcement.setPreferences(request.getPreferences());
     }
 }

@@ -17,7 +17,7 @@ public class AnnouncementFilterRequest {
     private String region;
     private String district;
     private String microDistrict;
-    private String residentialComplex;
+//    private String residentialComplex;
     private Integer minPrice;
     private Integer maxPrice;
     private Integer numberOfPeopleAreYouAccommodating;
@@ -32,7 +32,7 @@ public class AnnouncementFilterRequest {
     private Boolean arePetsAllowed;
     private Boolean isCommunalServiceIncluded;
     private Boolean intendedForStudents;
-    private Boolean onlyApartmentsWithoutResidents;
-    private String fromWhom; // от хозяев - от жителей
+//    private Boolean onlyApartmentsWithoutResidents;
+//    private String fromWhom; // от хозяев - от жителей
     private String typeOfHousing; // дом - квартира
 }

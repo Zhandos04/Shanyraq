@@ -73,17 +73,19 @@ public class AnnouncementResponse {
 
     private Integer areaOfTheApartment;
 
-    private String residentialComplex;
+//    private String residentialComplex;
 
-    private String intersectionWith;
+//    private String intersectionWith;
 
     private Boolean forALongTime;
 
-    private String ownersName;
+//    private String ownersName;
 
-    private List<String> phoneNumbers;
+//    private List<String> phoneNumbers;
 
-    private Map<String, String> residents;
+//    private Map<String, String> residents;
+
+    private String phoneNumber;
 
     private List<String> preferences;
 

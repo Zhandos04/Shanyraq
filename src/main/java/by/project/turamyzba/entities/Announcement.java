@@ -10,7 +10,6 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
 @Data
 @AllArgsConstructor
@@ -80,23 +79,23 @@ public class Announcement {
     private Integer maxFloorInTheBuilding;
     @Column(name = "area_of_the_apartment")
     private Integer areaOfTheApartment;
-    @Column(name = "residential_complex")
-    private String residentialComplex;
-    @Column(name = "intersection_with")
-    private String intersectionWith;
+//    @Column(name = "residential_complex")
+//    private String residentialComplex;
+//    @Column(name = "intersection_with")
+//    private String intersectionWith;
     @Column(name = "for_a_long_time")
     private Boolean forALongTime;
-    @Column(name = "owners_name")
-    private String ownersName;
-    @ElementCollection
-    @CollectionTable(name = "advertisement_phone_numbers", joinColumns = @JoinColumn(name = "advertisement_id"))
-    @Column(name = "phone_number")
-    private List<String> phoneNumbers;
-    @ElementCollection
-    @CollectionTable(name = "advertisement_residents", joinColumns = @JoinColumn(name = "advertisement_id"))
-    @MapKeyColumn(name = "resident_name")
-    @Column(name = "phone_number")
-    private Map<String, String> residents;
+//    @Column(name = "owners_name")
+//    private String ownersName;
+//    @ElementCollection
+//    @CollectionTable(name = "advertisement_phone_numbers", joinColumns = @JoinColumn(name = "advertisement_id"))
+//    @Column(name = "phone_number")
+//    private List<String> phoneNumbers;
+//    @ElementCollection
+//    @CollectionTable(name = "advertisement_residents", joinColumns = @JoinColumn(name = "advertisement_id"))
+//    @MapKeyColumn(name = "resident_name")
+//    @Column(name = "phone_number")
+//    private Map<String, String> residents;
     @ElementCollection
     @CollectionTable(name = "advertisement_preferences", joinColumns = @JoinColumn(name = "advertisement_id"))
     @Column(name = "preference")
@@ -116,8 +115,8 @@ public class Announcement {
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
-    @OneToMany(mappedBy = "announcement", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<AnnouncementUser> announcementUsers;
+//    @OneToMany(mappedBy = "announcement", cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<AnnouncementUser> announcementUsers;
 
     @PrePersist
     private void prePersist() {

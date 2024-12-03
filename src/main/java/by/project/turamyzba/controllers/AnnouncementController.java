@@ -6,7 +6,6 @@ import by.project.turamyzba.dto.responses.AnnouncementResponse;
 import by.project.turamyzba.entities.Announcement;
 import by.project.turamyzba.services.AnnouncementService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;

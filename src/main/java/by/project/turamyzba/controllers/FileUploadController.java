@@ -29,7 +29,7 @@ public class FileUploadController {
     public ResponseEntity<List<String>> uploadFiles(@RequestParam("files") MultipartFile[] files) {
         List<String> fileUrls = new ArrayList<>();
 
-        if (files.length > 10) {
+        if (files.length > 25) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(null);
         }

@@ -83,17 +83,19 @@ public class AnnouncementRequest {
 
     private Integer areaOfTheApartment;
 
-    private String residentialComplex;
+//    private String residentialComplex;
 
-    private String intersectionWith;
+//    private String intersectionWith;
 
     private Boolean forALongTime;
 
-    private String ownersName;
+    private String phoneNumber;
 
-    private List<String> phoneNumbers;
+//    private String ownersName;
 
-    private Map<String, String> residents;
+//    private List<String> phoneNumbers;
+
+//    private Map<String, String> residents;
 
     private List<String> preferences;
 }
