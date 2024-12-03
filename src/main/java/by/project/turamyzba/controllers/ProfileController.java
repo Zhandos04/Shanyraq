@@ -27,7 +27,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ProfileController {
     private final ProfileService profileService;
-    private final UserService userService;
     private final S3Service s3Service;
 
     @GetMapping

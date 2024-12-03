@@ -2,7 +2,6 @@ package by.project.turamyzba.services.impl;
 
 import by.project.turamyzba.dto.requests.UserDTO;
 import by.project.turamyzba.entities.User;
-import by.project.turamyzba.entities.usermodelenums.Gender;
 import by.project.turamyzba.entities.usermodelenums.Role;
 import by.project.turamyzba.repositories.UserRepository;
 import by.project.turamyzba.services.UserService;
@@ -44,7 +43,7 @@ public class UserServiceImpl implements UserService {
         User user = convertToUser(userDTO);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setIsVerified(false);
-        user.setGender(Gender.NOT_PROVIDED);
+        user.setGender("Любой");
         user.setRole(Role.ROLE_OWNER);
         userRepository.save(user);
         String code = generateCode();

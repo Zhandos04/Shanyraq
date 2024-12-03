@@ -1,6 +1,5 @@
 package by.project.turamyzba.entities;
 
-import by.project.turamyzba.entities.usermodelenums.Gender;
 import by.project.turamyzba.entities.usermodelenums.Role;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -53,9 +52,8 @@ public class User implements UserDetails {
     @Column(name = "is_verified")
     private Boolean isVerified;
 
-    @Enumerated(EnumType.STRING)
     @Column(name = "gender")
-    private Gender gender;
+    private String gender;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "role")
