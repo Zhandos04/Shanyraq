@@ -112,6 +112,6 @@ public class UserServiceImpl implements UserService {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found!"));
         String code = generateCode();
         saveUserConfirmationCode(user.getId(), code);
-        emailService.sendEmail(email, "Shanyraq Verify Email", "Your code is: " + code);
+        emailService.sendEmail(email, "Shanyraq Resend Code", "Your code is: " + code);
     }
 }

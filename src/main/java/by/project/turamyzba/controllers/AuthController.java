@@ -85,8 +85,8 @@ public class AuthController {
 
     @PostMapping("/resendCode")
     @Operation(summary = "Resend code")
-    public ResponseEntity<?> resendCode(@RequestParam String email) {
-        userService.resentCode(email);
+    public ResponseEntity<?> resendCode(@RequestBody ResentCodeDTO resentCodeDTO) {
+        userService.resentCode(resentCodeDTO.getEmail());
         return ResponseEntity.ok("Code resent successfully!");
     }
 
