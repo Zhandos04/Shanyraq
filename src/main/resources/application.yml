@@ -11,9 +11,9 @@ spring:
 
   datasource:
     driverClassName: org.postgresql.Driver
-    url: ${DATABASE_URL:jdbc:postgresql://aws-0-eu-central-1.pooler.supabase.com:6543/postgres}
-    username: ${DATABASE_USERNAME:postgres.ttkesyqbexmcvpukkyge}
-    password: ${DATABASE_PASSWORD:Prvtmr1Kkvshdl2.}
+    url: ${DATABASE_URL}
+    username: ${DATABASE_USERNAME}
+    password: ${DATABASE_PASSWORD}
   jpa:
     properties:
       hibernate:
