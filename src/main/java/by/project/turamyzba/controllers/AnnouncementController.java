@@ -47,7 +47,7 @@ public class AnnouncementController {
     @GetMapping("/all")
     @Operation(summary = "Барлык объявлениелерди алу.", description = "По дефолту 41 объявление береди. Показать еще баскан кезде" +
             "page ди инкремент жасап обратно осы эндпоинтка жибересиндер. sort ка дал дизайнда тургандай жибересиндер например Самые подходящие деп ешкандай ошибкасыз")
-    public ResponseEntity<?> findRoommates(
+    public ResponseEntity<List<AnnouncementResponse>> findRoommates(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "41") int limit,
             @RequestParam(required = false) String region,
@@ -71,13 +71,7 @@ public class AnnouncementController {
                 .map(announcementService::toAnnouncementResponse)
                 .collect(Collectors.toList());
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("total", roommatePage.getTotalElements());
-        response.put("page", page);
-        response.put("limit", limit);
-        response.put("data", announcementResponses);
-
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        return ResponseEntity.ok(announcementResponses);
     }
     private Sort getSort(String sort) {
         return switch (sort) {
@@ -133,7 +127,7 @@ public class AnnouncementController {
 
     @GetMapping("/great-deals")
     @Operation(summary = "Выгодные предложения", description = "Пока что чисто по возрастнию цены объявлениелер кайтарады 10 штук.")
-    public ResponseEntity<?> greatDeals() {
+    public ResponseEntity<List<AnnouncementResponse>> greatDeals() {
         Sort sortBy = getSort("По возрастанию цены");
         Pageable pageable = PageRequest.of(0, 10, sortBy);
         Page<Announcement> roommatePage = announcementService.getAllRoommateListings(pageable);
@@ -141,7 +135,7 @@ public class AnnouncementController {
                 .map(announcementService::toAnnouncementResponse)
                 .collect(Collectors.toList());
 
-        return new ResponseEntity<>(announcementResponses, HttpStatus.OK);
+        return ResponseEntity.ok(announcementResponses);
     }
 
     @GetMapping("/search")
