@@ -3,7 +3,7 @@ server:
     context-path: '/api/'
   error:
     include-message: always
-  port: ${PORT:8001}
+  port: ${PORT}
   address: 0.0.0.0
 spring:
   application:
