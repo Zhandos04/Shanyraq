@@ -4,9 +4,9 @@ spring:
 
   datasource:
     driverClassName: org.postgresql.Driver
-    url: ${DATABASE_URL:jdbc:postgresql://localhost:5433/Turamyzba}
-    username: ${DATABASE_USERNAME:postgres}
-    password: ${DATABASE_PASSWORD:zhandos04}
+    url: ${DATABASE_URL:jdbc:postgresql://aws-0-eu-central-1.pooler.supabase.com:6543/postgres}
+    username: ${DATABASE_USERNAME:postgres.ttkesyqbexmcvpukkyge}
+    password: ${DATABASE_PASSWORD:Prvtmr1Kkvshdl2.}
   jpa:
     properties:
       hibernate:
@@ -21,9 +21,9 @@ spring:
 
   flyway:
     enabled: true
-    url: jdbc:postgresql://localhost:5432/turamyzba
-    user: test
-    password: 12345678
+    url: ${DATABASE_URL:jdbc:postgresql://aws-0-eu-central-1.pooler.supabase.com:6543/postgres}
+    user: ${DATABASE_USERNAME:postgres.ttkesyqbexmcvpukkyge}
+    password: ${DATABASE_PASSWORD:ВАШ-ПАРОЛЬ}
     locations: classpath:db/migration
 
   mail:
