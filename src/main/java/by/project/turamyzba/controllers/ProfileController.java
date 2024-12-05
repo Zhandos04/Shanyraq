@@ -38,7 +38,7 @@ public class ProfileController {
 
     @PutMapping("/edit")
     @Operation(summary = "Edit user profile", description = "Updates the user profile based on provided data")
-    public ResponseEntity<?> edit(@RequestBody @Valid ProfileDTO profileDTO, BindingResult bindingResult) throws IncorrectJSONException {
+    public ResponseEntity<ProfileResponse> edit(@RequestBody @Valid ProfileDTO profileDTO, BindingResult bindingResult) throws IncorrectJSONException {
         if (bindingResult.hasErrors()) {
             List<FieldError> errors = bindingResult.getFieldErrors();
             StringBuilder str = new StringBuilder();
@@ -59,7 +59,7 @@ public class ProfileController {
 
     @PatchMapping(value = "/upload-photo", consumes = "multipart/form-data")
     @Operation(summary = "Фото профилья")
-    public ResponseEntity<?> uploadPhoto(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<String> uploadPhoto(@RequestParam("file") MultipartFile file) {
         if (file.isEmpty()) {
             return ResponseEntity.badRequest().body("No file provided");
         }

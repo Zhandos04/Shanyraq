@@ -47,7 +47,11 @@ public class UserServiceImpl implements UserService {
         userRepository.save(user);
         String code = generateCode();
         saveUserConfirmationCode(user.getId(), code);
-        emailService.sendEmail(userDTO.getEmail(), "Shanyraq Verify Email", "Your code is: " + code);
+        try {
+            emailService.sendEmail(userDTO.getEmail(), "Shanyraq Verify Email", "Your code is: " + code);
+        } catch (Exception e) {
+            throw new RuntimeException("Error occurred while sending the verification email.");
+        }
     }
 
     @Transactional

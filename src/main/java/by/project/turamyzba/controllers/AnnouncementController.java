@@ -6,6 +6,7 @@ import by.project.turamyzba.dto.responses.AnnouncementResponse;
 import by.project.turamyzba.entities.Announcement;
 import by.project.turamyzba.services.AnnouncementService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
@@ -18,9 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -30,7 +29,13 @@ public class AnnouncementController {
     private final AnnouncementService announcementService;
 
     @PostMapping("/create")
-    @Operation(summary = "Объявление создать ету", description = "Осы announcementRequest бойынша объявление создать ету.")
+    @Operation(
+            summary = "Объявление создать ету",
+            description = "Осы announcementRequest бойынша объявление создать ету.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Announcement created successfully")
+            }
+    )
     public ResponseEntity<?> createAnnouncement(@RequestBody @Valid AnnouncementRequest announcementRequest) {
         try {
             announcementService.createAnnouncement(announcementRequest);
@@ -43,6 +48,7 @@ public class AnnouncementController {
                     .body(e.getMessage());
         }
     }
+
 
     @GetMapping("/all")
     @Operation(summary = "Барлык объявлениелерди алу.", description = "По дефолту 41 объявление береди. Показать еще баскан кезде" +
@@ -86,7 +92,7 @@ public class AnnouncementController {
     @GetMapping("/detail/{id}")
     @Operation(summary = "Объявление детально алу.", description = "Барлык объявление алган кезде ар объявлениенин айдишкасыда барады" +
             " вот сол айдишканы осы эндпоинт жибересиндер детально алу ушин.")
-    public ResponseEntity<?> detail(@PathVariable Long id) {
+    public ResponseEntity<AnnouncementResponse> detail(@PathVariable Long id) {
         return ResponseEntity.ok(announcementService.getAnnouncementById(id));
     }
 
@@ -140,7 +146,7 @@ public class AnnouncementController {
 
     @GetMapping("/search")
     @Operation(summary = "Фильтр")
-    public ResponseEntity<?> getFilteredAnnouncements(@RequestBody AnnouncementFilterRequest request) {
+    public ResponseEntity<List<AnnouncementResponse>> getFilteredAnnouncements(@RequestBody AnnouncementFilterRequest request) {
         List<AnnouncementResponse> announcementResponses = announcementService.getFilteredAnnouncements(request).stream()
                 .map(announcementService::toAnnouncementResponse)
                 .collect(Collectors.toList());

@@ -46,10 +46,18 @@ public class AuthController {
     private final TokenBlacklistService tokenBlacklistService;
 
 
-    @PostMapping( "/signup")
-    @Operation(summary = "Register a new user", description = "Registers a new user by checking for existing IDs and phone numbers.")
-    @ApiResponse(responseCode = "202", description = "Code sent successfully!")
-    @ApiResponse(responseCode = "400", description = "Invalid user data provided", content = @Content)
+    @PostMapping("/signup")
+    @Operation(
+            summary = "Register a new user",
+            description = "Registers a new user by checking for existing IDs and phone numbers.",
+            responses = {
+                    @ApiResponse(responseCode = "202", description = "Code sent successfully"),
+                    @ApiResponse(responseCode = "400", description = "Invalid input, validation failed"),
+                    @ApiResponse(responseCode = "406", description = "User already exists"),
+                    @ApiResponse(responseCode = "500", description = "Unexpected error occurred (internal server error)"),
+                    @ApiResponse(responseCode = "500", description = "Error occurred while sending the verification email")
+            }
+    )
     public ResponseEntity<String> register(@RequestBody @Valid UserDTO userDTO, BindingResult bindingResult) throws UserAlreadyExistsException {
         if (bindingResult.hasErrors()) {
             String errorMessages = bindingResult.getFieldErrors().stream()
@@ -62,11 +70,17 @@ public class AuthController {
     }
 
     @PostMapping("/verify-email")
-    @Operation(summary = "Verify Email", description = "Verifies the reset code entered by the user.")
-    @ApiResponse(responseCode = "200", description = "User registered successfully")
-    @ApiResponse(responseCode = "400", description = "Incorrect reset code")
-    @ApiResponse(responseCode = "404", description = "User not found")
-    public ResponseEntity<?> verifyEmail(@RequestBody CodeDTO codeDTO) {
+    @Operation(
+            summary = "Verify Email",
+            description = "Verifies the reset code entered by the user.",
+            responses = {
+                    @ApiResponse(responseCode = "201", description = "User registered successfully"),
+                    @ApiResponse(responseCode = "400", description = "Incorrect reset code"),
+                    @ApiResponse(responseCode = "404", description = "User not found"),
+                    @ApiResponse(responseCode = "500", description = "Internal server error")
+            }
+    )
+    public ResponseEntity<String> verifyEmail(@RequestBody CodeDTO codeDTO) {
         Optional<User> userOptional = userService.getUserByEmail(codeDTO.getEmail());
 
         if (userOptional.isEmpty()) {
@@ -83,18 +97,36 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully!");
     }
 
+
     @PostMapping("/resendCode")
-    @Operation(summary = "Resend code")
-    public ResponseEntity<?> resendCode(@RequestBody ResentCodeDTO resentCodeDTO) {
+    @Operation(
+            summary = "Resend code",
+            description = "Resends the verification code to the user's email.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Code resent successfully"),
+                    @ApiResponse(responseCode = "404", description = "User not found with the provided email"),
+                    @ApiResponse(responseCode = "500", description = "Internal server error occurred")
+            }
+    )
+    public ResponseEntity<String> resendCode(@RequestBody ResentCodeDTO resentCodeDTO) {
         userService.resentCode(resentCodeDTO.getEmail());
         return ResponseEntity.ok("Code resent successfully!");
     }
 
 
+
     @PostMapping("/login")
-    @Operation(summary = "User login", description = "Authenticates a user and returns an Auth token.")
-    @ApiResponse(responseCode = "200", description = "User logged in successfully", content = @Content(schema = @Schema(implementation = AuthDTO.class)))
-    @ApiResponse(responseCode = "401", description = "Incorrect ID or password")
+    @Operation(
+            summary = "User login",
+            description = "Authenticates a user and returns an Auth token.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Login successful, access token returned", content = @Content(mediaType = "application/json", schema = @Schema(implementation = AuthDTO.class))),
+                    @ApiResponse(responseCode = "400", description = "Bad request, invalid data or email format"),
+                    @ApiResponse(responseCode = "401", description = "Incorrect email or password"),
+                    @ApiResponse(responseCode = "403", description = "User is not verified yet"),
+                    @ApiResponse(responseCode = "500", description = "Internal server error occurred")
+            }
+    )
     public ResponseEntity<?> login(@RequestBody LoginDTO loginDTO) {
         Optional<User> userOptional = userService.getUserByEmail(loginDTO.getEmail());
         if (userOptional.isEmpty()) {
@@ -111,7 +143,15 @@ public class AuthController {
         return ResponseEntity.ok(authDTO);
     }
     @PostMapping("/logout")
-    @Operation(summary = "User logout.")
+    @Operation(
+            summary = "User logout",
+            description = "Logs out the user by invalidating the current token.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Logged out successfully"),
+                    @ApiResponse(responseCode = "400", description = "Invalid token"),
+                    @ApiResponse(responseCode = "500", description = "Internal server error occurred")
+            }
+    )
     public ResponseEntity<?> logout(HttpServletRequest request) {
         String authHeader = request.getHeader("Authorization");
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
@@ -128,43 +168,49 @@ public class AuthController {
         return ResponseEntity.badRequest().body("Invalid token");
     }
 
-    @PostMapping("/refresh-token")
-    @Operation(summary = "Refresh Access Token", description = "Refreshes the access token using a valid refresh token.",
-            responses = {
-                    @ApiResponse(responseCode = "200", description = "Access token refreshed successfully"),
-                    @ApiResponse(responseCode = "403", description = "Invalid or expired refresh token"),
-                    @ApiResponse(responseCode = "401", description = "Invalid refresh token")
-            },
-            security = @SecurityRequirement(name = "bearerToken"))
-
-    public ResponseEntity<?> refreshAccessToken(HttpServletRequest request) {
-        String headerAuth = request.getHeader("Authorization");
-        if (headerAuth != null && headerAuth.startsWith("Bearer ")) {
-            String refreshToken = headerAuth.substring(7);
-            try {
-                if (jwtService.validateRefreshToken(refreshToken)) { // Проверка валидности рефреш токена
-                    String userName = jwtService.extractUsername(refreshToken);
-                    // Проверка, что пользователь существует и активен
-                    UserDetails userDetails = userService.loadUserByUsername(userName);
-                    if (userDetails != null && !jwtService.isTokenExpired(refreshToken)) {
-                        String newAccessToken = jwtService.generateTokens(userName).get("accessToken");
-                        Map<String, String> tokens = new HashMap<>();
-                        tokens.put("accessToken", newAccessToken);
-                        tokens.put("refreshToken", refreshToken); // Отправляем тот же рефреш токен обратно
-                        return ResponseEntity.ok(tokens);
-                    }
-                }
-            } catch (Exception e) {
-                throw new BadCredentialsException("Invalid refresh token");
-            }
-        }
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Invalid or expired refresh token");
-    }
+//    @PostMapping("/refresh-token")
+//    @Operation(summary = "Refresh Access Token", description = "Refreshes the access token using a valid refresh token.",
+//            responses = {
+//                    @ApiResponse(responseCode = "200", description = "Access token refreshed successfully"),
+//                    @ApiResponse(responseCode = "403", description = "Invalid or expired refresh token"),
+//                    @ApiResponse(responseCode = "401", description = "Invalid refresh token")
+//            },
+//            security = @SecurityRequirement(name = "bearerToken"))
+//
+//    public ResponseEntity<?> refreshAccessToken(HttpServletRequest request) {
+//        String headerAuth = request.getHeader("Authorization");
+//        if (headerAuth != null && headerAuth.startsWith("Bearer ")) {
+//            String refreshToken = headerAuth.substring(7);
+//            try {
+//                if (jwtService.validateRefreshToken(refreshToken)) { // Проверка валидности рефреш токена
+//                    String userName = jwtService.extractUsername(refreshToken);
+//                    // Проверка, что пользователь существует и активен
+//                    UserDetails userDetails = userService.loadUserByUsername(userName);
+//                    if (userDetails != null && !jwtService.isTokenExpired(refreshToken)) {
+//                        String newAccessToken = jwtService.generateTokens(userName).get("accessToken");
+//                        Map<String, String> tokens = new HashMap<>();
+//                        tokens.put("accessToken", newAccessToken);
+//                        tokens.put("refreshToken", refreshToken); // Отправляем тот же рефреш токен обратно
+//                        return ResponseEntity.ok(tokens);
+//                    }
+//                }
+//            } catch (Exception e) {
+//                throw new BadCredentialsException("Invalid refresh token");
+//            }
+//        }
+//        return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Invalid or expired refresh token");
+//    }
 
     @PostMapping("/forgot-password")
-    @Operation(summary = "Password recovery", description = "Initiates a password recovery process by sending a reset code to the user's email.")
-    @ApiResponse(responseCode = "200", description = "Reset code sent successfully")
-    @ApiResponse(responseCode = "404", description = "Email not found")
+    @Operation(
+            summary = "Password recovery",
+            description = "Initiates a password recovery process by sending a reset code to the user's email.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Reset code sent successfully"),
+                    @ApiResponse(responseCode = "404", description = "Email not found"),
+                    @ApiResponse(responseCode = "403", description = "This user is not verified yet")
+            }
+    )
     public ResponseEntity<?> forgotPassword(@RequestBody EmailDTO emailDTO) {
         Optional<User> user = userService.getUserByEmail(emailDTO.getEmail());
         if (user.isEmpty()) {
@@ -183,8 +229,8 @@ public class AuthController {
     }
     @PostMapping("/verify-code")
     @Operation(summary = "Verify reset code", description = "Verifies the reset code entered by the user.")
-    @ApiResponse(responseCode = "200", description = "Reset code verified successfully")
-    @ApiResponse(responseCode = "401", description = "Incorrect reset code")
+    @ApiResponse(responseCode = "200", description = "Code is verified!")
+    @ApiResponse(responseCode = "400", description = "Incorrect code")
     public ResponseEntity<?> verifyPassword(@RequestBody CodeDTO codeDTO) {
         Optional<User> user = userService.getUserByEmail(codeDTO.getEmail());
         if (user.isEmpty()) {
@@ -197,8 +243,15 @@ public class AuthController {
     }
 
     @PostMapping("/update-password")
-    @Operation(summary = "Update user password", description = "Updates the user's password after verification.")
-    @ApiResponse(responseCode = "200", description = "Password updated successfully")
+    @Operation(
+            summary = "Update user password",
+            description = "Updates the user's password after verification.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Password updated successfully"),
+                    @ApiResponse(responseCode = "400", description = "Invalid input (Validation errors)"),
+                    @ApiResponse(responseCode = "404", description = "Email not found")
+            }
+    )
     public ResponseEntity<?> updatePassword(@RequestBody @Valid UpdatePasswordDTO updatePasswordDTO, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             String errorMessages = bindingResult.getFieldErrors().stream()
@@ -214,6 +267,7 @@ public class AuthController {
         userService.updatePassword(user.get());
         return ResponseEntity.ok("Password is updated!");
     }
+
     private String generateCode() {
         return Integer.toString((int)(Math.random() * 900000) + 100000);
     }
