@@ -1,11 +1,8 @@
 package by.project.turamyzba.entities;
 
-import by.project.turamyzba.entities.usermodelenums.Role;
 import jakarta.persistence.*;
 import lombok.Data;
-import org.springframework.data.redis.core.RedisHash;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.Instant;

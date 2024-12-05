@@ -2,7 +2,6 @@ package by.project.turamyzba.entities.anketa;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import org.springframework.data.redis.core.RedisHash;
 
 @Entity
 @Table(name = "option")

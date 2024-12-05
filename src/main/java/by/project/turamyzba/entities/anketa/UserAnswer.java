@@ -3,7 +3,6 @@ package by.project.turamyzba.entities.anketa;
 import by.project.turamyzba.entities.User;
 import jakarta.persistence.*;
 import lombok.Data;
-import org.springframework.data.redis.core.RedisHash;
 
 @Entity
 @Table(name = "user_answer")
