@@ -9,7 +9,6 @@ import java.util.List;
 @Entity
 @Table(name = "question")
 @Data
-@RedisHash
 public class Question {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

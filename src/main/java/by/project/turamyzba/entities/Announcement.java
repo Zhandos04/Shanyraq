@@ -18,7 +18,6 @@ import java.util.List;
 @Entity
 @Table(name = "announcements")
 @Builder
-@RedisHash
 public class Announcement {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

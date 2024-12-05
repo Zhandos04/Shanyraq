@@ -13,7 +13,6 @@ import org.springframework.data.redis.core.RedisHash;
 @Entity
 @Table(name = "images")
 @Builder
-@RedisHash
 public class Image {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

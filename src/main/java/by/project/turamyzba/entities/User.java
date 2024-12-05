@@ -17,7 +17,6 @@ import java.util.List;
 @Entity
 @Table(name = "users")
 @Data
-@RedisHash
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

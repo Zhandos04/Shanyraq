@@ -7,7 +7,6 @@ import org.springframework.data.redis.core.RedisHash;
 @Entity
 @Table(name = "option")
 @Data
-@RedisHash
 public class Option {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
