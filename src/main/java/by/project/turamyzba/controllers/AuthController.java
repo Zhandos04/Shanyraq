@@ -127,6 +127,7 @@ public class AuthController {
         }
         return ResponseEntity.badRequest().body("Invalid token");
     }
+
     @PostMapping("/refresh-token")
     @Operation(summary = "Refresh Access Token", description = "Refreshes the access token using a valid refresh token.",
             responses = {

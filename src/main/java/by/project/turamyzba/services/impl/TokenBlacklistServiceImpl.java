@@ -1,31 +1,26 @@
 package by.project.turamyzba.services.impl;
 
 import by.project.turamyzba.services.TokenBlacklistService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
-
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 public class TokenBlacklistServiceImpl implements TokenBlacklistService {
-    private final RedisTemplate<String, String> redisTemplate;
 
-    @Autowired
-    public TokenBlacklistServiceImpl(RedisTemplate<String, String> redisTemplate) {
-        this.redisTemplate = redisTemplate;
-    }
+    // Используем ConcurrentHashMap для хранения токенов в памяти
+    private final ConcurrentHashMap<String, Long> tokenBlacklist = new ConcurrentHashMap<>();
 
     /**
      * Добавить токен в черный список.
      * @param token Токен, который нужно занести в черный список.
      * @param expirationTime Время истечения токена.
      */
+    @Override
     public void addTokenToBlacklist(String token, Date expirationTime) {
         long timeToLive = expirationTime.getTime() - System.currentTimeMillis();
         if (timeToLive > 0) {
-            redisTemplate.opsForValue().set(token, "blacklisted", timeToLive, TimeUnit.MILLISECONDS);
+            tokenBlacklist.put(token, expirationTime.getTime());
         }
     }
 
@@ -34,7 +29,10 @@ public class TokenBlacklistServiceImpl implements TokenBlacklistService {
      * @param token Токен, который нужно проверить.
      * @return True, если токен находится в черном списке.
      */
+    @Override
     public boolean isTokenBlacklisted(String token) {
-        return Boolean.TRUE.equals(redisTemplate.hasKey(token));
+        Long expirationTime = tokenBlacklist.get(token);
+        // Если токен найден в черном списке и еще не истек его срок
+        return expirationTime != null && expirationTime > System.currentTimeMillis();
     }
 }
