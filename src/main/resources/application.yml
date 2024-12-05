@@ -46,8 +46,11 @@ spring:
             enable: true
   data:
     redis:
-      host: ${SPRING_REDIS_HOST:localhost}
+      url: ${SPRING_REDIS_URL:redis://default:EaThOgMxQHroHQyBLTHcWwaQqoquxvuD@redis.railway.internal:6379}
+      host: ${SPRING_REDIS_HOST:redis.railway.internal}
       port: ${SPRING_REDIS_PORT:6379}
+      username: ${SPRING_REDIS_USERNAME:default}
+      password: ${SPRING_REDIS_PASSWORD:EaThOgMxQHroHQyBLTHcWwaQqoquxvuD}
 
 2gis:
   api:
