@@ -10,18 +10,12 @@ services:
     ports:
       - "5433:5432"
 
-  redis:
-    image: redis:alpine
-    ports:
-      - "6379:6379"
-
   app:
     build: .
     ports:
       - "8080:8080"
     depends_on:
       - db
-      - redis
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
