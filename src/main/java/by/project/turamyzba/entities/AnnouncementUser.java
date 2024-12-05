@@ -2,10 +2,12 @@ package by.project.turamyzba.entities;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.springframework.data.redis.core.RedisHash;
 
 @Entity
 @Data
 @Table(name = "announcement_user")
+@RedisHash
 public class AnnouncementUser {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
