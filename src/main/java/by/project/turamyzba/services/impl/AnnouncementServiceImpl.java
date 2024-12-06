@@ -14,7 +14,8 @@ import by.project.turamyzba.services.AnnouncementService;
 import by.project.turamyzba.services.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Order;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
@@ -203,115 +204,172 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     @Override
     @Transactional(readOnly = true)
     public List<Announcement> getFilteredAnnouncements(AnnouncementFilterRequest request) {
-        return announcementRepository.findAll((root, query, criteriaBuilder) -> {
-            List<Predicate> predicates = new ArrayList<>();
+        return announcementRepository.findAll((Specification<Announcement>) (root, query, criteriaBuilder) -> {
+            // 1. Построение приоритетной сортировки
+            List<Order> orders = new ArrayList<>();
 
-            // Фильтрация по гендеру
+            // Приоритет 1: Цена (Price) (minPrice и maxPrice)
+            if (request.getMinPrice() != null && request.getMaxPrice() != null) {
+                // Выражение: 1 если cost между minPrice и maxPrice, иначе 0
+                Expression<Object> pricePriority = criteriaBuilder.selectCase()
+                        .when(criteriaBuilder.between(root.get("cost"), request.getMinPrice(), request.getMaxPrice()), 1)
+                        .otherwise(0);
+                orders.add(criteriaBuilder.desc(pricePriority));
+            }
+
+            // Приоритет 2: Гендер (Gender)
             if (request.getSelectedGender() != null && !request.getSelectedGender().isEmpty()) {
-                predicates.add(criteriaBuilder.equal(root.get("selectedGender"), request.getSelectedGender()));
+                Expression<Object> genderPriority = criteriaBuilder.selectCase()
+                        .when(criteriaBuilder.equal(root.get("selectedGender"), request.getSelectedGender()), 1)
+                        .otherwise(0);
+                orders.add(criteriaBuilder.desc(genderPriority));
             }
 
-            // Фильтрация по региону
+            // Приоритет 3: Регион (Region)
             if (request.getRegion() != null && !request.getRegion().isEmpty()) {
-                predicates.add(criteriaBuilder.equal(root.get("region"), request.getRegion()));
+                Expression<Object> regionPriority = criteriaBuilder.selectCase()
+                        .when(criteriaBuilder.equal(root.get("region"), request.getRegion()), 1)
+                        .otherwise(0);
+                orders.add(criteriaBuilder.desc(regionPriority));
             }
 
-            // Фильтрация по району (district)
-            if (request.getDistrict() != null && !request.getDistrict().isEmpty()) {
-                predicates.add(criteriaBuilder.equal(root.get("district"), request.getDistrict()));
-            }
-
-            // Фильтрация по микрорайону (microDistrict)
-            if (request.getMicroDistrict() != null && !request.getMicroDistrict().isEmpty()) {
-                predicates.add(criteriaBuilder.equal(root.get("microDistrict"), request.getMicroDistrict()));
-            }
-
-//            // Фильтрация по жилому комплексу (residentialComplex)
-//            if (request.getResidentialComplex() != null && !request.getResidentialComplex().isEmpty()) {
-//                predicates.add(criteriaBuilder.equal(root.get("residentialComplex"), request.getResidentialComplex()));
-//            }
-
-            // Фильтрация по стоимости (minPrice и maxPrice)
-            if (request.getMinPrice() != null) {
-                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("cost"), request.getMinPrice()));
-            }
-            if (request.getMaxPrice() != null) {
-                predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("cost"), request.getMaxPrice()));
-            }
-
-            // Фильтрация по площади (minArea и maxArea)
-            if (request.getMinArea() != null) {
-                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("areaOfTheApartment"), request.getMinArea()));
-            }
-            if (request.getMaxArea() != null) {
-                predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("areaOfTheApartment"), request.getMaxArea()));
-            }
-
-            // Фильтрация по этажу (notTheFirstFloor)
-            if (request.getNotTheFirstFloor() != null) {
-                if (request.getNotTheFirstFloor()) {
-                    predicates.add(criteriaBuilder.greaterThan(root.get("numberOfFloor"), 1));
-                }
-            }
-
-            // Фильтрация по верхнему этажу (notTheTopFloor)
-            if (request.getNotTheTopFloor() != null) {
-                if (request.getNotTheTopFloor()) {
-                    predicates.add(criteriaBuilder.lessThan(root.get("numberOfFloor"), root.get("maxFloorInTheBuilding")));
-                }
-            }
-
-            // Фильтрация по количеству людей (numberOfPeopleAreYouAccommodating)
-            if (request.getNumberOfPeopleAreYouAccommodating() != null) {
-                predicates.add(criteriaBuilder.equal(root.get("numberOfPeopleAreYouAccommodating"), request.getNumberOfPeopleAreYouAccommodating()));
-            }
-
-
-            // Фильтрация по количеству комнат
-            if (request.getQuantityOfRooms() != null && !request.getQuantityOfRooms().isEmpty()) {
-                predicates.add(criteriaBuilder.equal(root.get("quantityOfRooms"), request.getQuantityOfRooms()));
-            }
-
-            // Фильтрация по возрасту
-            if (request.getMinAge() != null) {
-                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("minAge"), request.getMinAge()));
-            }
-            if (request.getMaxAge() != null) {
-                predicates.add(criteriaBuilder.lessThanOrEqualTo(root.get("maxAge"), request.getMaxAge()));
-            }
-
-            // Фильтрация по дате (arriveDate)
+            // Приоритет 4: Дата (Date) (arriveDate)
             if (request.getArriveDate() != null) {
-                predicates.add(criteriaBuilder.equal(root.get("arriveDate"), request.getArriveDate()));
+                Expression<Object> datePriority = criteriaBuilder.selectCase()
+                        .when(criteriaBuilder.equal(root.get("arriveDate"), request.getArriveDate()), 1)
+                        .otherwise(0);
+                orders.add(criteriaBuilder.desc(datePriority));
             }
 
-            // Дополнительные фильтры
-            if (request.getArePetsAllowed() != null) {
-                predicates.add(criteriaBuilder.equal(root.get("arePetsAllowed"), request.getArePetsAllowed()));
+            // Приоритет 5: Район (District)
+            if (request.getDistrict() != null && !request.getDistrict().isEmpty()) {
+                Expression<Object> districtPriority = criteriaBuilder.selectCase()
+                        .when(criteriaBuilder.equal(root.get("district"), request.getDistrict()), 1)
+                        .otherwise(0);
+                orders.add(criteriaBuilder.desc(districtPriority));
             }
 
-            if (request.getIsCommunalServiceIncluded() != null) {
-                predicates.add(criteriaBuilder.equal(root.get("isCommunalServiceIncluded"), request.getIsCommunalServiceIncluded()));
+            // Приоритет 6: Микрорайон (MicroDistrict)
+            if (request.getMicroDistrict() != null && !request.getMicroDistrict().isEmpty()) {
+                Expression<Object> microDistrictPriority = criteriaBuilder.selectCase()
+                        .when(criteriaBuilder.equal(root.get("microDistrict"), request.getMicroDistrict()), 1)
+                        .otherwise(0);
+                orders.add(criteriaBuilder.desc(microDistrictPriority));
             }
 
-            if (request.getIntendedForStudents() != null) {
-                predicates.add(criteriaBuilder.equal(root.get("intendedForStudents"), request.getIntendedForStudents()));
-            }
-
-//            if (request.getOnlyApartmentsWithoutResidents() != null) {
-//                predicates.add(criteriaBuilder.equal(root.get("doYouLiveInThisHouse"), request.getOnlyApartmentsWithoutResidents()));
-//            }
-//
-//            if (request.getFromWhom() != null && !request.getFromWhom().isEmpty()) {
-//                predicates.add(criteriaBuilder.equal(root.get("fromWhom"), request.getFromWhom()));
-//            }
-
+            // Приоритет 16: Тип жилья (typeOfHousing)
             if (request.getTypeOfHousing() != null && !request.getTypeOfHousing().isEmpty()) {
-                predicates.add(criteriaBuilder.equal(root.get("typeOfHousing"), request.getTypeOfHousing()));
+                Expression<Object> housingTypePriority = criteriaBuilder.selectCase()
+                        .when(root.get("typeOfHousing").in(request.getTypeOfHousing()), 1)
+                        .otherwise(0);
+                orders.add(criteriaBuilder.desc(housingTypePriority));
             }
 
-            // Строим окончательный запрос
-            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+            // Приоритет 7: Площадь (minArea и maxArea)
+            if (request.getMinArea() != null && request.getMaxArea() != null) {
+                Expression<Object> areaPriority = criteriaBuilder.selectCase()
+                        .when(
+                                criteriaBuilder.and(
+                                        criteriaBuilder.greaterThanOrEqualTo(root.get("areaOfTheApartment"), request.getMinArea()),
+                                        criteriaBuilder.lessThanOrEqualTo(root.get("areaOfTheApartment"), request.getMaxArea())
+                                ),
+                                1
+                        )
+                        .otherwise(0);
+                orders.add(criteriaBuilder.desc(areaPriority));
+            }
+
+            // Приоритет 8: Этаж (notTheFirstFloor)
+            if (request.getNotTheFirstFloor() != null && request.getNotTheFirstFloor()) {
+                Expression<Object> floorPriority = criteriaBuilder.selectCase()
+                        .when(criteriaBuilder.greaterThan(root.get("numberOfFloor"), 1), 1)
+                        .otherwise(0);
+                orders.add(criteriaBuilder.desc(floorPriority));
+            }
+
+            // Приоритет 9: Верхний этаж (notTheTopFloor)
+            if (request.getNotTheTopFloor() != null && request.getNotTheTopFloor()) {
+                Expression<Object> topFloorPriority = criteriaBuilder.selectCase()
+                        .when(criteriaBuilder.lessThan(root.get("numberOfFloor"), root.get("maxFloorInTheBuilding")), 1)
+                        .otherwise(0);
+                orders.add(criteriaBuilder.desc(topFloorPriority));
+            }
+
+            // Приоритет 10: Количество людей (numberOfPeopleAreYouAccommodating)
+            if (request.getNumberOfPeopleAreYouAccommodating() != null) {
+                Expression<Object> peoplePriority = criteriaBuilder.selectCase()
+                        .when(criteriaBuilder.equal(root.get("numberOfPeopleAreYouAccommodating"), request.getNumberOfPeopleAreYouAccommodating()), 1)
+                        .otherwise(0);
+                orders.add(criteriaBuilder.desc(peoplePriority));
+            }
+
+            // Приоритет 11: Количество комнат (quantityOfRooms)
+            if (request.getQuantityOfRooms() != null && !request.getQuantityOfRooms().isEmpty()) {
+                // Если quantityOfRooms - это список, используем IN
+                Expression<Object> roomsPriority = criteriaBuilder.selectCase()
+                        .when(root.get("quantityOfRooms").in(request.getQuantityOfRooms()), 1)
+                        .otherwise(0);
+                orders.add(criteriaBuilder.desc(roomsPriority));
+            }
+
+            // Приоритет 12: Возраст (minAge и maxAge)
+            if (request.getMinAge() != null && request.getMaxAge() != null) {
+                Expression<Object> agePriority = criteriaBuilder.selectCase()
+                        .when(
+                                criteriaBuilder.and(
+                                        criteriaBuilder.greaterThanOrEqualTo(root.get("minAge"), request.getMinAge()),
+                                        criteriaBuilder.lessThanOrEqualTo(root.get("maxAge"), request.getMaxAge())
+                                ),
+                                1
+                        )
+                        .otherwise(0);
+                orders.add(criteriaBuilder.desc(agePriority));
+            }
+
+            // Приоритет 13: Разрешены ли питомцы (arePetsAllowed)
+            if (request.getArePetsAllowed() != null) {
+                Expression<Object> petsPriority = criteriaBuilder.selectCase()
+                        .when(criteriaBuilder.equal(root.get("arePetsAllowed"), request.getArePetsAllowed()), 1)
+                        .otherwise(0);
+                orders.add(criteriaBuilder.desc(petsPriority));
+            }
+
+            // Приоритет 14: Включены ли коммунальные услуги (isCommunalServiceIncluded)
+            if (request.getIsCommunalServiceIncluded() != null) {
+                Expression<Object> communalServicePriority = criteriaBuilder.selectCase()
+                        .when(criteriaBuilder.equal(root.get("isCommunalServiceIncluded"), request.getIsCommunalServiceIncluded()), 1)
+                        .otherwise(0);
+                orders.add(criteriaBuilder.desc(communalServicePriority));
+            }
+
+            // Приоритет 15: Предназначено ли для студентов (intendedForStudents)
+            if (request.getIntendedForStudents() != null) {
+                Expression<Object> studentsPriority = criteriaBuilder.selectCase()
+                        .when(criteriaBuilder.equal(root.get("intendedForStudents"), request.getIntendedForStudents()), 1)
+                        .otherwise(0);
+                orders.add(criteriaBuilder.desc(studentsPriority));
+            }
+
+            // Приоритет 16: Тип жилья (typeOfHousing)
+            if (request.getTypeOfHousing() != null && !request.getTypeOfHousing().isEmpty()) {
+                Expression<Object> housingTypePriority = criteriaBuilder.selectCase()
+                        .when(root.get("typeOfHousing").in(request.getTypeOfHousing()), 1)
+                        .otherwise(0);
+                orders.add(criteriaBuilder.desc(housingTypePriority));
+            }
+
+            // Дополнительные приоритеты можно добавить здесь
+
+            // Дополнительная сортировка: например, по дате создания объявления
+            orders.add(criteriaBuilder.desc(root.get("createdAt")));
+
+            // Применение сортировки к запросу
+            if (query != null) {
+                query.orderBy(orders);
+            }
+
+            // 2. Нет фильтрации по приоритетным полям, все объявления включены
+            return criteriaBuilder.conjunction(); // Возвращает "true", не ограничивая результаты
         });
     }
 
