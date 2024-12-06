@@ -4,6 +4,7 @@ package by.project.turamyzba.services;
 import by.project.turamyzba.dto.requests.AnnouncementFilterRequest;
 import by.project.turamyzba.dto.requests.AnnouncementRequest;
 import by.project.turamyzba.dto.responses.AnnouncementResponse;
+import by.project.turamyzba.dto.responses.AnnouncementResponseForAll;
 import by.project.turamyzba.entities.Announcement;
 import org.apache.coyote.BadRequestException;
 import org.springframework.data.domain.Page;
@@ -25,4 +26,5 @@ public interface AnnouncementService {
     void restoreAnnouncement(Long announcementId) throws BadRequestException;
     void deleteAnnouncement(Long announcementId) throws BadRequestException;
     AnnouncementResponse toAnnouncementResponse(Announcement announcement);
+    AnnouncementResponseForAll toAnnouncementResponseForAll(Announcement announcement);
 }

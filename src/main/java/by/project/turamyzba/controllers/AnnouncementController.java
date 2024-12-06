@@ -3,6 +3,7 @@ package by.project.turamyzba.controllers;
 import by.project.turamyzba.dto.requests.AnnouncementFilterRequest;
 import by.project.turamyzba.dto.requests.AnnouncementRequest;
 import by.project.turamyzba.dto.responses.AnnouncementResponse;
+import by.project.turamyzba.dto.responses.AnnouncementResponseForAll;
 import by.project.turamyzba.entities.Announcement;
 import by.project.turamyzba.services.AnnouncementService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -53,7 +54,7 @@ public class AnnouncementController {
     @GetMapping("/all")
     @Operation(summary = "Барлык объявлениелерди алу.", description = "По дефолту 41 объявление береди. Показать еще баскан кезде" +
             "page ди инкремент жасап обратно осы эндпоинтка жибересиндер. sort ка дал дизайнда тургандай жибересиндер например Самые подходящие деп ешкандай ошибкасыз")
-    public ResponseEntity<List<AnnouncementResponse>> findRoommates(
+    public ResponseEntity<List<AnnouncementResponseForAll>> findRoommates(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "41") int limit,
             @RequestParam(required = false) String region,
@@ -73,8 +74,8 @@ public class AnnouncementController {
             roommatePage = announcementService.getAllRoommateListings(pageable);
         }
 
-        List<AnnouncementResponse> announcementResponses = roommatePage.getContent().stream()
-                .map(announcementService::toAnnouncementResponse)
+        List<AnnouncementResponseForAll> announcementResponses = roommatePage.getContent().stream()
+                .map(announcementService::toAnnouncementResponseForAll)
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(announcementResponses);
@@ -84,8 +85,8 @@ public class AnnouncementController {
             case "По возрастанию цены" -> Sort.by(Sort.Order.asc("cost")); // по возрастанию цены
             case "По убыванию цены" -> Sort.by(Sort.Order.desc("cost")); // по убыванию цены
             case "По новизне" -> Sort.by(Sort.Order.desc("createdAt")); // по дате (новизне), по убыванию
-            case "Самые подходящие" -> Sort.by(Sort.Order.desc("arriveDate"));
-            default -> Sort.by(Sort.Order.desc("createdAt")); // по умолчанию сортировка по новизне (убывание)
+            case "Самые подходящие" -> Sort.by(Sort.Order.asc("arriveDate"));
+            default -> Sort.by(Sort.Order.asc("arriveDate")); // по умолчанию сортировка по новизне (убывание)
         };
     }
 
@@ -133,12 +134,12 @@ public class AnnouncementController {
 
     @GetMapping("/great-deals")
     @Operation(summary = "Выгодные предложения", description = "Пока что чисто по возрастнию цены объявлениелер кайтарады 10 штук.")
-    public ResponseEntity<List<AnnouncementResponse>> greatDeals() {
+    public ResponseEntity<List<AnnouncementResponseForAll>> greatDeals() {
         Sort sortBy = getSort("По возрастанию цены");
         Pageable pageable = PageRequest.of(0, 10, sortBy);
         Page<Announcement> roommatePage = announcementService.getAllRoommateListings(pageable);
-        List<AnnouncementResponse> announcementResponses = roommatePage.getContent().stream()
-                .map(announcementService::toAnnouncementResponse)
+        List<AnnouncementResponseForAll> announcementResponses = roommatePage.getContent().stream()
+                .map(announcementService::toAnnouncementResponseForAll)
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(announcementResponses);

@@ -3,6 +3,7 @@ package by.project.turamyzba.services.impl;
 import by.project.turamyzba.dto.requests.AnnouncementFilterRequest;
 import by.project.turamyzba.dto.requests.AnnouncementRequest;
 import by.project.turamyzba.dto.responses.AnnouncementResponse;
+import by.project.turamyzba.dto.responses.AnnouncementResponseForAll;
 import by.project.turamyzba.mappers.AnnouncementMapper;
 import by.project.turamyzba.entities.Announcement;
 import by.project.turamyzba.entities.Image;
@@ -360,5 +361,20 @@ public class AnnouncementServiceImpl implements AnnouncementService {
         return response;
     }
 
+    @Override
+    public AnnouncementResponseForAll toAnnouncementResponseForAll(Announcement announcement) {
+        AnnouncementResponseForAll announcementResponseForAll = new AnnouncementResponseForAll();
+        announcementResponseForAll.setAnnouncementId(announcement.getId());
+        announcementResponseForAll.setImage(announcement.getPhotos().get(0).getUrl());
+        announcementResponseForAll.setTitle(announcement.getTitle());
+        announcementResponseForAll.setSelectedGender(announcement.getSelectedGender());
+        announcementResponseForAll.setAddress(announcement.getAddress());
+        announcementResponseForAll.setCost(announcement.getCost());
+        announcementResponseForAll.setRoommates(announcement.getNumberOfPeopleAreYouAccommodating());
+        announcementResponseForAll.setArriveDate(announcement.getArriveDate());
+        announcementResponseForAll.setRoomCount(announcement.getQuantityOfRooms());
+        announcementResponseForAll.setCost(announcement.getCost());
+        return announcementResponseForAll;
+    }
 }
 
