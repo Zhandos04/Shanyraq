@@ -58,6 +58,8 @@ public class AnnouncementController {
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "41") int limit,
             @RequestParam(required = false) String region,
+            @RequestParam(required = false) String district,
+            @RequestParam(required = false) String microDistrict,
             @RequestParam(required = false) Integer minPrice,
             @RequestParam(required = false) Integer maxPrice,
             @RequestParam(required = false) String gender,
@@ -69,7 +71,7 @@ public class AnnouncementController {
         Page<Announcement> roommatePage;
 
         if (region != null || minPrice != null || maxPrice != null || gender != null || roommatesCount != null) {
-            roommatePage = announcementService.searchRoommateListings(region, minPrice, maxPrice, gender, roommatesCount, pageable);
+            roommatePage = announcementService.searchRoommateListings(region, district, microDistrict,minPrice, maxPrice, gender, roommatesCount, pageable);
         } else {
             roommatePage = announcementService.getAllRoommateListings(pageable);
         }

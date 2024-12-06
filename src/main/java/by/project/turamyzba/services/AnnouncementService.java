@@ -16,7 +16,7 @@ import java.util.List;
 public interface AnnouncementService {
     void createAnnouncement(AnnouncementRequest announcementRequest) throws IOException;
     Page<Announcement> getAllRoommateListings(Pageable pageable);
-    Page<Announcement> searchRoommateListings(String region, Integer minPrice, Integer maxPrice, String gender, Integer roommatesCount, Pageable pageable);
+    Page<Announcement> searchRoommateListings(String region, String district, String microDistrict, Integer minPrice, Integer maxPrice, String gender, Integer roommatesCount, Pageable pageable);
     AnnouncementResponse getAnnouncementById(Long id);
     List<AnnouncementResponse> getUserAnnouncements();
     List<AnnouncementResponse> getUserArchiveAnnouncements();
