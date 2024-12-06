@@ -203,7 +203,10 @@ public class AnnouncementServiceImpl implements AnnouncementService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Announcement> getFilteredAnnouncements(String selectedGender, String region, String district, String microDistrict, Integer minPrice, Integer maxPrice, Integer numberOfPeopleAreYouAccommodating, String quantityOfRooms, Integer minAge, Integer maxAge, LocalDate arriveData, Integer minArea, Integer maxArea, Boolean notTheFirstFloor, Boolean notTheTopFloor, Boolean arePetsAllowed, Boolean isCommunalServiceIncluded, Boolean intendedForStudents, String typeOfHousing) {
+    public List<Announcement> getFilteredAnnouncements(String selectedGender, String region, String district, String microDistrict, Integer minPrice,
+                                                       Integer maxPrice, Integer numberOfPeopleAreYouAccommodating, String quantityOfRooms, Integer minAge,
+                                                       Integer maxAge, LocalDate arriveData, Integer minArea, Integer maxArea, Boolean notTheFirstFloor, Boolean notTheTopFloor,
+                                                       Boolean arePetsAllowed, Boolean isCommunalServiceIncluded, Boolean intendedForStudents, String typeOfHousing, Boolean forALongTime) {
         return announcementRepository.findAll((Specification<Announcement>) (root, query, criteriaBuilder) -> {
             // 1. Построение приоритетной сортировки
             List<Order> orders = new ArrayList<>();
@@ -239,6 +242,13 @@ public class AnnouncementServiceImpl implements AnnouncementService {
                         .when(criteriaBuilder.equal(root.get("arriveDate"), arriveData), 1)
                         .otherwise(0);
                 orders.add(criteriaBuilder.desc(datePriority));
+            }
+
+            if (forALongTime != null) {
+                Expression<Object> petsPriority = criteriaBuilder.selectCase()
+                        .when(criteriaBuilder.equal(root.get("forALongTime"), forALongTime), 1)
+                        .otherwise(0);
+                orders.add(criteriaBuilder.desc(petsPriority));
             }
 
             // Приоритет 5: Район (District)
