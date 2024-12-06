@@ -36,7 +36,8 @@ public class SecurityConfiguration {
             "/actuator/**",
             "/announcement/all",
             "/announcement/detail/*",
-            "/announcement/great-deals"
+            "/announcement/great-deals",
+            "/announcement/filter",
     };
 
     @Bean

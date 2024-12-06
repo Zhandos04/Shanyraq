@@ -145,11 +145,11 @@ public class AnnouncementController {
         return ResponseEntity.ok(announcementResponses);
     }
 
-    @GetMapping("/search")
+    @GetMapping("/filter")
     @Operation(summary = "Фильтр")
-    public ResponseEntity<List<AnnouncementResponse>> getFilteredAnnouncements(@RequestBody AnnouncementFilterRequest request) {
-        List<AnnouncementResponse> announcementResponses = announcementService.getFilteredAnnouncements(request).stream()
-                .map(announcementService::toAnnouncementResponse)
+    public ResponseEntity<List<AnnouncementResponseForAll>> getFilteredAnnouncements(@RequestBody AnnouncementFilterRequest request) {
+        List<AnnouncementResponseForAll> announcementResponses = announcementService.getFilteredAnnouncements(request).stream()
+                .map(announcementService::toAnnouncementResponseForAll)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(announcementResponses);
     }
