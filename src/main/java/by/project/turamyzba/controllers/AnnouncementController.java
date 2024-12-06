@@ -83,9 +83,9 @@ public class AnnouncementController {
         return switch (sort) {
             case "По возрастанию цены" -> Sort.by(Sort.Order.asc("cost")); // по возрастанию цены
             case "По убыванию цены" -> Sort.by(Sort.Order.desc("cost")); // по убыванию цены
-            case "По новизне" -> Sort.by(Sort.Order.desc("arriveDate")); // по дате (новизне), по убыванию
+            case "По новизне" -> Sort.by(Sort.Order.desc("createdAt")); // по дате (новизне), по убыванию
             case "Самые подходящие" -> Sort.by(Sort.Order.desc("arriveDate"));
-            default -> Sort.by(Sort.Order.desc("arriveDate")); // по умолчанию сортировка по новизне (убывание)
+            default -> Sort.by(Sort.Order.desc("createdAt")); // по умолчанию сортировка по новизне (убывание)
         };
     }
 
