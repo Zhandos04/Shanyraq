@@ -1,7 +1,6 @@
 package by.project.turamyzba.services;
 
 
-import by.project.turamyzba.dto.requests.AnnouncementFilterRequest;
 import by.project.turamyzba.dto.requests.AnnouncementRequest;
 import by.project.turamyzba.dto.responses.AnnouncementResponse;
 import by.project.turamyzba.dto.responses.AnnouncementResponseForAll;
@@ -11,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 
 public interface AnnouncementService {
@@ -22,7 +22,7 @@ public interface AnnouncementService {
     List<AnnouncementResponse> getUserArchiveAnnouncements();
     void archiveAnnouncement(Long announcementId) throws BadRequestException;
     AnnouncementResponse updateAnnouncement(Long id, AnnouncementRequest announcementRequest);
-    List<Announcement> getFilteredAnnouncements(AnnouncementFilterRequest request);
+    List<Announcement> getFilteredAnnouncements(String selectedGender, String region, String district, String microDistrict, Integer minPrice, Integer maxPrice, Integer numberOfPeopleAreYouAccommodating, String quantityOfRooms, Integer minAge, Integer maxAge, LocalDate arriveData, Integer minArea, Integer maxArea, Boolean notTheFirstFloor, Boolean notTheTopFloor, Boolean arePetsAllowed, Boolean isCommunalServiceIncluded, Boolean intendedForStudents, String typeOfHousing);;
     void restoreAnnouncement(Long announcementId) throws BadRequestException;
     void deleteAnnouncement(Long announcementId) throws BadRequestException;
     AnnouncementResponse toAnnouncementResponse(Announcement announcement);

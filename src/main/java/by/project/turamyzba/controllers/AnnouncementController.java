@@ -1,6 +1,5 @@
 package by.project.turamyzba.controllers;
 
-import by.project.turamyzba.dto.requests.AnnouncementFilterRequest;
 import by.project.turamyzba.dto.requests.AnnouncementRequest;
 import by.project.turamyzba.dto.responses.AnnouncementResponse;
 import by.project.turamyzba.dto.responses.AnnouncementResponseForAll;
@@ -20,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -62,7 +62,7 @@ public class AnnouncementController {
             @RequestParam(required = false) Integer maxPrice,
             @RequestParam(required = false) String gender,
             @RequestParam(required = false) Integer roommatesCount,
-            @RequestParam(required = false, defaultValue = "Самые подходящие") String sort) {
+            @RequestParam(required = false, defaultValue = "1") Integer sort) {
         Sort sortBy = getSort(sort);
 
         Pageable pageable = PageRequest.of(page - 1, limit, sortBy);
@@ -80,12 +80,12 @@ public class AnnouncementController {
 
         return ResponseEntity.ok(announcementResponses);
     }
-    private Sort getSort(String sort) {
+    private Sort getSort(Integer sort) {
         return switch (sort) {
-            case "По возрастанию цены" -> Sort.by(Sort.Order.asc("cost")); // по возрастанию цены
-            case "По убыванию цены" -> Sort.by(Sort.Order.desc("cost")); // по убыванию цены
-            case "По новизне" -> Sort.by(Sort.Order.desc("createdAt")); // по дате (новизне), по убыванию
-            case "Самые подходящие" -> Sort.by(Sort.Order.asc("arriveDate"));
+            case 2 -> Sort.by(Sort.Order.asc("cost")); // по возрастанию цены
+            case 4 -> Sort.by(Sort.Order.desc("cost")); // по убыванию цены
+            case 3 -> Sort.by(Sort.Order.desc("createdAt")); // по дате (новизне), по убыванию
+            case 1 -> Sort.by(Sort.Order.asc("arriveDate"));
             default -> Sort.by(Sort.Order.asc("arriveDate")); // по умолчанию сортировка по новизне (убывание)
         };
     }
@@ -135,7 +135,7 @@ public class AnnouncementController {
     @GetMapping("/great-deals")
     @Operation(summary = "Выгодные предложения", description = "Пока что чисто по возрастнию цены объявлениелер кайтарады 10 штук.")
     public ResponseEntity<List<AnnouncementResponseForAll>> greatDeals() {
-        Sort sortBy = getSort("По возрастанию цены");
+        Sort sortBy = getSort(2);
         Pageable pageable = PageRequest.of(0, 10, sortBy);
         Page<Announcement> roommatePage = announcementService.getAllRoommateListings(pageable);
         List<AnnouncementResponseForAll> announcementResponses = roommatePage.getContent().stream()
@@ -147,8 +147,30 @@ public class AnnouncementController {
 
     @GetMapping("/filter")
     @Operation(summary = "Фильтр")
-    public ResponseEntity<List<AnnouncementResponseForAll>> getFilteredAnnouncements(@RequestBody AnnouncementFilterRequest request) {
-        List<AnnouncementResponseForAll> announcementResponses = announcementService.getFilteredAnnouncements(request).stream()
+    public ResponseEntity<List<AnnouncementResponseForAll>> getFilteredAnnouncements(
+            @RequestParam String selectedGender,
+            @RequestParam String region,
+            @RequestParam String district,
+            @RequestParam String microDistrict,
+            @RequestParam Integer minPrice,
+            @RequestParam Integer maxPrice,
+            @RequestParam Integer numberOfPeopleAreYouAccommodating,
+            @RequestParam String quantityOfRooms,
+            @RequestParam Integer minAge,
+            @RequestParam Integer maxAge,
+            @RequestParam LocalDate arriveData,
+            @RequestParam Integer minArea,
+            @RequestParam Integer maxArea,
+            @RequestParam Boolean notTheFirstFloor,
+            @RequestParam Boolean notTheTopFloor,
+            @RequestParam Boolean arePetsAllowed,
+            @RequestParam Boolean isCommunalServiceIncluded,
+            @RequestParam Boolean intendedForStudents,
+            @RequestParam String typeOfHousing
+            ) {
+        List<AnnouncementResponseForAll> announcementResponses = announcementService.getFilteredAnnouncements(selectedGender, region, district,
+                        microDistrict, minPrice, maxPrice, numberOfPeopleAreYouAccommodating, quantityOfRooms, minAge, maxAge, arriveData,
+                        minArea, maxArea, notTheFirstFloor, notTheTopFloor, arePetsAllowed, isCommunalServiceIncluded, intendedForStudents, typeOfHousing).stream()
                 .map(announcementService::toAnnouncementResponseForAll)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(announcementResponses);
