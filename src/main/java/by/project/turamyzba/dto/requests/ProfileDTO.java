@@ -31,9 +31,5 @@ public class ProfileDTO {
     )
     private String phoneNumber;
 
-    @Pattern(
-            regexp = "^$|^(Мужчина|Женщина|Любой)$",
-            message = "Gender должно быть 'Мужчина', 'Женщина' или 'Любой'"
-    )
     private String gender;
 }
