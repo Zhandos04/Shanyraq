@@ -96,15 +96,15 @@ public class AnnouncementController {
 
     @Operation(summary = "Определенный пользовательдин активный объявлениелерин алу.", description = "Ешкандай зат жибермейсиндер кроме токена токен аркылы кай " +
             "пользователь жиберип тур соны аныктап сонын объявлениелерин жиберемин.")
-    @GetMapping("/my-active-announcements")
-    public ResponseEntity<List<AnnouncementResponse>> getMyAnnouncements(){
+        @GetMapping("/my-active-announcements")
+    public ResponseEntity<List<AnnouncementResponseForAll>> getMyAnnouncements(){
         return ResponseEntity.ok(announcementService.getUserAnnouncements());
     }
 
     @Operation(summary = "Определенный пользовательдин архивный объявлениелерин алу.", description = "Ешкандай зат жибермейсиндер кроме токена токен аркылы кай " +
             "пользователь жиберип тур соны аныктап сонын объявлениелерин жиберемин.")
     @GetMapping("/my-archive-announcements")
-    public ResponseEntity<List<AnnouncementResponse>> getMyArchiveAnnouncements(){
+    public ResponseEntity<List<AnnouncementResponseForAll>> getMyArchiveAnnouncements(){
         return ResponseEntity.ok(announcementService.getUserArchiveAnnouncements());
     }
 

@@ -16,10 +16,45 @@ import java.util.Optional;
 
 @Repository
 public interface AnnouncementRepository extends JpaRepository<Announcement, Integer>, JpaSpecificationExecutor<Announcement> {
-    List<Announcement> findAllByUserAndIsArchivedFalseAndIsDeletedFalse(User user);
-    List<Announcement> findAllByUserAndIsArchivedTrueAndIsDeletedFalse(User user);
+    @Query("SELECT new by.project.turamyzba.dto.responses.AnnouncementResponseForAll(" +
+            "a.id, " +
+            "MIN(p.url), " +
+            "a.title, " +
+            "a.address, " +
+            "a.arriveDate, " +
+            "a.quantityOfRooms, " +
+            "a.selectedGender, " +
+            "a.numberOfPeopleAreYouAccommodating, " +
+            "a.cost) " +
+            "FROM Announcement a LEFT JOIN a.photos p " +
+            "WHERE a.user = :user " +
+            "AND a.isDeleted = false " +
+            "AND a.isArchived = false " +
+            "GROUP BY a.id, a.title, a.address, a.arriveDate, a.quantityOfRooms, a.selectedGender, a.numberOfPeopleAreYouAccommodating, a.cost " +
+            "ORDER BY a.createdAt desc "
+    )
+    List<AnnouncementResponseForAll> findAllActiveAnnouncementsByUser(@Param("user") User user);
+
+    @Query("SELECT new by.project.turamyzba.dto.responses.AnnouncementResponseForAll(" +
+            "a.id, " +
+            "MIN(p.url), " +
+            "a.title, " +
+            "a.address, " +
+            "a.arriveDate, " +
+            "a.quantityOfRooms, " +
+            "a.selectedGender, " +
+            "a.numberOfPeopleAreYouAccommodating, " +
+            "a.cost) " +
+            "FROM Announcement a LEFT JOIN a.photos p " +
+            "WHERE a.user = :user " +
+            "AND a.isDeleted = false " +
+            "AND a.isArchived = true " +
+            "GROUP BY a.id, a.title, a.address, a.arriveDate, a.quantityOfRooms, a.selectedGender, a.numberOfPeopleAreYouAccommodating, a.cost " +
+            "ORDER BY a.createdAt desc "
+    )
+    List<AnnouncementResponseForAll> findAllArchivedAnnouncementsByUser(@Param("user") User user);
+
     Optional<Announcement> findById(Long id);
-    Page<Announcement> findAllByIsDeletedFalseAndIsArchivedFalse(Pageable pageable);
 
     @Query("SELECT new by.project.turamyzba.dto.responses.AnnouncementResponseForAll(" +
             "a.id, " +

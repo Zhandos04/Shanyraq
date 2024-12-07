@@ -26,8 +26,8 @@ public interface AnnouncementService {
             Integer roommatesCount,
             Pageable pageable);
     AnnouncementResponse getAnnouncementById(Long id);
-    List<AnnouncementResponse> getUserAnnouncements();
-    List<AnnouncementResponse> getUserArchiveAnnouncements();
+    List<AnnouncementResponseForAll> getUserAnnouncements();
+    List<AnnouncementResponseForAll> getUserArchiveAnnouncements();
     void archiveAnnouncement(Long announcementId) throws BadRequestException;
     AnnouncementResponse updateAnnouncement(Long id, AnnouncementRequest announcementRequest);
     List<Announcement> getFilteredAnnouncements(String selectedGender, String region, String district, String microDistrict,

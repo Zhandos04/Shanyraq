@@ -134,23 +134,20 @@ public class AnnouncementServiceImpl implements AnnouncementService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<AnnouncementResponse> getUserAnnouncements(){
+    public List<AnnouncementResponseForAll> getUserAnnouncements() {
         User user = userService.getUserByEmail(userService.getCurrentUser().getUsername())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found!"));
-        return announcementRepository.findAllByUserAndIsArchivedFalseAndIsDeletedFalse(user).stream()
-                .map(this::toAnnouncementResponse)
-                .collect(Collectors.toList());
+        return announcementRepository.findAllActiveAnnouncementsByUser(user);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<AnnouncementResponse> getUserArchiveAnnouncements() {
+    public List<AnnouncementResponseForAll> getUserArchiveAnnouncements() {
         User user = userService.getUserByEmail(userService.getCurrentUser().getUsername())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found!"));
-        return announcementRepository.findAllByUserAndIsArchivedTrueAndIsDeletedFalse(user).stream()
-                .map(this::toAnnouncementResponse)
-                .collect(Collectors.toList());
+        return announcementRepository.findAllArchivedAnnouncementsByUser(user);
     }
+
 
     @Override
     @Transactional
