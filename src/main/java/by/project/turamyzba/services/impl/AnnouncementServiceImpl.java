@@ -96,7 +96,7 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     @Transactional(readOnly = true)
     public Page<Announcement> getAllRoommateListings(Pageable pageable) {
         log.info("Getting all roommate listings");
-        return announcementRepository.findAllByIsDeletedFalse(pageable);
+        return announcementRepository.findAllByIsDeletedFalseAndIsArchivedFalse(pageable);
     }
 
     @Override
