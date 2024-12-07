@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 
 @Service
 @RequiredArgsConstructor
@@ -81,7 +82,11 @@ public class ProfileServiceImpl implements ProfileService {
         profileDTO.setGender(user.getGender());
         profileDTO.setFirstName(user.getFirstName());
         profileDTO.setLastName(user.getLastName());
-        profileDTO.setBirthDate(String.valueOf(user.getBirthDate()));
+        if (user.getBirthDate() != null) {
+            profileDTO.setBirthDate(user.getBirthDate().toString()); // ISO format by default
+        } else {
+            profileDTO.setBirthDate(""); // or set to null based on your requirements
+        }
         profileDTO.setProfilePhoto(user.getProfilePhoto());
         profileDTO.setEmail(user.getEmail());
         profileDTO.setIsPasswordHas(!user.getPassword().isEmpty());
@@ -91,10 +96,22 @@ public class ProfileServiceImpl implements ProfileService {
 
     private void updateUserData(User user, ProfileDTO profileDTO) {
         user.setGender(profileDTO.getGender());
-        user.setBirthDate(LocalDate.parse(profileDTO.getBirthDate()));
+        String birthDateStr = profileDTO.getBirthDate();
+        if (birthDateStr != null && !birthDateStr.trim().isEmpty()) {
+            try {
+                LocalDate birthDate = LocalDate.parse(birthDateStr);
+                user.setBirthDate(birthDate);
+            } catch (DateTimeParseException e) {
+                System.err.println("Invalid birthDate format: " + birthDateStr);
+                throw new IllegalArgumentException("Invalid birthDate format.", e);
+            }
+        } else {
+            user.setBirthDate(null);
+        }
         user.setFirstName(profileDTO.getFirstName());
         user.setLastName(profileDTO.getLastName());
-        user.setPhoneNumber(profileDTO.getPhoneNumber());
+        if (profileDTO.getPhoneNumber().isEmpty()) user.setPhoneNumber(null);
+        else user.setPhoneNumber(profileDTO.getPhoneNumber());
         user.setUpdatedAt(Instant.now());
     }
 }
