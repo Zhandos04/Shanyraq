@@ -2,6 +2,7 @@ package by.project.turamyzba.services.impl;
 
 import by.project.turamyzba.dto.requests.UserDTO;
 import by.project.turamyzba.entities.User;
+import by.project.turamyzba.jwt.JwtService;
 import by.project.turamyzba.repositories.UserRepository;
 import by.project.turamyzba.services.UserService;
 import by.project.turamyzba.exceptions.UserAlreadyExistsException;
@@ -15,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -25,7 +27,39 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final ModelMapper modelMapper;
     private final EmailServiceImpl emailService;
+    private final GoogleAuthService googleAuthService;
+    private final JwtService jwtService;
 
+    @Transactional
+    @Override
+    public String authenticateWithGoogleCode(String code) {
+        // 1. Обменять code на access_token
+        String accessToken = googleAuthService.exchangeCodeForToken(code);
+        // 2. Получить userinfo от Google
+        GoogleAuthService.GoogleUserInfo userInfo = googleAuthService.getUserInfo(accessToken);
+
+        // 3. Проверить пользователя в БД
+        Optional<User> userOptional = userRepository.findByEmail(userInfo.getEmail());
+        User user;
+        if (userOptional.isEmpty()) {
+            // Создаём нового пользователя
+            user = new User();
+            user.setEmail(userInfo.getEmail());
+            user.setFirstName("");
+            user.setLastName("");
+            user.setPassword("");
+            user.setGender("Любой");
+            user.setIsVerified(true);
+            userRepository.save(user);
+        } else {
+            user = userOptional.get();
+        }
+
+        // 4. Генерируем JWT
+        Map<String, String> tokens = jwtService.generateTokens(user.getEmail());
+
+        return tokens.get("accessToken");
+    }
 
     @Override
     public UserDetails loadUserByUsername(String username) {

@@ -66,6 +66,15 @@ public class ProfileServiceImpl implements ProfileService {
         userRepository.save(user);
     }
 
+    @Override
+    @Transactional
+    public void addPassword(String password) {
+        User user = userService.getUserByEmail(userService.getCurrentUser().getUsername())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        user.setPassword(passwordEncoder.encode(password));
+        userRepository.save(user);
+    }
+
     private ProfileResponse convertToProfileResponse(User user) {
         ProfileResponse profileDTO = new ProfileResponse();
         profileDTO.setPhoneNumber(user.getPhoneNumber());
@@ -75,6 +84,7 @@ public class ProfileServiceImpl implements ProfileService {
         profileDTO.setBirthDate(String.valueOf(user.getBirthDate()));
         profileDTO.setProfilePhoto(user.getProfilePhoto());
         profileDTO.setEmail(user.getEmail());
+        profileDTO.setIsPasswordHas(!user.getPassword().isEmpty());
 
         return profileDTO;
     }

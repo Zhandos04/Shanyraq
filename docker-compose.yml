@@ -8,7 +8,7 @@ services:
     volumes:
       - db-data:/var/lib/postgresql/data
     ports:
-      - "5433:5432"
+      - "6543:6543"
 
   app:
     build: .
@@ -17,7 +17,7 @@ services:
     depends_on:
       - db
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/${POSTGRES_DB}
+      SPRING_DATASOURCE_URL: ${DATABASE_URL}
       SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
       SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
@@ -29,6 +29,12 @@ services:
       AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
       AWS_S3_REGION: ${AWS_S3_REGION}
       AWS_S3_BUCKET: ${AWS_S3_BUCKET}
+      # GOOGLE
+      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
+      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
+      GOOGLE_CLIENT_REDIRECT_URI: ${GOOGLE_CLIENT_REDIRECT_URI}
+      GOOGLE_CLIENT_TOKEN_URI: ${GOOGLE_CLIENT_TOKEN_URI}
+      GOOGLE_CLIENT_USERINFO_URI: ${GOOGLE_CLIENT_USERINFO_URI}
 
 volumes:
   db-data:

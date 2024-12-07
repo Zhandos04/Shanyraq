@@ -16,6 +16,8 @@ public class ProfileDTO {
     @NotBlank(message = "Birth date cannot be empty")
     @Pattern(regexp = "\\d{4}-\\d{2}-\\d{2}", message = "Invalid date format. Expected yyyy-MM-dd")
     private String birthDate;
+    @Pattern(regexp = "^((\\+7)\\d{10})$",
+            message = "phoneNumber")
     private String phoneNumber;
     private String gender;
 }

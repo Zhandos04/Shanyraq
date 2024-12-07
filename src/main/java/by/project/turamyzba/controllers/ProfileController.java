@@ -1,11 +1,11 @@
 package by.project.turamyzba.controllers;
 
+import by.project.turamyzba.dto.requests.AddPasswordRequest;
 import by.project.turamyzba.dto.requests.PasswordDTO;
 import by.project.turamyzba.dto.requests.ProfileDTO;
 import by.project.turamyzba.dto.responses.ProfileResponse;
 import by.project.turamyzba.exceptions.IncorrectJSONException;
 import by.project.turamyzba.services.ProfileService;
-import by.project.turamyzba.services.UserService;
 import by.project.turamyzba.services.impl.S3Service;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -35,6 +35,13 @@ public class ProfileController {
         return profileService.getUser();
     }
 
+    @PostMapping("add-password")
+    @Operation(summary = "Гуглмен тиркелген пользовательге пароль енгизу")
+    public ResponseEntity<?> addPassword(@RequestBody @Valid AddPasswordRequest addPasswordRequest) {
+        profileService.addPassword(addPasswordRequest.getPassword());
+        return ResponseEntity.ok("Password added successfully!");
+    }
+
 
     @PutMapping("/edit")
     @Operation(summary = "Edit user profile", description = "Updates the user profile based on provided data")
@@ -50,14 +57,14 @@ public class ProfileController {
         return ResponseEntity.ok(profileService.editProfile(profileDTO));
     }
 
-    @PatchMapping("/update-password")
+    @PostMapping("/update-password")
     @Operation(summary = "Пароль озгерту")
     public ResponseEntity<?> updatePassword(@RequestBody @Valid PasswordDTO passwordDTO) {
         profileService.updatePassword(passwordDTO);
         return ResponseEntity.ok("Пароль успешно изменен");
     }
 
-    @PatchMapping(value = "/upload-photo", consumes = "multipart/form-data")
+    @PostMapping(value = "/upload-photo", consumes = "multipart/form-data")
     @Operation(summary = "Фото профилья")
     public ResponseEntity<String> uploadPhoto(@RequestParam("file") MultipartFile file) {
         if (file.isEmpty()) {

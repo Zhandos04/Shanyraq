@@ -10,4 +10,6 @@ public interface ProfileService {
     void updatePassword(PasswordDTO passwordDTO);
 
     void uploadProfilePhoto(String fileUrl);
+
+    void addPassword(String password);
 }

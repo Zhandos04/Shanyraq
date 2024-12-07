@@ -56,7 +56,7 @@ public class AnnouncementController {
             "page ди инкремент жасап обратно осы эндпоинтка жибересиндер. sort ка дал дизайнда тургандай жибересиндер например Самые подходящие деп ешкандай ошибкасыз")
     public ResponseEntity<List<AnnouncementResponseForAll>> findRoommates(
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "41") int limit,
+            @RequestParam(defaultValue = "21") int limit,
             @RequestParam(required = false) String region,
             @RequestParam(required = false) String district,
             @RequestParam(required = false) String microDistrict,

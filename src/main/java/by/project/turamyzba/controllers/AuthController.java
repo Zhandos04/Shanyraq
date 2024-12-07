@@ -13,7 +13,6 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -21,14 +20,11 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -113,7 +109,14 @@ public class AuthController {
         return ResponseEntity.ok("Code resent successfully!");
     }
 
-
+    @PostMapping("/google")
+    @Operation(summary = "Login or register with google")
+    public ResponseEntity<AuthDTO> googleLogin(@RequestBody AuthRequest request) {
+        String token = userService.authenticateWithGoogleCode(request.getCode());
+        AuthDTO authDTO = new AuthDTO();
+        authDTO.setAccessToken(token);
+        return ResponseEntity.ok(authDTO);
+    }
 
     @PostMapping("/login")
     @Operation(

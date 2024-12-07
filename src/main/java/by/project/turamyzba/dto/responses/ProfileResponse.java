@@ -11,4 +11,5 @@ public class ProfileResponse {
     private String phoneNumber;
     private String gender;
     private String profilePhoto;
+    private Boolean isPasswordHas;
 }

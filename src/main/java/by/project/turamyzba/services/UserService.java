@@ -7,6 +7,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Optional;
 
 public interface UserService {
+    String authenticateWithGoogleCode(String code);
     UserDetails loadUserByUsername(String username);
     void registerNewUser(UserDTO userDTO) throws UserAlreadyExistsException;
     void update(User user);
