@@ -25,7 +25,9 @@ public interface AnnouncementRepository extends JpaRepository<Announcement, Inte
             "a.quantityOfRooms, " +
             "a.selectedGender, " +
             "a.numberOfPeopleAreYouAccommodating, " +
-            "a.cost) " +
+            "a.cost, " +
+            "a.coordsX, " +
+            "a.coordsY) " +
             "FROM Announcement a LEFT JOIN a.photos p " +
             "WHERE a.user = :user " +
             "AND a.isDeleted = false " +
@@ -44,12 +46,14 @@ public interface AnnouncementRepository extends JpaRepository<Announcement, Inte
             "a.quantityOfRooms, " +
             "a.selectedGender, " +
             "a.numberOfPeopleAreYouAccommodating, " +
-            "a.cost) " +
+            "a.cost, " +
+            "a.coordsX, " +
+            "a.coordsY) " +
             "FROM Announcement a LEFT JOIN a.photos p " +
             "WHERE a.user = :user " +
             "AND a.isDeleted = false " +
             "AND a.isArchived = true " +
-            "GROUP BY a.id, a.title, a.address, a.arriveDate, a.quantityOfRooms, a.selectedGender, a.numberOfPeopleAreYouAccommodating, a.cost " +
+            "GROUP BY a.id, a.title, a.address, a.arriveDate, a.quantityOfRooms, a.selectedGender, a.numberOfPeopleAreYouAccommodating, a.cost, a.coordsX, a.coordsY " +
             "ORDER BY a.createdAt desc "
     )
     List<AnnouncementResponseForAll> findAllArchivedAnnouncementsByUser(@Param("user") User user);
@@ -65,7 +69,9 @@ public interface AnnouncementRepository extends JpaRepository<Announcement, Inte
             "a.quantityOfRooms, " +
             "a.selectedGender, " +
             "a.numberOfPeopleAreYouAccommodating, " +
-            "a.cost) " +
+            "a.cost, " +
+            "a.coordsX, " +
+            "a.coordsY) " +
             "FROM Announcement a LEFT JOIN a.photos p " +
             "WHERE a.isDeleted = false AND a.isArchived = false " +
             "GROUP BY a.id, a.title, a.address, a.arriveDate, a.quantityOfRooms, a.selectedGender, a.numberOfPeopleAreYouAccommodating, a.cost ")
@@ -80,7 +86,9 @@ public interface AnnouncementRepository extends JpaRepository<Announcement, Inte
             "a.quantityOfRooms, " +
             "a.selectedGender, " +
             "a.numberOfPeopleAreYouAccommodating, " +
-            "a.cost) " +
+            "a.cost, " +
+            "a.coordsX, " +
+            "a.coordsY) " +
             "FROM Announcement a LEFT JOIN a.photos p " +
             "WHERE a.isDeleted = false AND a.isArchived = false " +
             "AND (:region IS NULL OR a.region = :region) " +

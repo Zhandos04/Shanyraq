@@ -439,6 +439,8 @@ public class AnnouncementServiceImpl implements AnnouncementService {
         announcementResponseForAll.setArriveDate(announcement.getArriveDate());
         announcementResponseForAll.setRoomCount(announcement.getQuantityOfRooms());
         announcementResponseForAll.setCost(announcement.getCost());
+        announcementResponseForAll.setCoordsX(announcement.getCoordsX());
+        announcementResponseForAll.setCoordsY(announcement.getCoordsY());
         return announcementResponseForAll;
     }
 }

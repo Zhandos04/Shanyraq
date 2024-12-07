@@ -1,5 +1,6 @@
 package by.project.turamyzba.dto.responses;
 
+import jakarta.persistence.Column;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,4 +20,6 @@ public class AnnouncementResponseForAll {
     private String selectedGender;
     private Integer roommates;
     private Integer cost;
+    private String coordsX;
+    private String coordsY;
 }
