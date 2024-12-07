@@ -24,7 +24,6 @@ public interface AnnouncementService {
             Integer maxPrice,
             String gender,
             Integer roommatesCount,
-            Integer sort,
             Pageable pageable);
     AnnouncementResponse getAnnouncementById(Long id);
     List<AnnouncementResponse> getUserAnnouncements();

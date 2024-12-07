@@ -29,7 +29,7 @@ public class Announcement {
     private String selectedGender;
     @Column(name = "do_you_in_this_house")
     private Boolean doYouLiveInThisHouse;
-    @Column(name = "how_many_people_live_in_this_apartment?")
+    @Column(name = "how_many_people_live_in_this_apartment")
     private String howManyPeopleLiveInThisApartment;
     @Column(name = "number_of_people_are_you_accommodating")
     private Integer numberOfPeopleAreYouAccommodating;
@@ -75,7 +75,7 @@ public class Announcement {
     private String typeOfHousing;
     @Column(name = "number_of_floor")
     private Integer numberOfFloor;
-    @Column(name = "max_floor_in the_building")
+    @Column(name = "max_floor_in_the_building")
     private Integer maxFloorInTheBuilding;
     @Column(name = "area_of_the_apartment")
     private Integer areaOfTheApartment;

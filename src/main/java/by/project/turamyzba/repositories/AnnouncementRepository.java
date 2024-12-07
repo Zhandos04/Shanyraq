@@ -33,8 +33,7 @@ public interface AnnouncementRepository extends JpaRepository<Announcement, Inte
             "a.cost) " +
             "FROM Announcement a LEFT JOIN a.photos p " +
             "WHERE a.isDeleted = false AND a.isArchived = false " +
-            "GROUP BY a.id, a.title, a.address, a.arriveDate, a.quantityOfRooms, a.selectedGender, a.numberOfPeopleAreYouAccommodating, a.cost " +
-            "ORDER BY a.createdAt DESC")
+            "GROUP BY a.id, a.title, a.address, a.arriveDate, a.quantityOfRooms, a.selectedGender, a.numberOfPeopleAreYouAccommodating, a.cost ")
     Page<AnnouncementResponseForAll> findAllAnnouncementsDTO(Pageable pageable);
 
     @Query("SELECT new by.project.turamyzba.dto.responses.AnnouncementResponseForAll(" +
@@ -57,11 +56,7 @@ public interface AnnouncementRepository extends JpaRepository<Announcement, Inte
             "AND (:gender IS NULL OR a.selectedGender = :gender) " +
             "AND (:roommatesCount IS NULL OR a.numberOfPeopleAreYouAccommodating = :roommatesCount) " +
             "GROUP BY a.id, a.title, a.address, a.arriveDate, a.quantityOfRooms, a.selectedGender, a.numberOfPeopleAreYouAccommodating, a.cost " +
-            "ORDER BY " +
-            "CASE WHEN :sort = 1 THEN a.arriveDate END ASC, " +
-            "CASE WHEN :sort = 2 THEN a.cost END ASC, " +
-            "CASE WHEN :sort = 3 THEN a.createdAt END DESC, " +
-            "CASE WHEN :sort = 4 THEN a.cost END DESC")
+            "ORDER BY a.createdAt DESC")
     Page<AnnouncementResponseForAll> searchAnnouncementsDTO(
             @Param("region") String region,
             @Param("district") String district,
@@ -70,6 +65,5 @@ public interface AnnouncementRepository extends JpaRepository<Announcement, Inte
             @Param("maxPrice") Integer maxPrice,
             @Param("gender") String gender,
             @Param("roommatesCount") Integer roommatesCount,
-            @Param("sort") Integer sort,
             Pageable pageable);
 }

@@ -70,7 +70,7 @@ public class AnnouncementController {
         Page<AnnouncementResponseForAll> announcementPage;
 
         if (region != null || minPrice != null || maxPrice != null || gender != null || roommatesCount != null) {
-            announcementPage = announcementService.searchRoommateListings(region, district, microDistrict, minPrice, maxPrice, gender, roommatesCount, sort, pageable);
+            announcementPage = announcementService.searchRoommateListings(region, district, microDistrict, minPrice, maxPrice, gender, roommatesCount, pageable);
         } else {
             announcementPage = announcementService.getAllRoommateListings(pageable);
         }

@@ -95,7 +95,9 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     @Override
     @Transactional
     public Page<AnnouncementResponseForAll> getAllRoommateListings(Pageable pageable) {
-        return announcementRepository.findAllAnnouncementsDTO(pageable);
+        return announcementRepository.findAllAnnouncementsDTO(
+                pageable
+        );
     }
 
     @Override
@@ -108,8 +110,8 @@ public class AnnouncementServiceImpl implements AnnouncementService {
             Integer maxPrice,
             String gender,
             Integer roommatesCount,
-            Integer sort,
-            Pageable pageable) {
+            Pageable pageable
+    ) {
         return announcementRepository.searchAnnouncementsDTO(
                 region,
                 district,
@@ -118,8 +120,8 @@ public class AnnouncementServiceImpl implements AnnouncementService {
                 maxPrice,
                 gender,
                 roommatesCount,
-                sort,
-                pageable);
+                pageable
+        );
     }
 
 
