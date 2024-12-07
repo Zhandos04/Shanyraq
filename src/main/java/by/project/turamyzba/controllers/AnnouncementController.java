@@ -3,7 +3,6 @@ package by.project.turamyzba.controllers;
 import by.project.turamyzba.dto.requests.AnnouncementRequest;
 import by.project.turamyzba.dto.responses.AnnouncementResponse;
 import by.project.turamyzba.dto.responses.AnnouncementResponseForAll;
-import by.project.turamyzba.entities.Announcement;
 import by.project.turamyzba.services.AnnouncementService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -52,7 +51,7 @@ public class AnnouncementController {
 
 
     @GetMapping("/all")
-    @Operation(summary = "Барлык объявлениелерди алу.", description = "По дефолту 41 объявление береди. Показать еще баскан кезде" +
+    @Operation(summary = "Барлык объявлениелерди алу.", description = "По дефолту 21 объявление береди. Показать еще баскан кезде " +
             "page ди инкремент жасап обратно осы эндпоинтка жибересиндер. sort ка дал дизайнда тургандай жибересиндер например Самые подходящие деп ешкандай ошибкасыз")
     public ResponseEntity<List<AnnouncementResponseForAll>> findRoommates(
             @RequestParam(defaultValue = "1") int page,
@@ -65,22 +64,18 @@ public class AnnouncementController {
             @RequestParam(required = false) String gender,
             @RequestParam(required = false) Integer roommatesCount,
             @RequestParam(required = false, defaultValue = "1") Integer sort) {
-        Sort sortBy = getSort(sort);
 
+        Sort sortBy = getSort(sort);
         Pageable pageable = PageRequest.of(page - 1, limit, sortBy);
-        Page<Announcement> roommatePage;
+        Page<AnnouncementResponseForAll> announcementPage;
 
         if (region != null || minPrice != null || maxPrice != null || gender != null || roommatesCount != null) {
-            roommatePage = announcementService.searchRoommateListings(region, district, microDistrict,minPrice, maxPrice, gender, roommatesCount, pageable);
+            announcementPage = announcementService.searchRoommateListings(region, district, microDistrict, minPrice, maxPrice, gender, roommatesCount, sort, pageable);
         } else {
-            roommatePage = announcementService.getAllRoommateListings(pageable);
+            announcementPage = announcementService.getAllRoommateListings(pageable);
         }
 
-        List<AnnouncementResponseForAll> announcementResponses = roommatePage.getContent().stream()
-                .map(announcementService::toAnnouncementResponseForAll)
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(announcementResponses);
+        return ResponseEntity.ok(announcementPage.getContent());
     }
     private Sort getSort(Integer sort) {
         return switch (sort) {
@@ -139,12 +134,9 @@ public class AnnouncementController {
     public ResponseEntity<List<AnnouncementResponseForAll>> greatDeals() {
         Sort sortBy = getSort(2);
         Pageable pageable = PageRequest.of(0, 10, sortBy);
-        Page<Announcement> roommatePage = announcementService.getAllRoommateListings(pageable);
-        List<AnnouncementResponseForAll> announcementResponses = roommatePage.getContent().stream()
-                .map(announcementService::toAnnouncementResponseForAll)
-                .collect(Collectors.toList());
+        Page<AnnouncementResponseForAll> roommatePage = announcementService.getAllRoommateListings(pageable);
 
-        return ResponseEntity.ok(announcementResponses);
+        return ResponseEntity.ok(roommatePage.getContent());
     }
 
     @GetMapping("/filter")

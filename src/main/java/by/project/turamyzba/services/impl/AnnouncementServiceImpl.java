@@ -93,71 +93,33 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public Page<Announcement> getAllRoommateListings(Pageable pageable) {
-        log.info("Getting all roommate listings");
-        return announcementRepository.findAllByIsDeletedFalseAndIsArchivedFalse(pageable);
+    @Transactional
+    public Page<AnnouncementResponseForAll> getAllRoommateListings(Pageable pageable) {
+        return announcementRepository.findAllAnnouncementsDTO(pageable);
     }
 
     @Override
     @Transactional
-    public Page<Announcement> searchRoommateListings(String region, String district, String microDistrict, Integer minPrice, Integer maxPrice, String gender, Integer roommatesCount, Pageable pageable) {
-        log.info("Searching roommate listings with filters: city={}, minPrice={}, maxPrice={}, gender={}, roommatesCount={}",
-                region, minPrice, maxPrice, gender, roommatesCount);
-
-        // Construct the Specification for filtering and sorting
-        Specification<Announcement> spec = (root, query, criteriaBuilder) -> {
-            List<Order> orders = new ArrayList<>();
-
-            if (region != null && !region.isEmpty()) {
-                Expression<Object> regionPriority = criteriaBuilder.selectCase()
-                        .when(criteriaBuilder.equal(root.get("region"), region), 1)
-                        .otherwise(0);
-                orders.add(criteriaBuilder.desc(regionPriority));
-            }
-            if (district != null && !district.isEmpty()) {
-                Expression<Object> districtPriority = criteriaBuilder.selectCase()
-                        .when(criteriaBuilder.equal(root.get("district"), district), 1)
-                        .otherwise(0);
-                orders.add(criteriaBuilder.desc(districtPriority));
-            }
-            if (microDistrict != null && !microDistrict.isEmpty()) {
-                Expression<Object> microDistrictPriority = criteriaBuilder.selectCase()
-                        .when(criteriaBuilder.equal(root.get("microDistrict"), microDistrict), 1)
-                        .otherwise(0);
-                orders.add(criteriaBuilder.desc(microDistrictPriority));
-            }
-            if (minPrice != null && maxPrice != null) {
-                Expression<Object> pricePriority = criteriaBuilder.selectCase()
-                        .when(criteriaBuilder.between(root.get("cost"), minPrice, maxPrice), 1)
-                        .otherwise(0);
-                orders.add(criteriaBuilder.desc(pricePriority));
-            }
-            if (gender != null && !gender.isEmpty()) {
-                Expression<Object> genderPriority = criteriaBuilder.selectCase()
-                        .when(criteriaBuilder.equal(root.get("gender"), gender), 1)
-                        .otherwise(0);
-                orders.add(criteriaBuilder.desc(genderPriority));
-            }
-            if (roommatesCount != null) {
-                Expression<Object> roommatesCountPriority = criteriaBuilder.selectCase()
-                        .when(criteriaBuilder.equal(root.get("roommatesCount"), roommatesCount), 1)
-                        .otherwise(0);
-                orders.add(criteriaBuilder.desc(roommatesCountPriority));
-            }
-            orders.add(criteriaBuilder.desc(root.get("createdAt")));
-
-            // Apply the orderBy to the query
-            if (query != null) {
-                query.orderBy(orders);
-            }
-
-            // 2. Return the conjunction (always true) to indicate no additional filtering
-            return criteriaBuilder.conjunction();
-        };
-
-        // Use the Specification with Pageable for pagination
-        return announcementRepository.findAll(spec, pageable);
+    public Page<AnnouncementResponseForAll> searchRoommateListings(
+            String region,
+            String district,
+            String microDistrict,
+            Integer minPrice,
+            Integer maxPrice,
+            String gender,
+            Integer roommatesCount,
+            Integer sort,
+            Pageable pageable) {
+        return announcementRepository.searchAnnouncementsDTO(
+                region,
+                district,
+                microDistrict,
+                minPrice,
+                maxPrice,
+                gender,
+                roommatesCount,
+                sort,
+                pageable);
     }
 
 

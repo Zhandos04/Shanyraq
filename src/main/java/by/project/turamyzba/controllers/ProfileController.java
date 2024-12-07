@@ -64,7 +64,7 @@ public class ProfileController {
         return ResponseEntity.ok("Пароль успешно изменен");
     }
 
-    @PostMapping(value = "/upload-photo", consumes = "multipart/form-data")
+    @PostMapping(value = "/upload-photo")
     @Operation(summary = "Фото профилья")
     public ResponseEntity<String> uploadPhoto(@RequestParam("file") MultipartFile file) {
         if (file.isEmpty()) {

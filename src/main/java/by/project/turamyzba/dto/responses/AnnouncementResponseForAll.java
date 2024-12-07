@@ -1,10 +1,14 @@
 package by.project.turamyzba.dto.responses;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class AnnouncementResponseForAll {
     private Long announcementId;
     private String image;
