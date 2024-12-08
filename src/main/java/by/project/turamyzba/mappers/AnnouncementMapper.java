@@ -49,6 +49,7 @@ public class AnnouncementMapper {
 //                .phoneNumbers(request.getPhoneNumbers()) // Список телефонов
 //                .residents(request.getResidents()) // Map "имя - телефон"
                 .preferences(request.getPreferences()) // Список предпочтений
+                .phoneNumber(request.getPhoneNumber())
                 .coordsX(coords != null && coords.length > 0 ? coords[0] : null) // Проверяем, что координаты не пустые
                 .coordsY(coords != null && coords.length > 1 ? coords[1] : null) // Проверяем, что координаты не пустые
                 .isDeleted(false) // Устанавливаем флаг удаления в false

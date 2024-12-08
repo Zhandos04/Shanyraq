@@ -115,6 +115,8 @@ public class Announcement {
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
+    @Column(name = "phone_number")
+    private String phoneNumber;
 //    @OneToMany(mappedBy = "announcement", cascade = CascadeType.ALL, orphanRemoval = true)
 //    private List<AnnouncementUser> announcementUsers;
 
