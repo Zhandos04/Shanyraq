@@ -158,7 +158,7 @@ public class AnnouncementController {
             @RequestParam String quantityOfRooms,
             @RequestParam Integer minAge,
             @RequestParam Integer maxAge,
-            @RequestParam LocalDate arriveData,
+            @RequestParam String arriveData,
             @RequestParam Integer minArea,
             @RequestParam Integer maxArea,
             @RequestParam Boolean notTheFirstFloor,

@@ -32,7 +32,7 @@ public interface AnnouncementService {
     AnnouncementResponse updateAnnouncement(Long id, AnnouncementRequest announcementRequest);
     List<Announcement> getFilteredAnnouncements(String selectedGender, String region, String district, String microDistrict,
                                                 Integer minPrice, Integer maxPrice, Integer numberOfPeopleAreYouAccommodating,
-                                                String quantityOfRooms, Integer minAge, Integer maxAge, LocalDate arriveData,
+                                                String quantityOfRooms, Integer minAge, Integer maxAge, String arriveData,
                                                 Integer minArea, Integer maxArea, Boolean notTheFirstFloor, Boolean notTheTopFloor,
                                                 Boolean arePetsAllowed, Boolean isCommunalServiceIncluded, Boolean intendedForStudents,
                                                 String typeOfHousing, Boolean forALongTime);
