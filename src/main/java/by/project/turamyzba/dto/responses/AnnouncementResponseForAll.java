@@ -22,4 +22,5 @@ public class AnnouncementResponseForAll {
     private Integer cost;
     private String coordsX;
     private String coordsY;
+    private Boolean isArchived;
 }
