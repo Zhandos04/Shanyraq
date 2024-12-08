@@ -88,6 +88,7 @@ public class AnnouncementController {
     }
 
     @GetMapping("/all-for-map")
+    @Operation(summary = "Барлык объявлениелерди алу map ушин. Чисто лист")
     public ResponseEntity<List<AnnouncementResponseForAll>> getAllForMap() {
         return ResponseEntity.ok(announcementService.getAllAnnouncementsForMap());
     }
