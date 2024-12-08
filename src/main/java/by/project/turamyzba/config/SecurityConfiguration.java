@@ -38,6 +38,7 @@ public class SecurityConfiguration {
             "/announcement/detail/*",
             "/announcement/great-deals",
             "/announcement/filter",
+            "/announcement/all-for-map"
     };
 
     @Bean

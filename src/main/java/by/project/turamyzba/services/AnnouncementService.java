@@ -40,4 +40,5 @@ public interface AnnouncementService {
     void deleteAnnouncement(Long announcementId) throws BadRequestException;
     AnnouncementResponse toAnnouncementResponse(Announcement announcement);
     AnnouncementResponseForAll toAnnouncementResponseForAll(Announcement announcement);
+    List<AnnouncementResponseForAll> getAllAnnouncementsForMap();
 }

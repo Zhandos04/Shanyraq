@@ -87,6 +87,11 @@ public class AnnouncementController {
         };
     }
 
+    @GetMapping("/all-for-map")
+    public ResponseEntity<List<AnnouncementResponseForAll>> getAllForMap() {
+        return ResponseEntity.ok(announcementService.getAllAnnouncementsForMap());
+    }
+
     @GetMapping("/detail/{id}")
     @Operation(summary = "Объявление детально алу.", description = "Барлык объявление алган кезде ар объявлениенин айдишкасыда барады" +
             " вот сол айдишканы осы эндпоинт жибересиндер детально алу ушин.")

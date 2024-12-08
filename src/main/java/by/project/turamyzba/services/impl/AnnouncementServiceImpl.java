@@ -124,6 +124,12 @@ public class AnnouncementServiceImpl implements AnnouncementService {
         );
     }
 
+    @Override
+    @Transactional
+    public List<AnnouncementResponseForAll> getAllAnnouncementsForMap() {
+        return announcementRepository.findAllForMap();
+    }
+
 
     @Override
     @Transactional(readOnly = true)
