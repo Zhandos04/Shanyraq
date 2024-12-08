@@ -387,7 +387,7 @@ public class AnnouncementServiceImpl implements AnnouncementService {
 
     public AnnouncementResponse toAnnouncementResponse(Announcement announcement) {
         AnnouncementResponse response = modelMapper.map(announcement, AnnouncementResponse.class);
-
+        response.setPhoneNumber(announcement.getUser().getPhoneNumber());
         response.setPhotos(announcement.getPhotos().stream()
                 .map(AnnouncementMapper::toImageResponse)
                 .collect(Collectors.toList()));
