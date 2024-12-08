@@ -369,7 +369,7 @@ public class AnnouncementServiceImpl implements AnnouncementService {
         }
 
         if(!announcementRequest.getAddress().equals(announcement.getAddress())) {
-            String[] coords = getCoordsFromAddress(announcementRequest.getAddress());
+            String[] coords = getCoordsFromAddress(announcementRequest.getRegion() + ", " + announcementRequest.getDistrict() + ", " + announcementRequest.getMicroDistrict() + ", " + announcementRequest.getAddress());
             announcement.setCoordsX(coords[0]);
             announcement.setCoordsY(coords[1]);
         }
