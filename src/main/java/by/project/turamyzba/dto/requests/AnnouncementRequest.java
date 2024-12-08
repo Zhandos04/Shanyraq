@@ -88,7 +88,10 @@ public class AnnouncementRequest {
 //    private String intersectionWith;
 
     private Boolean forALongTime;
-
+    @Pattern(
+            regexp = "^$|^(\\+7)\\d{10}$",
+            message = "Phone number должен соответствовать формату +7XXXXXXXXXX"
+    )
     private String phoneNumber;
 
 //    private String ownersName;

@@ -157,7 +157,7 @@ public class AnnouncementServiceImpl implements AnnouncementService {
         User user = userService.getUserByEmail(userService.getCurrentUser().getUsername())
                         .orElseThrow(() -> new UsernameNotFoundException("User not found!"));
 
-        if(announcement.getUser().equals(user)) {
+        if(announcement.getUser() == user) {
             announcement.setIsArchived(true);
         } else {
             throw new BadRequestException("bad request!");
@@ -173,7 +173,7 @@ public class AnnouncementServiceImpl implements AnnouncementService {
         User user = userService.getUserByEmail(userService.getCurrentUser().getUsername())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found!"));
 
-        if(!announcement.getIsDeleted() && announcement.getUser().equals(user)){
+        if(!announcement.getIsDeleted() && announcement.getUser() == user){
             announcement.setIsArchived(false);
         } else {
             throw new BadRequestException("bad request!");
