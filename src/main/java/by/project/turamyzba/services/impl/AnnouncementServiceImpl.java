@@ -317,18 +317,18 @@ public class AnnouncementServiceImpl implements AnnouncementService {
             }
 
             // Фильтр по питомцам
-            if (arePetsAllowed != null) {
-                predicates.add(criteriaBuilder.equal(root.get("arePetsAllowed"), arePetsAllowed));
+            if (arePetsAllowed) {
+                predicates.add(criteriaBuilder.equal(root.get("arePetsAllowed"), true));
             }
 
             // Фильтр по коммунальным услугам
-            if (isCommunalServiceIncluded != null) {
-                predicates.add(criteriaBuilder.equal(root.get("isCommunalServiceIncluded"), isCommunalServiceIncluded));
+            if (isCommunalServiceIncluded) {
+                predicates.add(criteriaBuilder.equal(root.get("isCommunalServiceIncluded"), true));
             }
 
             // Фильтр для студентов
-            if (intendedForStudents != null) {
-                predicates.add(criteriaBuilder.equal(root.get("intendedForStudents"), intendedForStudents));
+            if (intendedForStudents) {
+                predicates.add(criteriaBuilder.equal(root.get("intendedForStudents"), true));
             }
 
             // Фильтр по типу жилья
@@ -337,8 +337,8 @@ public class AnnouncementServiceImpl implements AnnouncementService {
             }
 
             // Фильтр по длительности аренды
-            if (forALongTime != null) {
-                predicates.add(criteriaBuilder.equal(root.get("forALongTime"), forALongTime));
+            if (forALongTime) {
+                predicates.add(criteriaBuilder.equal(root.get("forALongTime"), true));
             }
 
             // Сортировка по дате создания (сначала новые)
