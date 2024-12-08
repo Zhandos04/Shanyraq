@@ -377,7 +377,7 @@ public class AnnouncementServiceImpl implements AnnouncementService {
         AnnouncementMapper.updateAnnouncementFromRequest(announcement, announcementRequest);
 
         List<Image> images = AnnouncementMapper.toImages(announcementRequest.getImages(), announcement);
-        announcement.setPhotos(images);
+        announcement.getPhotos().addAll(images);
 
         Announcement updatedAnnouncement = announcementRepository.save(announcement);
 
