@@ -190,7 +190,7 @@ public class AnnouncementServiceImpl implements AnnouncementService {
         User user = userService.getUserByEmail(userService.getCurrentUser().getUsername())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found!"));
 
-        if(announcement.getIsArchived() && announcement.getUser().equals(user)) {
+        if(announcement.getIsArchived() && announcement.getUser() == user) {
             announcement.setIsDeleted(true);
         } else {
             throw new BadRequestException("bad request!");
