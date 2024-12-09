@@ -102,8 +102,7 @@ public interface AnnouncementRepository extends JpaRepository<Announcement, Inte
             "AND (:maxPrice IS NULL OR a.cost <= :maxPrice) " +
             "AND (:gender IS NULL OR a.selectedGender = :gender) " +
             "AND (:roommatesCount IS NULL OR a.numberOfPeopleAreYouAccommodating = :roommatesCount) " +
-            "GROUP BY a.id, a.title, a.address, a.arriveDate, a.quantityOfRooms, a.selectedGender, a.numberOfPeopleAreYouAccommodating, a.cost " +
-            "ORDER BY a.createdAt DESC")
+            "GROUP BY a.id, a.title, a.address, a.arriveDate, a.quantityOfRooms, a.selectedGender, a.numberOfPeopleAreYouAccommodating, a.cost ")
     Page<AnnouncementResponseForAll> searchAnnouncementsDTO(
             @Param("region") String region,
             @Param("district") String district,
