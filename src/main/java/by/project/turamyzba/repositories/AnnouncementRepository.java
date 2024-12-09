@@ -95,7 +95,7 @@ public interface AnnouncementRepository extends JpaRepository<Announcement, Inte
             "a.isArchived) " +
             "FROM Announcement a LEFT JOIN a.photos p " +
             "WHERE a.isDeleted = false AND a.isArchived = false " +
-            "AND (:region IS NULL OR a.region = :region) " +
+            "AND (:region IS NULL OR :region = 'Весь Казахстан' OR a.region = :region) " +
             "AND (:district IS NULL OR a.district = :district) " +
             "AND (:microDistrict IS NULL OR a.microDistrict = :microDistrict) " +
             "AND (:minPrice IS NULL OR a.cost >= :minPrice) " +
