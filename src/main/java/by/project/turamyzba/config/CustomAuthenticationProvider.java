@@ -31,7 +31,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
         if (user.getUsername().equals(username) && passwordEncoder.matches(password , user.getPassword())){
             return new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword(), user.getAuthorities());
         }else{
-            throw new BadCredentialsException("Incorrect Email or password");
+            throw new BadCredentialsException("Неправильная почта или пароль!");
         }
     }
 

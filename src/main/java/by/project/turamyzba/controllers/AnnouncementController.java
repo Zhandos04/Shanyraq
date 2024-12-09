@@ -39,7 +39,7 @@ public class AnnouncementController {
     public ResponseEntity<?> createAnnouncement(@RequestBody @Valid AnnouncementRequest announcementRequest) {
         try {
             announcementService.createAnnouncement(announcementRequest);
-            return ResponseEntity.ok("Announcement created successfully!");
+            return ResponseEntity.ok("Объявления успешно создан!");
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error creating announcement: " + e.getMessage());

@@ -62,7 +62,7 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorMessages);
         }
         userService.registerNewUser(userDTO);
-        return ResponseEntity.status(HttpStatus.ACCEPTED).body("Code sent successfully!");
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body("Код успешно отправлен!");
     }
 
     @PostMapping("/verify-email")
@@ -80,17 +80,17 @@ public class AuthController {
         Optional<User> userOptional = userService.getUserByEmail(codeDTO.getEmail());
 
         if (userOptional.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Пользователь не найден");
         }
 
         User user = userOptional.get();
         if (!user.getConfirmationCode().equals(codeDTO.getCode())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Incorrect Code");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Неправильный пароль");
         }
 
         user.setIsVerified(true);
         userService.update(user);
-        return ResponseEntity.status(HttpStatus.CREATED).body("User registered successfully!");
+        return ResponseEntity.status(HttpStatus.CREATED).body("Пользователь успешно зарегистрирован!");
     }
 
 
@@ -106,7 +106,7 @@ public class AuthController {
     )
     public ResponseEntity<String> resendCode(@RequestBody ResentCodeDTO resentCodeDTO) {
         userService.resentCode(resentCodeDTO.getEmail());
-        return ResponseEntity.ok("Code resent successfully!");
+        return ResponseEntity.ok("Код успешно переотправлен!");
     }
 
     @PostMapping("/google")
@@ -133,11 +133,11 @@ public class AuthController {
     public ResponseEntity<?> login(@RequestBody LoginDTO loginDTO) {
         Optional<User> userOptional = userService.getUserByEmail(loginDTO.getEmail());
         if (userOptional.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Incorrect email or password");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Неправильная почта или пароль!");
         }
         authenticationProvider.authenticate(new UsernamePasswordAuthenticationToken(userOptional.get().getEmail(), loginDTO.getPassword()));
         if (!userOptional.get().getIsVerified()) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("This user is not verified yet");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Это пользователь еще не верифицирован!");
         }
         Map<String, String> tokens = jwtService.generateTokens(loginDTO.getEmail());
 
@@ -166,9 +166,9 @@ public class AuthController {
             // Добавляем токен в черный список
             tokenBlacklistService.addTokenToBlacklist(token, expirationTime);
 
-            return ResponseEntity.ok("Logged out successfully");
+            return ResponseEntity.ok("Выход из системы успешно завершен!");
         }
-        return ResponseEntity.badRequest().body("Invalid token");
+        return ResponseEntity.badRequest().body("Невалидный токен!");
     }
 
 //    @PostMapping("/refresh-token")
@@ -217,10 +217,10 @@ public class AuthController {
     public ResponseEntity<?> forgotPassword(@RequestBody EmailDTO emailDTO) {
         Optional<User> user = userService.getUserByEmail(emailDTO.getEmail());
         if (user.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Email not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Почта не найден!");
         }
         if(!user.get().getIsVerified()) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("This user is not verified yet");
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Это пользователь еще не верифицирован!");
         }
 
         String code = generateCode();
@@ -228,7 +228,7 @@ public class AuthController {
 
         emailService.sendEmail(emailDTO.getEmail(), "Shanyraq Reset Password", "Your code is: " + code);
 
-        return ResponseEntity.ok("Reset password instructions have been sent to your email.");
+        return ResponseEntity.ok("Инструкции по восстановлению пароля были отправлены на вашу электронную почту.");
     }
     @PostMapping("/verify-code")
     @Operation(summary = "Verify reset code", description = "Verifies the reset code entered by the user.")
@@ -237,12 +237,12 @@ public class AuthController {
     public ResponseEntity<?> verifyPassword(@RequestBody CodeDTO codeDTO) {
         Optional<User> user = userService.getUserByEmail(codeDTO.getEmail());
         if (user.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Email not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Почта не найден!");
         }
         if(!user.get().getConfirmationCode().equals(codeDTO.getCode())) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Incorrect Code");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Неправильный код!");
         }
-        return ResponseEntity.ok("Code is verified!");
+        return ResponseEntity.ok("Код верифицирован!");
     }
 
     @PostMapping("/update-password")
@@ -264,11 +264,11 @@ public class AuthController {
         }
         Optional<User> user = userService.getUserByEmail(updatePasswordDTO.getEmail());
         if (user.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Email not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Почта не найден!");
         }
         user.get().setPassword(updatePasswordDTO.getPassword());
         userService.updatePassword(user.get());
-        return ResponseEntity.ok("Password is updated!");
+        return ResponseEntity.ok("Пароль обновлен!");
     }
 
     private String generateCode() {
