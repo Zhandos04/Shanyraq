@@ -4,9 +4,11 @@ import lombok.Data;
 
 @Data
 public class OptionDTO {
+    private Long optionId;
     private String text;
 
-    public OptionDTO(String text) {
+    public OptionDTO(Long optionId, String text) {
+        this.optionId = optionId;
         this.text = text;
     }
 }

@@ -77,6 +77,7 @@ public class UserServiceImpl implements UserService {
         User user = convertToUser(userDTO);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         user.setIsVerified(false);
+        user.setIsSurveyCompleted(false);
         user.setGender("Любой");
         userRepository.save(user);
         String code = generateCode();

@@ -65,8 +65,8 @@ public class SurveyServiceImpl implements SurveyService {
     // Вспомогательный метод для преобразования Question в DTO
     private QuestionDTO convertToDTO(Question question) {
         List<OptionDTO> options = question.getOptions().stream()
-                .map(option -> new OptionDTO(option.getText()))
+                .map(option -> new OptionDTO(option.getId(), option.getText()))
                 .toList();
-        return new QuestionDTO(question.getText(), options);
+        return new QuestionDTO(question.getId(), question.getText(), options);
     }
 }
