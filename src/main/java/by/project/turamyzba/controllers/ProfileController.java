@@ -4,6 +4,7 @@ import by.project.turamyzba.dto.requests.AddPasswordRequest;
 import by.project.turamyzba.dto.requests.PasswordDTO;
 import by.project.turamyzba.dto.requests.ProfileDTO;
 import by.project.turamyzba.dto.responses.ProfileResponse;
+import by.project.turamyzba.dto.responses.ProfileWithFiltersResponse;
 import by.project.turamyzba.exceptions.IncorrectJSONException;
 import by.project.turamyzba.services.ProfileService;
 import by.project.turamyzba.services.impl.S3Service;
@@ -30,9 +31,9 @@ public class ProfileController {
     private final S3Service s3Service;
 
     @GetMapping
-    @Operation(summary = "Профиль данные алу")
-    public ProfileResponse get() {
-        return profileService.getUser();
+    @Operation(summary = "Получение данных профиля вместе с сохранёнными фильтрами")
+    public ProfileWithFiltersResponse get() {
+        return profileService.getUserWithFilters();
     }
 
     @PostMapping("add-password")

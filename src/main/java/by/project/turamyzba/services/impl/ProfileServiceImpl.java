@@ -2,8 +2,12 @@ package by.project.turamyzba.services.impl;
 
 import by.project.turamyzba.dto.requests.PasswordDTO;
 import by.project.turamyzba.dto.requests.ProfileDTO;
+import by.project.turamyzba.dto.requests.SavedFilterDTO;
 import by.project.turamyzba.dto.responses.ProfileResponse;
+import by.project.turamyzba.dto.responses.ProfileWithFiltersResponse;
+import by.project.turamyzba.entities.SavedFilter;
 import by.project.turamyzba.entities.User;
+import by.project.turamyzba.repositories.SavedFilterRepository;
 import by.project.turamyzba.repositories.UserRepository;
 import by.project.turamyzba.services.ProfileService;
 import by.project.turamyzba.services.UserService;
@@ -17,6 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +31,7 @@ public class ProfileServiceImpl implements ProfileService {
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
+    private final SavedFilterRepository savedFilterRepository;
 
     @Override
     public ProfileResponse getUser() {
@@ -32,6 +39,50 @@ public class ProfileServiceImpl implements ProfileService {
         User user = userService.getUserByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
         return convertToProfileResponse(user);
+    }
+    @Override
+    public ProfileWithFiltersResponse getUserWithFilters() {
+        String email = userService.getCurrentUser().getUsername();
+        User user = userService.getUserByEmail(email)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email));
+
+        // Получаем данные профиля по существующему методу
+        ProfileResponse profileResponse = convertToProfileResponse(user);
+
+        // Извлекаем сохранённые фильтры для пользователя
+        List<SavedFilter> savedFilters = savedFilterRepository.findByUser(user);
+
+        // Маппим сущности в DTO (используем SavedFilterDTO, чтобы не возвращать лишние данные)
+        List<SavedFilterDTO> filtersDTO = savedFilters.stream().map(filter -> {
+            SavedFilterDTO dto = new SavedFilterDTO();
+            dto.setSelectedGender(filter.getSelectedGender());
+            dto.setRegion(filter.getRegion());
+            dto.setDistrict(filter.getDistrict());
+            dto.setMicroDistrict(filter.getMicroDistrict());
+            dto.setMinPrice(filter.getMinPrice());
+            dto.setMaxPrice(filter.getMaxPrice());
+            dto.setNumberOfPeopleAreYouAccommodating(filter.getNumberOfPeopleAreYouAccommodating());
+            dto.setQuantityOfRooms(filter.getQuantityOfRooms());
+            dto.setMinAge(filter.getMinAge());
+            dto.setMaxAge(filter.getMaxAge());
+            dto.setArriveDate(filter.getArriveDate());
+            dto.setMinArea(filter.getMinArea());
+            dto.setMaxArea(filter.getMaxArea());
+            dto.setNotTheFirstFloor(filter.getNotTheFirstFloor());
+            dto.setNotTheTopFloor(filter.getNotTheTopFloor());
+            dto.setArePetsAllowed(filter.getArePetsAllowed());
+            dto.setIsCommunalServiceIncluded(filter.getIsCommunalServiceIncluded());
+            dto.setIntendedForStudents(filter.getIntendedForStudents());
+            dto.setTypeOfHousing(filter.getTypeOfHousing());
+            dto.setForALongTime(filter.getForALongTime());
+            return dto;
+        }).collect(Collectors.toList());
+
+        // Формируем объединённый ответ
+        ProfileWithFiltersResponse response = new ProfileWithFiltersResponse();
+        response.setProfile(profileResponse);
+        response.setSavedFilters(filtersDTO);
+        return response;
     }
 
     @Override
