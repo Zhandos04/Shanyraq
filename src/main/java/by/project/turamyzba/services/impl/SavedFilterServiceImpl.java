@@ -9,8 +9,10 @@ import by.project.turamyzba.services.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class SavedFilterServiceImpl implements SavedFilterService {
 
@@ -18,6 +20,7 @@ public class SavedFilterServiceImpl implements SavedFilterService {
     private final UserService userService;
 
     @Override
+    @Transactional
     public void saveFilter(SavedFilterDTO filterDTO) {
         // Извлекаем текущего пользователя из контекста безопасности (Spring Security)
         User user = userService.getUserByEmail(userService.getCurrentUser().getUsername())
