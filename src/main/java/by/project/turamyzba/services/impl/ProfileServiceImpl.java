@@ -5,6 +5,7 @@ import by.project.turamyzba.dto.requests.ProfileDTO;
 import by.project.turamyzba.dto.requests.SavedFilterDTO;
 import by.project.turamyzba.dto.responses.ProfileResponse;
 import by.project.turamyzba.dto.responses.ProfileWithFiltersResponse;
+import by.project.turamyzba.dto.responses.SavedFilterResponseDTO;
 import by.project.turamyzba.entities.SavedFilter;
 import by.project.turamyzba.entities.User;
 import by.project.turamyzba.repositories.SavedFilterRepository;
@@ -53,8 +54,9 @@ public class ProfileServiceImpl implements ProfileService {
         List<SavedFilter> savedFilters = savedFilterRepository.findByUser(user);
 
         // Маппим сущности в DTO (используем SavedFilterDTO, чтобы не возвращать лишние данные)
-        List<SavedFilterDTO> filtersDTO = savedFilters.stream().map(filter -> {
-            SavedFilterDTO dto = new SavedFilterDTO();
+        List<SavedFilterResponseDTO> filtersDTO = savedFilters.stream().map(filter -> {
+            SavedFilterResponseDTO dto = new SavedFilterResponseDTO();
+            dto.setId(filter.getId());
             dto.setSelectedGender(filter.getSelectedGender());
             dto.setRegion(filter.getRegion());
             dto.setDistrict(filter.getDistrict());
