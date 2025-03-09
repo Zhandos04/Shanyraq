@@ -35,6 +35,7 @@ public class SurveyController {
         return ResponseEntity.ok(HttpStatus.ACCEPTED);
     }
     @GetMapping("/view/{id}")
+    @Operation(summary = "Пользовательдин анкетасын кору", description = "Посмотреть анкету басканда юзердин айдиын жиберип path аркылы аласын анкетаны")
     public ResponseEntity<SurveyResponseDTO> viewSurvey(@PathVariable Long id) {
         return ResponseEntity.ok(surveyService.viewSurvey(id));
     }
