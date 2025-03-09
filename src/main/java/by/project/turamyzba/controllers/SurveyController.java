@@ -1,6 +1,7 @@
 package by.project.turamyzba.controllers;
 
 import by.project.turamyzba.dto.responses.QuestionDTO;
+import by.project.turamyzba.dto.responses.SurveyResponseDTO;
 import by.project.turamyzba.dto.responses.UserAnswerDTO;
 import by.project.turamyzba.entities.User;
 import by.project.turamyzba.services.SurveyService;
@@ -32,5 +33,9 @@ public class SurveyController {
                 .orElseThrow(() -> new UsernameNotFoundException("User not found!"));
         surveyService.saveUserAnswers(user, userAnswers);
         return ResponseEntity.ok(HttpStatus.ACCEPTED);
+    }
+    @GetMapping("/view/{id}")
+    public ResponseEntity<SurveyResponseDTO> viewSurvey(@PathVariable Long id) {
+        return ResponseEntity.ok(surveyService.viewSurvey(id));
     }
 }

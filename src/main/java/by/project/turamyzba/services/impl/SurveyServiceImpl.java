@@ -1,8 +1,6 @@
 package by.project.turamyzba.services.impl;
 
-import by.project.turamyzba.dto.responses.OptionDTO;
-import by.project.turamyzba.dto.responses.QuestionDTO;
-import by.project.turamyzba.dto.responses.UserAnswerDTO;
+import by.project.turamyzba.dto.responses.*;
 import by.project.turamyzba.entities.User;
 import by.project.turamyzba.entities.anketa.Option;
 import by.project.turamyzba.entities.anketa.Question;
@@ -16,6 +14,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -61,6 +61,27 @@ public class SurveyServiceImpl implements SurveyService {
         user.setIsSurveyCompleted(true);
         userRepository.save(user);
     }
+
+    @Override
+    public SurveyResponseDTO viewSurvey(Long id) {
+        User user = userRepository.getUserById(id);
+        SurveyResponseDTO surveyResponseDTO = new SurveyResponseDTO();
+        surveyResponseDTO.setFullName(user.getFirstName() + " " + user.getLastName());
+
+        List<SurveyAnswerDTO> answers = userAnswerRepository.findAllByUser(user)
+                .stream()
+                .map(userAnswer -> {
+                    SurveyAnswerDTO surveyAnswerDTO = new SurveyAnswerDTO();
+                    surveyAnswerDTO.setQuestion(userAnswer.getQuestion().getText());
+                    surveyAnswerDTO.setAnswer(userAnswer.getOption().getText());
+                    return surveyAnswerDTO;
+                })
+                .collect(Collectors.toList());
+
+        surveyResponseDTO.setAnswers(answers);
+        return surveyResponseDTO;
+    }
+
 
     // Вспомогательный метод для преобразования Question в DTO
     private QuestionDTO convertToDTO(Question question) {
