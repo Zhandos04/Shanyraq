@@ -7,6 +7,7 @@ import by.project.turamyzba.entities.User;
 import by.project.turamyzba.services.SurveyService;
 import by.project.turamyzba.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/survey")
+@Tag(name="Survey", description="Взаймодействие с анкетой")
 @RequiredArgsConstructor
 public class SurveyController {
     private final SurveyService surveyService;
