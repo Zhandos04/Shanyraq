@@ -72,10 +72,10 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>("An unexpected error occurred: " + ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-        @ExceptionHandler
-        public ResponseEntity<String> handleUserNotFound(UsernameNotFoundException e){
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        }
+    @ExceptionHandler
+    public ResponseEntity<String> handleUserNotFound(UsernameNotFoundException e){
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+    }
 
     @ExceptionHandler
     public ResponseEntity<String> handleIncorrectJsonException(IncorrectJSONException e){
@@ -83,6 +83,6 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler ResponseEntity<String> handleInvalidCredentialsException(BadCredentialsException e){
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
     }
 }
