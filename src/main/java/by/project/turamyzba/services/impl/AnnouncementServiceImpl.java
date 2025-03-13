@@ -225,7 +225,8 @@ public class AnnouncementServiceImpl implements AnnouncementService {
             Boolean isCommunalServiceIncluded,
             Boolean intendedForStudents,
             String typeOfHousing,
-            Boolean forALongTime
+            Boolean forALongTime,
+            Boolean consideringOnlyNPeople
     ) {
         return announcementRepository.findAll((Specification<Announcement>) (root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
@@ -339,6 +340,10 @@ public class AnnouncementServiceImpl implements AnnouncementService {
             // Фильтр по длительности аренды
             if (forALongTime) {
                 predicates.add(criteriaBuilder.equal(root.get("forALongTime"), true));
+            }
+
+            if (consideringOnlyNPeople) {
+                predicates.add(criteriaBuilder.equal(root.get("consideringOnlyNPeople"), true));
             }
 
             // Сортировка по дате создания (сначала новые)

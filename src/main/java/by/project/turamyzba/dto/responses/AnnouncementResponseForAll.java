@@ -23,4 +23,5 @@ public class AnnouncementResponseForAll {
     private String coordsX;
     private String coordsY;
     private Boolean isArchived;
+    private Boolean consideringOnlyNPeople;
 }

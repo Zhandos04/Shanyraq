@@ -28,7 +28,8 @@ public interface AnnouncementRepository extends JpaRepository<Announcement, Inte
             "a.cost, " +
             "a.coordsX, " +
             "a.coordsY, " +
-            "a.isArchived) " +
+            "a.isArchived, " +
+            "a.consideringOnlyNPeople) " +
             "FROM Announcement a LEFT JOIN a.photos p " +
             "WHERE a.user = :user " +
             "AND a.isDeleted = false " +
@@ -50,7 +51,8 @@ public interface AnnouncementRepository extends JpaRepository<Announcement, Inte
             "a.cost, " +
             "a.coordsX, " +
             "a.coordsY, " +
-            "a.isArchived) " +
+            "a.isArchived, " +
+            "a.consideringOnlyNPeople) " +
             "FROM Announcement a LEFT JOIN a.photos p " +
             "WHERE a.user = :user " +
             "AND a.isDeleted = false " +
@@ -74,7 +76,8 @@ public interface AnnouncementRepository extends JpaRepository<Announcement, Inte
             "a.cost, " +
             "a.coordsX, " +
             "a.coordsY, " +
-            "a.isArchived) " +
+            "a.isArchived, " +
+            "a.consideringOnlyNPeople) " +
             "FROM Announcement a LEFT JOIN a.photos p " +
             "WHERE a.isDeleted = false AND a.isArchived = false " +
             "GROUP BY a.id, a.title, a.address, a.arriveDate, a.quantityOfRooms, a.selectedGender, a.numberOfPeopleAreYouAccommodating, a.cost ")
@@ -92,7 +95,8 @@ public interface AnnouncementRepository extends JpaRepository<Announcement, Inte
             "a.cost, " +
             "a.coordsX, " +
             "a.coordsY, " +
-            "a.isArchived) " +
+            "a.isArchived, " +
+            "a.consideringOnlyNPeople) " +
             "FROM Announcement a LEFT JOIN a.photos p " +
             "WHERE a.isDeleted = false AND a.isArchived = false " +
             "AND (:region IS NULL OR :region = 'Весь Казахстан' OR a.region = :region) " +
@@ -125,7 +129,8 @@ public interface AnnouncementRepository extends JpaRepository<Announcement, Inte
             "a.cost, " +
             "a.coordsX, " +
             "a.coordsY, " +
-            "a.isArchived) " +
+            "a.isArchived, " +
+            "a.consideringOnlyNPeople) " +
             "FROM Announcement a LEFT JOIN a.photos p " +
             "WHERE a.isDeleted = false AND a.isArchived = false " +
             "GROUP BY a.id, a.title, a.address, a.arriveDate, a.quantityOfRooms, a.selectedGender, a.numberOfPeopleAreYouAccommodating, a.cost " +

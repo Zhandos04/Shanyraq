@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @Data
 @AllArgsConstructor
@@ -92,12 +93,13 @@ public class AnnouncementRequest {
             message = "Phone number должен соответствовать формату +7XXXXXXXXXX"
     )
     private String phoneNumber;
+    private String ownersName;
 
-//    private String ownersName;
+    private List<String> phoneNumbers;
 
-//    private List<String> phoneNumbers;
-
-//    private Map<String, String> residents;
+    private Map<String, String> residents;
 
     private List<String> preferences;
+
+    private Boolean consideringOnlyNPeople;
 }

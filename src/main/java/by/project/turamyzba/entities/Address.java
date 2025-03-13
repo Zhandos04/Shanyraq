@@ -6,10 +6,9 @@ import jakarta.persistence.Table;
 import lombok.Data;
 
 @Entity
-@Table(name = "filtered_data")
+@Table(name = "addresses")
 @Data
 public class Address {
-
     @Id
     private Long id;
 

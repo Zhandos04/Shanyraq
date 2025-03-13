@@ -35,7 +35,7 @@ public interface AnnouncementService {
                                                 String quantityOfRooms, Integer minAge, Integer maxAge, String arriveData,
                                                 Integer minArea, Integer maxArea, Boolean notTheFirstFloor, Boolean notTheTopFloor,
                                                 Boolean arePetsAllowed, Boolean isCommunalServiceIncluded, Boolean intendedForStudents,
-                                                String typeOfHousing, Boolean forALongTime);
+                                                String typeOfHousing, Boolean forALongTime, Boolean consideringOnlyNPeople);
     void restoreAnnouncement(Long announcementId) throws BadRequestException;
     void deleteAnnouncement(Long announcementId) throws BadRequestException;
     AnnouncementResponse toAnnouncementResponse(Announcement announcement);

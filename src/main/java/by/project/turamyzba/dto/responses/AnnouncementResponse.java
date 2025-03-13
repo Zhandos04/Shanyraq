@@ -79,11 +79,11 @@ public class AnnouncementResponse {
 
     private Boolean forALongTime;
 
-//    private String ownersName;
+    private String ownersName;
 
-//    private List<String> phoneNumbers;
+    private List<String> phoneNumbers;
 
-//    private Map<String, String> residents;
+    private Map<String, String> residents;
 
     private String phoneNumber;
 
@@ -96,4 +96,6 @@ public class AnnouncementResponse {
     private List<ImageResponse> photos;
 
     private UserResponse user;
+
+    private Boolean consideringOnlyNPeople;
 }

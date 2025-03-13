@@ -167,11 +167,12 @@ public class AnnouncementController {
             @RequestParam Boolean isCommunalServiceIncluded,
             @RequestParam Boolean intendedForStudents,
             @RequestParam String typeOfHousing,
-            @RequestParam Boolean forALongTime
+            @RequestParam Boolean forALongTime,
+            @RequestParam Boolean consideringOnlyNPeople
             ) {
         List<AnnouncementResponseForAll> announcementResponses = announcementService.getFilteredAnnouncements(selectedGender, region, district,
                         microDistrict, minPrice, maxPrice, numberOfPeopleAreYouAccommodating, quantityOfRooms, minAge, maxAge, arriveData,
-                        minArea, maxArea, notTheFirstFloor, notTheTopFloor, arePetsAllowed, isCommunalServiceIncluded, intendedForStudents, typeOfHousing, forALongTime).stream()
+                        minArea, maxArea, notTheFirstFloor, notTheTopFloor, arePetsAllowed, isCommunalServiceIncluded, intendedForStudents, typeOfHousing, forALongTime, consideringOnlyNPeople).stream()
                 .map(announcementService::toAnnouncementResponseForAll)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(announcementResponses);

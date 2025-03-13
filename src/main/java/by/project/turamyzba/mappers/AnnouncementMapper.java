@@ -45,15 +45,16 @@ public class AnnouncementMapper {
 //                .residentialComplex(request.getResidentialComplex())
 //                .intersectionWith(request.getIntersectionWith())
                 .forALongTime(request.getForALongTime())
-//                .ownersName(request.getOwnersName())
-//                .phoneNumbers(request.getPhoneNumbers()) // Список телефонов
-//                .residents(request.getResidents()) // Map "имя - телефон"
+                .ownersName(request.getOwnersName())
+                .phoneNumbers(request.getPhoneNumbers()) // Список телефонов
+                .residents(request.getResidents()) // Map "имя - телефон"
                 .preferences(request.getPreferences()) // Список предпочтений
                 .phoneNumber(request.getPhoneNumber())
                 .coordsX(coords != null && coords.length > 0 ? coords[0] : null) // Проверяем, что координаты не пустые
                 .coordsY(coords != null && coords.length > 1 ? coords[1] : null) // Проверяем, что координаты не пустые
                 .isDeleted(false) // Устанавливаем флаг удаления в false
                 .isArchived(false) // По умолчанию архивным не является
+                .consideringOnlyNPeople(request.getConsideringOnlyNPeople())
                 .build();
     }
 
@@ -89,7 +90,6 @@ public class AnnouncementMapper {
                 .build();
     }
 
-
     public static void updateAnnouncementFromRequest(Announcement announcement, AnnouncementRequest request) {
         announcement.setTitle(request.getTitle());
         announcement.setRole(request.getRole());
@@ -121,9 +121,10 @@ public class AnnouncementMapper {
 //        announcement.setResidentialComplex(request.getResidentialComplex());
 //        announcement.setIntersectionWith(request.getIntersectionWith());
         announcement.setForALongTime(request.getForALongTime());
-//        announcement.setOwnersName(request.getOwnersName());
-//        announcement.setPhoneNumbers(request.getPhoneNumbers());
-//        announcement.setResidents(request.getResidents());
+        announcement.setOwnersName(request.getOwnersName());
+        announcement.setPhoneNumbers(request.getPhoneNumbers());
+        announcement.setResidents(request.getResidents());
         announcement.setPreferences(request.getPreferences());
+        announcement.setConsideringOnlyNPeople(request.getConsideringOnlyNPeople());
     }
 }
