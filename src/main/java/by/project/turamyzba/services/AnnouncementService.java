@@ -14,7 +14,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface AnnouncementService {
-    void createAnnouncement(AnnouncementRequest announcementRequest) throws IOException;
+    Announcement createAnnouncement(AnnouncementRequest announcementRequest) throws IOException;
     Page<AnnouncementResponseForAll> getAllRoommateListings(Pageable pageable);
     Page<AnnouncementResponseForAll> searchRoommateListings(
             String region,
@@ -40,5 +40,4 @@ public interface AnnouncementService {
     void deleteAnnouncement(Long announcementId) throws BadRequestException;
     AnnouncementResponse toAnnouncementResponse(Announcement announcement);
     AnnouncementResponseForAll toAnnouncementResponseForAll(Announcement announcement);
-    List<AnnouncementResponseForAll> getAllAnnouncementsForMap();
 }

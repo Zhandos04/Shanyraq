@@ -3,6 +3,7 @@ package by.project.turamyzba.services.impl;
 import by.project.turamyzba.dto.requests.AnnouncementRequest;
 import by.project.turamyzba.dto.responses.AnnouncementResponse;
 import by.project.turamyzba.dto.responses.AnnouncementResponseForAll;
+import by.project.turamyzba.entities.anketa.SurveyInvitation;
 import by.project.turamyzba.mappers.AnnouncementMapper;
 import by.project.turamyzba.entities.Announcement;
 import by.project.turamyzba.entities.Image;
@@ -10,6 +11,7 @@ import by.project.turamyzba.entities.User;
 import by.project.turamyzba.repositories.AnnouncementRepository;
 import by.project.turamyzba.repositories.UserRepository;
 import by.project.turamyzba.services.AnnouncementService;
+import by.project.turamyzba.services.SurveyInvitationService;
 import by.project.turamyzba.services.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
@@ -49,13 +51,14 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     private final ModelMapper modelMapper;
 
     private final AnnouncementRepository announcementRepository;
+    private final SurveyInvitationService surveyInvitationService;
 
     private final UserRepository userRepository;
 
     private final RestTemplate restTemplate;
     @Transactional
     @Override
-    public void createAnnouncement(AnnouncementRequest announcementRequest) throws IOException {
+    public Announcement createAnnouncement(AnnouncementRequest announcementRequest) throws IOException {
         String[] coords = getCoordsFromAddress(announcementRequest.getRegion() + ", " + announcementRequest.getDistrict() + ", " + announcementRequest.getMicroDistrict() + ", " + announcementRequest.getAddress());
 
         if (coords.length < 2) {
@@ -72,7 +75,7 @@ public class AnnouncementServiceImpl implements AnnouncementService {
         announcement.setPhotos(images);
         announcement.setUser(user);
 
-        announcementRepository.save(announcement);
+        return announcementRepository.save(announcement);
     }
 
     private String[] getCoordsFromAddress(String address) {
@@ -124,16 +127,8 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     }
 
     @Override
-    @Transactional
-    public List<AnnouncementResponseForAll> getAllAnnouncementsForMap() {
-        return announcementRepository.findAllForMap();
-    }
-
-
-    @Override
     @Transactional(readOnly = true)
     public AnnouncementResponse getAnnouncementById(Long id) {
-        log.info("Getting announcement by id: {}", id);
         return toAnnouncementResponse(announcementRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Announcement not found")));
     }
 

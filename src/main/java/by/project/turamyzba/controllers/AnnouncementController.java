@@ -3,7 +3,9 @@ package by.project.turamyzba.controllers;
 import by.project.turamyzba.dto.requests.AnnouncementRequest;
 import by.project.turamyzba.dto.responses.AnnouncementResponse;
 import by.project.turamyzba.dto.responses.AnnouncementResponseForAll;
+import by.project.turamyzba.entities.Announcement;
 import by.project.turamyzba.services.AnnouncementService;
+import by.project.turamyzba.services.SurveyInvitationService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.validation.Valid;
@@ -18,7 +20,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,19 +28,26 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class AnnouncementController {
     private final AnnouncementService announcementService;
+    private final SurveyInvitationService surveyInvitationService;
 
     @PostMapping("/create")
     @Operation(
             summary = "Объявление создать ету",
-            description = "Осы announcementRequest бойынша объявление создать ету.",
+            description = "Осы announcementRequest бойынша объявление создать ету. И возвращает ссылку для анкеты если в квартире люди живет",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Announcement created successfully")
             }
     )
-    public ResponseEntity<?> createAnnouncement(@RequestBody @Valid AnnouncementRequest announcementRequest) {
+    public ResponseEntity<String> createAnnouncement(@RequestBody @Valid AnnouncementRequest announcementRequest) {
         try {
-            announcementService.createAnnouncement(announcementRequest);
-            return ResponseEntity.ok("Объявления успешно создан!");
+            Announcement announcement = announcementService.createAnnouncement(announcementRequest);
+            String answer;
+            if (Integer.parseInt(announcementRequest.getHowManyPeopleLiveInThisApartment()) > 0) {
+                answer = surveyInvitationService.createInvitation(announcement.getId()).getToken();
+            } else {
+                answer = "Announcement created successfully";
+            }
+            return ResponseEntity.ok(answer);
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Error creating announcement: " + e.getMessage());
@@ -85,12 +93,6 @@ public class AnnouncementController {
             case 1 -> Sort.by(Sort.Order.asc("arriveDate"));
             default -> Sort.by(Sort.Order.asc("arriveDate")); // по умолчанию сортировка по новизне (убывание)
         };
-    }
-
-    @GetMapping("/all-for-map")
-    @Operation(summary = "Барлык объявлениелерди алу map ушин. Чисто лист")
-    public ResponseEntity<List<AnnouncementResponseForAll>> getAllForMap() {
-        return ResponseEntity.ok(announcementService.getAllAnnouncementsForMap());
     }
 
     @GetMapping("/detail/{id}")

@@ -116,24 +116,4 @@ public interface AnnouncementRepository extends JpaRepository<Announcement, Inte
             @Param("gender") String gender,
             @Param("roommatesCount") Integer roommatesCount,
             Pageable pageable);
-
-    @Query("SELECT new by.project.turamyzba.dto.responses.AnnouncementResponseForAll(" +
-            "a.id, " +
-            "MIN(p.url), " +
-            "a.title, " +
-            "a.address, " +
-            "a.arriveDate, " +
-            "a.quantityOfRooms, " +
-            "a.selectedGender, " +
-            "a.numberOfPeopleAreYouAccommodating, " +
-            "a.cost, " +
-            "a.coordsX, " +
-            "a.coordsY, " +
-            "a.isArchived, " +
-            "a.consideringOnlyNPeople) " +
-            "FROM Announcement a LEFT JOIN a.photos p " +
-            "WHERE a.isDeleted = false AND a.isArchived = false " +
-            "GROUP BY a.id, a.title, a.address, a.arriveDate, a.quantityOfRooms, a.selectedGender, a.numberOfPeopleAreYouAccommodating, a.cost " +
-            "ORDER BY a.createdAt DESC")
-    List<AnnouncementResponseForAll> findAllForMap();
 }
