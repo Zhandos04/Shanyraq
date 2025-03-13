@@ -7,4 +7,5 @@ import lombok.Setter;
 @Setter
 public class AuthDTO {
     private String accessToken;
+    private Boolean isSurveyCompleted;
 }

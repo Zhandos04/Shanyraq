@@ -9,7 +9,6 @@ import by.project.turamyzba.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
@@ -30,11 +29,12 @@ public class SurveyController {
     }
     @PostMapping("/submit")
     @Operation(summary = "Барлык анкетаны толтырып жиберу", description = "Суракпен тандаган жауапты жибересиндер")
-    public ResponseEntity<HttpStatus> submitAnswers(@RequestBody List<UserAnswerDTO> userAnswers) {
+    public ResponseEntity<Boolean> submitAnswers(@RequestBody List<UserAnswerDTO> userAnswers) {
         User user = userService.getUserByEmail(userService.getCurrentUser().getUsername())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found!"));
         surveyService.saveUserAnswers(user, userAnswers);
-        return ResponseEntity.ok(HttpStatus.ACCEPTED);
+        Boolean isSurveyCompleted = true;
+        return ResponseEntity.ok(isSurveyCompleted);
     }
     @GetMapping("/view/{id}")
     @Operation(summary = "Пользовательдин анкетасын кору", description = "Посмотреть анкету басканда юзердин айдиын жиберип path аркылы аласын анкетаны")

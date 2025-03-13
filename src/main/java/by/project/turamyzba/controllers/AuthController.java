@@ -17,7 +17,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.modelmapper.ModelMapper;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -37,7 +36,6 @@ public class AuthController {
     private final UserService userService;
     private final JwtService jwtService;
     private final CustomAuthenticationProvider authenticationProvider;
-    private final ModelMapper modelMapper;
     private final EmailService emailService;
     private final TokenBlacklistService tokenBlacklistService;
 
@@ -141,8 +139,9 @@ public class AuthController {
         }
         Map<String, String> tokens = jwtService.generateTokens(loginDTO.getEmail());
 
-        AuthDTO authDTO = modelMapper.map(userOptional.get(), AuthDTO.class);
+        AuthDTO authDTO = new AuthDTO();
         authDTO.setAccessToken(tokens.get("accessToken"));
+        authDTO.setIsSurveyCompleted(userOptional.get().getIsSurveyCompleted());
         return ResponseEntity.ok(authDTO);
     }
     @PostMapping("/logout")
