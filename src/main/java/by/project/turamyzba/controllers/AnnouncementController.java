@@ -3,7 +3,9 @@ package by.project.turamyzba.controllers;
 import by.project.turamyzba.dto.requests.AnnouncementRequest;
 import by.project.turamyzba.dto.responses.AnnouncementResponse;
 import by.project.turamyzba.dto.responses.AnnouncementResponseForAll;
+import by.project.turamyzba.dto.responses.LinkForSurveyDTO;
 import by.project.turamyzba.entities.Announcement;
+import by.project.turamyzba.entities.ResidentPhones;
 import by.project.turamyzba.services.AnnouncementService;
 import by.project.turamyzba.services.SurveyInvitationService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -15,12 +17,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -38,23 +41,22 @@ public class AnnouncementController {
                     @ApiResponse(responseCode = "200", description = "Announcement created successfully")
             }
     )
-    public ResponseEntity<String> createAnnouncement(@RequestBody @Valid AnnouncementRequest announcementRequest) {
-        try {
-            Announcement announcement = announcementService.createAnnouncement(announcementRequest);
-            String answer;
-            if (Integer.parseInt(announcementRequest.getHowManyPeopleLiveInThisApartment()) > 0) {
-                answer = surveyInvitationService.createInvitation(announcement.getId()).getToken();
-            } else {
-                answer = "Announcement created successfully";
+    public ResponseEntity<?> createAnnouncement(@RequestBody @Valid AnnouncementRequest announcementRequest) throws IOException {
+        Announcement announcement = announcementService.createAnnouncement(announcementRequest);
+        LinkForSurveyDTO answer = new LinkForSurveyDTO();
+        if (Integer.parseInt(announcementRequest.getHowManyPeopleLiveInThisApartment()) > 0) {
+            String token = surveyInvitationService.createInvitation(announcement.getId()).getToken();
+            List<String> names = new ArrayList<>();
+            for (Map.Entry<String, ResidentPhones> map : announcement.getResidentsData().entrySet()) {
+                names.add(map.getKey());
             }
-            return ResponseEntity.ok(answer);
-        } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error creating announcement: " + e.getMessage());
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(e.getMessage());
+            answer.setNamesOfResidents(names);
+            answer.setToken(token);
+        } else {
+            answer.setToken(null);
+            answer.setNamesOfResidents(null);
         }
+        return ResponseEntity.ok(answer);
     }
 
 
