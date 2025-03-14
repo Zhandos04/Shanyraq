@@ -96,4 +96,6 @@ public class AnnouncementResponse {
     private Map<String, List<String>> residentsDataResponse;
 
     private List<ResidentResponseDTO> residentsSurvey;
+
+    private List<SurveyAnswerDTO> creatorSurveyAnswers;
 }

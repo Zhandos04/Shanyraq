@@ -22,7 +22,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -88,7 +87,7 @@ public class SurveyServiceImpl implements SurveyService {
                     surveyAnswerDTO.setAnswer(userAnswer.getOption().getText());
                     return surveyAnswerDTO;
                 })
-                .collect(Collectors.toList());
+                .toList();
 
         surveyResponseDTO.setAnswers(answers);
         return surveyResponseDTO;

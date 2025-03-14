@@ -11,6 +11,7 @@ import by.project.turamyzba.repositories.AnnouncementRepository;
 import by.project.turamyzba.repositories.ResidentRepository;
 import by.project.turamyzba.repositories.UserRepository;
 import by.project.turamyzba.repositories.anketa.ResidentAnswerRepository;
+import by.project.turamyzba.repositories.anketa.UserAnswerRepository;
 import by.project.turamyzba.services.AnnouncementService;
 import by.project.turamyzba.services.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -61,6 +62,8 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     private final ResidentRepository residentRepository;
 
     private final ResidentAnswerRepository residentAnswerRepository;
+
+    private final UserAnswerRepository userAnswerRepository;
     @Transactional
     @Override
     public Announcement createAnnouncement(AnnouncementRequest announcementRequest) throws IOException {
@@ -401,6 +404,18 @@ public class AnnouncementServiceImpl implements AnnouncementService {
             map.put(entry.getKey(), entry.getValue().getPhoneNumbers());
         }
         response.setResidentsDataResponse(map);
+
+        List<SurveyAnswerDTO> creatorSurveyAnswers = userAnswerRepository.findAllByUser(announcement.getUser())
+                .stream()
+                .map(userAnswer -> {
+                    SurveyAnswerDTO surveyAnswerDTO = new SurveyAnswerDTO();
+                    surveyAnswerDTO.setQuestion(userAnswer.getQuestion().getText());
+                    surveyAnswerDTO.setAnswer(userAnswer.getOption().getText());
+                    return surveyAnswerDTO;
+                })
+                .toList();
+
+        response.setCreatorSurveyAnswers(creatorSurveyAnswers);
 
         List<Resident> residents = residentRepository.findAllByAnnouncementId(announcement.getId());
 
