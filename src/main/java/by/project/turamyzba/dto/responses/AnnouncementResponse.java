@@ -73,17 +73,11 @@ public class AnnouncementResponse {
 
     private Integer areaOfTheApartment;
 
-//    private String residentialComplex;
-
-//    private String intersectionWith;
-
     private Boolean forALongTime;
 
     private String ownersName;
 
-    private List<String> phoneNumbers;
-
-    private Map<String, String> residents;
+    private List<String> ownersPhoneNumbers;
 
     private String phoneNumber;
 
@@ -98,4 +92,8 @@ public class AnnouncementResponse {
     private UserResponse user;
 
     private Boolean consideringOnlyNPeople;
+
+    private Map<String, List<String>> residentsDataResponse;
+
+    private List<ResidentResponseDTO> residentsSurvey;
 }

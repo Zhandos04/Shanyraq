@@ -3,12 +3,14 @@ package by.project.turamyzba.services.impl;
 import by.project.turamyzba.dto.requests.AnnouncementRequest;
 import by.project.turamyzba.dto.responses.AnnouncementResponse;
 import by.project.turamyzba.dto.responses.AnnouncementResponseForAll;
+import by.project.turamyzba.dto.responses.ResidentResponseDTO;
+import by.project.turamyzba.dto.responses.SurveyAnswerDTO;
+import by.project.turamyzba.entities.*;
 import by.project.turamyzba.mappers.AnnouncementMapper;
-import by.project.turamyzba.entities.Announcement;
-import by.project.turamyzba.entities.Image;
-import by.project.turamyzba.entities.User;
 import by.project.turamyzba.repositories.AnnouncementRepository;
+import by.project.turamyzba.repositories.ResidentRepository;
 import by.project.turamyzba.repositories.UserRepository;
+import by.project.turamyzba.repositories.anketa.ResidentAnswerRepository;
 import by.project.turamyzba.services.AnnouncementService;
 import by.project.turamyzba.services.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -30,7 +32,9 @@ import org.springframework.web.client.RestTemplate;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -53,6 +57,10 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     private final UserRepository userRepository;
 
     private final RestTemplate restTemplate;
+
+    private final ResidentRepository residentRepository;
+
+    private final ResidentAnswerRepository residentAnswerRepository;
     @Transactional
     @Override
     public Announcement createAnnouncement(AnnouncementRequest announcementRequest) throws IOException {
@@ -388,6 +396,42 @@ public class AnnouncementServiceImpl implements AnnouncementService {
                 .map(AnnouncementMapper::toImageResponse)
                 .collect(Collectors.toList()));
         response.setUser(AnnouncementMapper.toUserResponse(announcement.getUser()));
+        Map<String, List<String>> map = new HashMap<>();
+        for (Map.Entry<String, ResidentPhones> entry : announcement.getResidentsData().entrySet()) {
+            map.put(entry.getKey(), entry.getValue().getPhoneNumbers());
+        }
+        response.setResidentsDataResponse(map);
+
+        List<Resident> residents = residentRepository.findAllByAnnouncementId(announcement.getId());
+
+        List<ResidentResponseDTO> residentsSurvey = new ArrayList<>();
+        if (!residents.isEmpty()) {
+            for (Resident resident : residents) {
+                response.getResidentsDataResponse().remove(resident.getFirstName());
+                ResidentResponseDTO residentResponseDTO = new ResidentResponseDTO();
+                residentResponseDTO.setFirstName(resident.getFirstName());
+                residentResponseDTO.setLastName(resident.getLastName());
+                residentResponseDTO.setGender(resident.getGender());
+                residentResponseDTO.setEmail(resident.getEmail());
+                residentResponseDTO.setPhoneNumber(resident.getPhoneNumber());
+                residentResponseDTO.setBirthDate(resident.getBirthDate());
+
+                List<SurveyAnswerDTO> answers = residentAnswerRepository.findAllByResident(resident)
+                        .stream()
+                        .map(residentAnswer -> {
+                            SurveyAnswerDTO surveyAnswerDTO = new SurveyAnswerDTO();
+                            surveyAnswerDTO.setQuestion(residentAnswer.getQuestion().getText());
+                            surveyAnswerDTO.setAnswer(residentAnswer.getOption().getText());
+                            return surveyAnswerDTO;
+                        })
+                        .toList();
+
+                residentResponseDTO.setSurveyAnswer(answers);
+
+                residentsSurvey.add(residentResponseDTO);
+            }
+        }
+        response.setResidentsSurvey(residentsSurvey);
 
         return response;
     }

@@ -24,8 +24,6 @@ public class Resident {
     private String email;
     @Column(name = "gender")
     private String gender;
-    @Column(name = "is_survey_completed")
-    private Boolean isSurveyCompleted;
     @ManyToOne
     @JoinColumn(name = "announcement_id", nullable = false)
     private Announcement announcement;

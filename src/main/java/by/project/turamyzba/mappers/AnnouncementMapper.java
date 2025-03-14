@@ -5,15 +5,25 @@ import by.project.turamyzba.dto.responses.ImageResponse;
 import by.project.turamyzba.dto.responses.UserResponse;
 import by.project.turamyzba.entities.Announcement;
 import by.project.turamyzba.entities.Image;
+import by.project.turamyzba.entities.ResidentPhones;
 import by.project.turamyzba.entities.User;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class AnnouncementMapper {
 
     public static Announcement toEntity(AnnouncementRequest request, String[] coords) {
+        Map<String, ResidentPhones> map = new HashMap<>();
+        for (Map.Entry<String, List<String>> entry : request.getResidentsData().entrySet()) {
+            ResidentPhones residentPhones = new ResidentPhones();
+            residentPhones.setPhoneNumbers(entry.getValue());
+            map.put(entry.getKey(), residentPhones);
+        }
         return Announcement.builder()
+                .residentsData(map)
                 .title(request.getTitle())
                 .role(request.getRole())
                 .selectedGender(request.getSelectedGender())
@@ -42,18 +52,14 @@ public class AnnouncementMapper {
                 .numberOfFloor(request.getNumberOfFloor())
                 .maxFloorInTheBuilding(request.getMaxFloorInTheBuilding())
                 .areaOfTheApartment(request.getAreaOfTheApartment())
-//                .residentialComplex(request.getResidentialComplex())
-//                .intersectionWith(request.getIntersectionWith())
                 .forALongTime(request.getForALongTime())
                 .ownersName(request.getOwnersName())
-                .phoneNumbers(request.getPhoneNumbers()) // Список телефонов
-                .residents(request.getResidents()) // Map "имя - телефон"
-                .preferences(request.getPreferences()) // Список предпочтений
-                .phoneNumber(request.getPhoneNumber())
-                .coordsX(coords != null && coords.length > 0 ? coords[0] : null) // Проверяем, что координаты не пустые
-                .coordsY(coords != null && coords.length > 1 ? coords[1] : null) // Проверяем, что координаты не пустые
-                .isDeleted(false) // Устанавливаем флаг удаления в false
-                .isArchived(false) // По умолчанию архивным не является
+                .ownersPhoneNumbers(request.getOwnersPhoneNumbers())
+                .preferences(request.getPreferences())
+                .coordsX(coords != null && coords.length > 0 ? coords[0] : null)
+                .coordsY(coords != null && coords.length > 1 ? coords[1] : null)
+                .isDeleted(false)
+                .isArchived(false)
                 .consideringOnlyNPeople(request.getConsideringOnlyNPeople())
                 .build();
     }
@@ -118,12 +124,16 @@ public class AnnouncementMapper {
         announcement.setNumberOfFloor(request.getNumberOfFloor());
         announcement.setMaxFloorInTheBuilding(request.getMaxFloorInTheBuilding());
         announcement.setAreaOfTheApartment(request.getAreaOfTheApartment());
-//        announcement.setResidentialComplex(request.getResidentialComplex());
-//        announcement.setIntersectionWith(request.getIntersectionWith());
         announcement.setForALongTime(request.getForALongTime());
         announcement.setOwnersName(request.getOwnersName());
-        announcement.setPhoneNumbers(request.getPhoneNumbers());
-        announcement.setResidents(request.getResidents());
+        Map<String, ResidentPhones> map = new HashMap<>();
+        for (Map.Entry<String, List<String>> entry : request.getResidentsData().entrySet()) {
+            ResidentPhones residentPhones = new ResidentPhones();
+            residentPhones.setPhoneNumbers(entry.getValue());
+            map.put(entry.getKey(), residentPhones);
+        }
+        announcement.setResidentsData(map);
+        announcement.setOwnersPhoneNumbers(request.getOwnersPhoneNumbers());
         announcement.setPreferences(request.getPreferences());
         announcement.setConsideringOnlyNPeople(request.getConsideringOnlyNPeople());
     }
