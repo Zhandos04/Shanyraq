@@ -1,5 +1,6 @@
 package by.project.turamyzba.services;
 
+import by.project.turamyzba.dto.requests.SurveyFromLinkDTO;
 import by.project.turamyzba.dto.responses.QuestionDTO;
 import by.project.turamyzba.dto.responses.SurveyResponseDTO;
 import by.project.turamyzba.dto.responses.UserAnswerDTO;
@@ -11,4 +12,5 @@ public interface SurveyService {
     List<QuestionDTO> getAllQuestions();
     void saveUserAnswers(User user, List<UserAnswerDTO> userAnswers);
     SurveyResponseDTO viewSurvey(Long id);
+    void saveSurveyAnswersFromLink(SurveyFromLinkDTO surveyFromLinkDTO);
 }

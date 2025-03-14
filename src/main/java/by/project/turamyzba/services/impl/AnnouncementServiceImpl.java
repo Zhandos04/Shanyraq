@@ -3,7 +3,6 @@ package by.project.turamyzba.services.impl;
 import by.project.turamyzba.dto.requests.AnnouncementRequest;
 import by.project.turamyzba.dto.responses.AnnouncementResponse;
 import by.project.turamyzba.dto.responses.AnnouncementResponseForAll;
-import by.project.turamyzba.entities.anketa.SurveyInvitation;
 import by.project.turamyzba.mappers.AnnouncementMapper;
 import by.project.turamyzba.entities.Announcement;
 import by.project.turamyzba.entities.Image;
@@ -11,7 +10,6 @@ import by.project.turamyzba.entities.User;
 import by.project.turamyzba.repositories.AnnouncementRepository;
 import by.project.turamyzba.repositories.UserRepository;
 import by.project.turamyzba.services.AnnouncementService;
-import by.project.turamyzba.services.SurveyInvitationService;
 import by.project.turamyzba.services.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityNotFoundException;
@@ -51,7 +49,6 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     private final ModelMapper modelMapper;
 
     private final AnnouncementRepository announcementRepository;
-    private final SurveyInvitationService surveyInvitationService;
 
     private final UserRepository userRepository;
 

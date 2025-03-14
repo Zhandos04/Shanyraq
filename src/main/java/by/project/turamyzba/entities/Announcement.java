@@ -80,25 +80,19 @@ public class Announcement {
     private Integer maxFloorInTheBuilding;
     @Column(name = "area_of_the_apartment")
     private Integer areaOfTheApartment;
-//    @Column(name = "residential_complex")
-//    private String residentialComplex;
-//    @Column(name = "intersection_with")
-//    private String intersectionWith;
     @Column(name = "for_a_long_time")
     private Boolean forALongTime;
     @Column(name = "owners_name")
     private String ownersName;
-    @Column(name = "phone_number")
-    private String phoneNumber;
     @ElementCollection
     @CollectionTable(name = "advertisement_phone_numbers", joinColumns = @JoinColumn(name = "advertisement_id"))
     @Column(name = "phone_number")
-    private List<String> phoneNumbers;
+    private List<String> ownersPhoneNumbers;
     @ElementCollection
     @CollectionTable(name = "advertisement_residents", joinColumns = @JoinColumn(name = "advertisement_id"))
     @MapKeyColumn(name = "resident_name")
     @Column(name = "phone_number")
-    private Map<String, String> residents;
+    private Map<String, ResidentPhones> residentsData;
     @ElementCollection
     @CollectionTable(name = "advertisement_preferences", joinColumns = @JoinColumn(name = "advertisement_id"))
     @Column(name = "preference")
@@ -121,6 +115,10 @@ public class Announcement {
 
     @Column(name = "considering_only_n_people")
     private Boolean consideringOnlyNPeople;
+
+    @OneToMany(mappedBy = "announcement", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Resident> residents;
+
 
     @PrePersist
     private void prePersist() {

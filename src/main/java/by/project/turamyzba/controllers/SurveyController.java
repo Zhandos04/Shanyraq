@@ -1,5 +1,6 @@
 package by.project.turamyzba.controllers;
 
+import by.project.turamyzba.dto.requests.SurveyFromLinkDTO;
 import by.project.turamyzba.dto.responses.QuestionDTO;
 import by.project.turamyzba.dto.responses.SurveyResponseDTO;
 import by.project.turamyzba.dto.responses.UserAnswerDTO;
@@ -9,6 +10,7 @@ import by.project.turamyzba.services.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
@@ -40,5 +42,11 @@ public class SurveyController {
     @Operation(summary = "Пользовательдин анкетасын кору", description = "Посмотреть анкету басканда юзердин айдиын жиберип path аркылы аласын анкетаны")
     public ResponseEntity<SurveyResponseDTO> viewSurvey(@PathVariable Long id) {
         return ResponseEntity.ok(surveyService.viewSurvey(id));
+    }
+    @PostMapping("/submit-from-link")
+    @Operation(summary = "Барлык анкетаны толтырып жиберу", description = "Суракпен тандаган жауапты жибересиндер")
+    public ResponseEntity<HttpStatus> submitAnswersFromLink(@RequestBody SurveyFromLinkDTO surveyFromLinkDTO) {
+        surveyService.saveSurveyAnswersFromLink(surveyFromLinkDTO);
+        return ResponseEntity.ok(HttpStatus.ACCEPTED);
     }
 }
