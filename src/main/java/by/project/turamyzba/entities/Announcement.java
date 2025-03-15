@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -88,11 +89,9 @@ public class Announcement {
     @CollectionTable(name = "advertisement_phone_numbers", joinColumns = @JoinColumn(name = "advertisement_id"))
     @Column(name = "phone_number")
     private List<String> ownersPhoneNumbers;
-    @ElementCollection
-    @CollectionTable(name = "advertisement_residents", joinColumns = @JoinColumn(name = "advertisement_id"))
-    @MapKeyColumn(name = "resident_name")
-    @Column(name = "phone_number")
-    private Map<String, ResidentPhones> residentsData;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "announcement_id")
+    private List<ResidentData> residentData;
     @ElementCollection
     @CollectionTable(name = "advertisement_preferences", joinColumns = @JoinColumn(name = "advertisement_id"))
     @Column(name = "preference")

@@ -400,8 +400,8 @@ public class AnnouncementServiceImpl implements AnnouncementService {
                 .collect(Collectors.toList()));
         response.setUser(AnnouncementMapper.toUserResponse(announcement.getUser()));
         Map<String, List<String>> map = new HashMap<>();
-        for (Map.Entry<String, ResidentPhones> entry : announcement.getResidentsData().entrySet()) {
-            map.put(entry.getKey(), entry.getValue().getPhoneNumbers());
+        for (ResidentData residentData : announcement.getResidentData()) {
+            map.put(residentData.getName(), residentData.getPhoneNumbers());
         }
         response.setResidentsDataResponse(map);
 

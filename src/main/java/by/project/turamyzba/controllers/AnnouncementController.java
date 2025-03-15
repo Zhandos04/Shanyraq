@@ -5,7 +5,7 @@ import by.project.turamyzba.dto.responses.AnnouncementResponse;
 import by.project.turamyzba.dto.responses.AnnouncementResponseForAll;
 import by.project.turamyzba.dto.responses.LinkForSurveyDTO;
 import by.project.turamyzba.entities.Announcement;
-import by.project.turamyzba.entities.ResidentPhones;
+import by.project.turamyzba.entities.ResidentData;
 import by.project.turamyzba.services.AnnouncementService;
 import by.project.turamyzba.services.SurveyInvitationService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -47,8 +46,8 @@ public class AnnouncementController {
         if (Integer.parseInt(announcementRequest.getHowManyPeopleLiveInThisApartment()) > 0) {
             String token = surveyInvitationService.createInvitation(announcement.getId()).getToken();
             List<String> names = new ArrayList<>();
-            for (Map.Entry<String, ResidentPhones> map : announcement.getResidentsData().entrySet()) {
-                names.add(map.getKey());
+            for (ResidentData residentData : announcement.getResidentData()) {
+                names.add(residentData.getName());
             }
             answer.setNamesOfResidents(names);
             answer.setToken(token);

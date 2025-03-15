@@ -3,27 +3,24 @@ package by.project.turamyzba.mappers;
 import by.project.turamyzba.dto.requests.AnnouncementRequest;
 import by.project.turamyzba.dto.responses.ImageResponse;
 import by.project.turamyzba.dto.responses.UserResponse;
-import by.project.turamyzba.entities.Announcement;
-import by.project.turamyzba.entities.Image;
-import by.project.turamyzba.entities.ResidentPhones;
-import by.project.turamyzba.entities.User;
+import by.project.turamyzba.entities.*;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class AnnouncementMapper {
 
     public static Announcement toEntity(AnnouncementRequest request, String[] coords) {
-        Map<String, ResidentPhones> map = new HashMap<>();
-        for (Map.Entry<String, List<String>> entry : request.getResidentsData().entrySet()) {
-            ResidentPhones residentPhones = new ResidentPhones();
-            residentPhones.setPhoneNumbers(entry.getValue());
-            map.put(entry.getKey(), residentPhones);
-        }
+        List<ResidentData> residents = request.getResidentsData().entrySet().stream()
+                .map(entry -> {
+                    ResidentData resident = new ResidentData();
+                    resident.setName(entry.getKey());
+                    resident.setPhoneNumbers(entry.getValue());
+                    return resident;
+                })
+                .toList();
         return Announcement.builder()
-                .residentsData(map)
+                .residentData(residents)
                 .title(request.getTitle())
                 .role(request.getRole())
                 .selectedGender(request.getSelectedGender())
@@ -126,13 +123,15 @@ public class AnnouncementMapper {
         announcement.setAreaOfTheApartment(request.getAreaOfTheApartment());
         announcement.setForALongTime(request.getForALongTime());
         announcement.setOwnersName(request.getOwnersName());
-        Map<String, ResidentPhones> map = new HashMap<>();
-        for (Map.Entry<String, List<String>> entry : request.getResidentsData().entrySet()) {
-            ResidentPhones residentPhones = new ResidentPhones();
-            residentPhones.setPhoneNumbers(entry.getValue());
-            map.put(entry.getKey(), residentPhones);
-        }
-        announcement.setResidentsData(map);
+        List<ResidentData> residents = request.getResidentsData().entrySet().stream()
+                .map(entry -> {
+                    ResidentData resident = new ResidentData();
+                    resident.setName(entry.getKey());
+                    resident.setPhoneNumbers(entry.getValue());
+                    return resident;
+                })
+                .toList();
+        announcement.setResidentData(residents);
         announcement.setOwnersPhoneNumbers(request.getOwnersPhoneNumbers());
         announcement.setPreferences(request.getPreferences());
         announcement.setConsideringOnlyNPeople(request.getConsideringOnlyNPeople());
