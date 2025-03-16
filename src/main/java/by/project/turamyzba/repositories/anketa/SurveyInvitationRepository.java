@@ -9,4 +9,5 @@ import java.util.Optional;
 @Repository
 public interface SurveyInvitationRepository extends JpaRepository<SurveyInvitation, Long> {
     Optional<SurveyInvitation> findByToken(String token);
+    boolean existsByToken(String token);
 }

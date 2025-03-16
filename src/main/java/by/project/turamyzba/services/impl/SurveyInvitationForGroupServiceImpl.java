@@ -5,17 +5,14 @@ import by.project.turamyzba.entities.anketa.SurveyInvitationForGroup;
 import by.project.turamyzba.exceptions.GroupNotFoundException;
 import by.project.turamyzba.repositories.GroupRepository;
 import by.project.turamyzba.repositories.anketa.SurveyInvitationForGroupRepository;
+import by.project.turamyzba.repositories.anketa.SurveyInvitationRepository;
 import by.project.turamyzba.services.SurveyInvitationForGroupService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.nio.charset.StandardCharsets;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
-import java.util.Base64;
-import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -23,6 +20,7 @@ import java.util.List;
 public class SurveyInvitationForGroupServiceImpl implements SurveyInvitationForGroupService {
     private final GroupRepository groupRepository;
     private final SurveyInvitationForGroupRepository surveyInvitationForGroupRepository;
+    private final SurveyInvitationRepository surveyInvitationRepository;
     @Override
     @Transactional
     public String createInvitationForGroup(Long id) {
@@ -30,20 +28,17 @@ public class SurveyInvitationForGroupServiceImpl implements SurveyInvitationForG
                 .orElseThrow(() -> new GroupNotFoundException("Group not found!"));
         SurveyInvitationForGroup invitation = new SurveyInvitationForGroup();
         invitation.setGroup(group);
-        invitation.setToken(generateToken(id));
+        invitation.setToken(generateUniqueToken());
         invitation.setCreatedAt(LocalDateTime.now());
         surveyInvitationForGroupRepository.save(invitation);
         return invitation.getToken();
     }
 
-    private String generateToken(Long id) {
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            String input = id + "-" + System.nanoTime(); // Добавляем временную метку для уникальности
-            byte[] hash = digest.digest(input.getBytes(StandardCharsets.UTF_8));
-            return Base64.getUrlEncoder().withoutPadding().encodeToString(hash); // Кодируем в base64 для удобства
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("Ошибка генерации токена", e);
-        }
+    private String generateUniqueToken() {
+        String token;
+        do {
+            token = UUID.randomUUID().toString();
+        } while (surveyInvitationForGroupRepository.existsByToken(token) && surveyInvitationRepository.existsByToken(token));
+        return token;
     }
 }

@@ -19,7 +19,7 @@ public class SurveyInvitationForGroup {
     @JoinColumn(name = "group_id", nullable = false, unique = true)
     private Group group;
 
-    // Уникальный токен для формирования ссылки
+    @Column(unique = true)
     private String token;
 
     private LocalDateTime createdAt;

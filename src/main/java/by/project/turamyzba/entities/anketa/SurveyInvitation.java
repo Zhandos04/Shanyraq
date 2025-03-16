@@ -19,7 +19,7 @@ public class SurveyInvitation {
     @JoinColumn(name = "announcement_id", nullable = false, unique = true)
     private Announcement announcement;
 
-    // Уникальный токен для формирования ссылки
+    @Column(unique = true)
     private String token;
 
     private LocalDateTime createdAt;
