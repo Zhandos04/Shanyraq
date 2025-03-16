@@ -20,7 +20,7 @@ public class GroupMember {
     private Group group;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id")
     private User user;
 
     private String name;

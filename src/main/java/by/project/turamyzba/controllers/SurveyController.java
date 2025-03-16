@@ -7,6 +7,7 @@ import by.project.turamyzba.dto.responses.SurveyResponseDTO;
 import by.project.turamyzba.dto.responses.UserAnswerDTO;
 import by.project.turamyzba.dto.responses.UserDataResponse;
 import by.project.turamyzba.entities.User;
+import by.project.turamyzba.services.GroupService;
 import by.project.turamyzba.services.SurveyInvitationService;
 import by.project.turamyzba.services.SurveyService;
 import by.project.turamyzba.services.UserService;
@@ -28,6 +29,7 @@ public class SurveyController {
     private final SurveyService surveyService;
     private final UserService userService;
     private final SurveyInvitationService surveyInvitationService;
+    private final GroupService groupService;
     @GetMapping("/questions")
     @Operation(summary = "Анкетанын барлык сурактарын алу")
     public ResponseEntity<List<QuestionDTO>> getAllQuestions() {
@@ -48,9 +50,14 @@ public class SurveyController {
         return ResponseEntity.ok(surveyService.viewSurvey(id));
     }
 
-    @GetMapping("/get-names/{token}")
+    @GetMapping("/get-names-for-announcement-link/{token}")
     public ResponseEntity<List<String>> getResidentNames(@PathVariable String token) {
         return ResponseEntity.ok(surveyInvitationService.getNamesFromToken(token));
+    }
+
+    @GetMapping("/get-names-for-group-link/{token}")
+    public ResponseEntity<List<String>> getGroupMemberNames(@PathVariable String token) {
+        return ResponseEntity.ok(groupService.getNamesFromToken(token));
     }
 
     @PostMapping("/submit-from-link")

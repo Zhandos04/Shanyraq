@@ -43,10 +43,12 @@ public class AnnouncementController {
         Announcement announcement = announcementService.createAnnouncement(announcementRequest);
         LinkForSurveyDTO answer = new LinkForSurveyDTO();
         if (Integer.parseInt(announcementRequest.getHowManyPeopleLiveInThisApartment()) > 0) {
-            String token = surveyInvitationService.createInvitation(announcement.getId()).getToken();
+            String token = surveyInvitationService.createInvitationForAnnouncement(announcement.getId());
             answer.setToken(token);
+            answer.setMessage("Ссылка для анкеты создана и объявление успешно создано");
         } else {
             answer.setToken(null);
+            answer.setMessage("Объявление успешно создано");
         }
         return ResponseEntity.ok(answer);
     }

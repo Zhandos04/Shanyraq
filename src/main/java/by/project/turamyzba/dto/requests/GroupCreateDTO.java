@@ -8,5 +8,5 @@ import java.util.List;
 public class GroupCreateDTO {
     private Integer capacity;
     private Integer countOfPeople;
-    private ResidentDataRequest memberData;
+    private List<ResidentDataRequest> memberData;
 }

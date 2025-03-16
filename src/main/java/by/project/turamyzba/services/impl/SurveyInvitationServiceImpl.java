@@ -28,7 +28,7 @@ public class SurveyInvitationServiceImpl implements SurveyInvitationService {
     private final AnnouncementRepository announcementRepository;
     @Override
     @Transactional
-    public SurveyInvitation createInvitation(Long announcementId) {
+    public String createInvitationForAnnouncement(Long announcementId) {
         Announcement announcement = announcementRepository.findById(announcementId)
                 .orElseThrow(() -> new AnnouncementNotFoundException("Announcement not found!"));
         SurveyInvitation invitation = new SurveyInvitation();
@@ -36,7 +36,7 @@ public class SurveyInvitationServiceImpl implements SurveyInvitationService {
         invitation.setToken(generateToken(announcementId));
         invitation.setCreatedAt(LocalDateTime.now());
         surveyInvitationRepository.save(invitation);
-        return invitation;
+        return invitation.getToken();
     }
 
     @Override
@@ -52,10 +52,10 @@ public class SurveyInvitationServiceImpl implements SurveyInvitationService {
         return names;
     }
 
-    private String generateToken(Long announcementId) {
+    private String generateToken(Long id) {
         try {
             MessageDigest digest = MessageDigest.getInstance("SHA-256");
-            String input = announcementId + "-" + System.nanoTime(); // Добавляем временную метку для уникальности
+            String input = id + "-" + System.nanoTime(); // Добавляем временную метку для уникальности
             byte[] hash = digest.digest(input.getBytes(StandardCharsets.UTF_8));
             return Base64.getUrlEncoder().withoutPadding().encodeToString(hash); // Кодируем в base64 для удобства
         } catch (NoSuchAlgorithmException e) {

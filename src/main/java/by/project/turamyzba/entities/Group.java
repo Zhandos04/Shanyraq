@@ -25,5 +25,5 @@ public class Group {
     @Column(name = "capacity")
     private Integer capacity;
     @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<GroupMember> members = new ArrayList<>();
+    private List<GroupMember> members;
 }

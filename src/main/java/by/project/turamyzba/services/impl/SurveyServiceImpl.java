@@ -3,14 +3,15 @@ package by.project.turamyzba.services.impl;
 import by.project.turamyzba.dto.requests.LoginDTO;
 import by.project.turamyzba.dto.requests.SurveyFromLinkDTO;
 import by.project.turamyzba.dto.responses.*;
-import by.project.turamyzba.entities.Announcement;
-import by.project.turamyzba.entities.AnnouncementResident;
-import by.project.turamyzba.entities.User;
+import by.project.turamyzba.entities.*;
 import by.project.turamyzba.entities.anketa.*;
 import by.project.turamyzba.exceptions.SurveyInvitationNotFoundException;
 import by.project.turamyzba.repositories.AnnouncementResidentRepository;
+import by.project.turamyzba.repositories.GroupMemberRepository;
+import by.project.turamyzba.repositories.ResponseRepository;
 import by.project.turamyzba.repositories.UserRepository;
 import by.project.turamyzba.repositories.anketa.QuestionRepository;
+import by.project.turamyzba.repositories.anketa.SurveyInvitationForGroupRepository;
 import by.project.turamyzba.repositories.anketa.SurveyInvitationRepository;
 import by.project.turamyzba.repositories.anketa.UserAnswerRepository;
 import by.project.turamyzba.services.EmailService;
@@ -37,8 +38,10 @@ public class SurveyServiceImpl implements SurveyService {
     private final AnnouncementResidentRepository announcementResidentRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
+    private final SurveyInvitationForGroupRepository surveyInvitationForGroupRepository;
+    private final GroupMemberRepository groupMemberRepository;
+    private final ResponseRepository responseRepository;
 
-    // Получение всех вопросов с преобразованием в DTO
     @Override
     public List<QuestionDTO> getAllQuestions() {
         List<Question> questions = questionRepository.findAll();
@@ -99,57 +102,93 @@ public class SurveyServiceImpl implements SurveyService {
     @Override
     @Transactional
     public void saveSurveyAnswersFromLink(SurveyFromLinkDTO surveyFromLinkDTO) {
-        SurveyInvitation surveyInvitation = surveyInvitationRepository.findByToken(surveyFromLinkDTO.getToken())
-                .orElseThrow(() -> new SurveyInvitationNotFoundException("Survey invitation not found!"));
+        Optional<SurveyInvitation> optionalSurveyInvitation = surveyInvitationRepository.findByToken(surveyFromLinkDTO.getToken());
+        Optional<SurveyInvitationForGroup> optionalSurveyInvitationForGroup = surveyInvitationForGroupRepository.findByToken(surveyFromLinkDTO.getToken());
 
-        Announcement announcement = surveyInvitation.getAnnouncement();
+        if (optionalSurveyInvitation.isEmpty() && optionalSurveyInvitationForGroup.isEmpty()) {
+            throw new SurveyInvitationNotFoundException("Survey invitation not found!");
+        } else if (optionalSurveyInvitation.isPresent()) {
+            Announcement announcement = optionalSurveyInvitation.get().getAnnouncement();
 
-        User resident;
+            User resident = getUser(surveyFromLinkDTO);
+
+            AnnouncementResident announcementResident = new AnnouncementResident();
+            announcementResident.setAnnouncement(announcement);
+            announcementResident.setUser(resident);
+            announcementResidentRepository.save(announcementResident);
+
+            List<UserAnswer> answers = surveyFromLinkDTO.getUserAnswers().stream().map(dto -> {
+                UserAnswer answer = new UserAnswer();
+
+                Question question = new Question();
+                question.setId(dto.getQuestionId());
+                answer.setQuestion(question);
+
+                Option option = new Option();
+                option.setId(dto.getOptionId());
+                answer.setOption(option);
+
+                answer.setUser(resident);
+                return answer;
+            }).toList();
+
+            userAnswerRepository.saveAll(answers);
+        } else {
+            Group group = optionalSurveyInvitationForGroup.get().getGroup();
+
+            User member = getUser(surveyFromLinkDTO);
+
+            List<GroupMember> groupMembers = groupMemberRepository.findAllByGroup(group);
+            for (GroupMember groupMember : groupMembers) {
+                if (groupMember.getName().equals(surveyFromLinkDTO.getFirstName())) {
+                    groupMember.setUser(member);
+                    groupMemberRepository.save(groupMember);
+                    break;
+                }
+            }
+            int count = 0;
+            for (GroupMember groupMember : groupMembers) {
+                if (groupMember.getUser() != null) {
+                    count++;
+                }
+            }
+            if (groupMembers.size() == count) {
+                Response response = new Response();
+                response.setAnnouncement(group.getAnnouncement());
+                response.setGroup(group);
+                response.setStatus(ResponseStatus.PENDING);
+                responseRepository.save(response);
+            }
+        }
+    }
+
+    private User getUser(SurveyFromLinkDTO surveyFromLinkDTO) {
+        User user;
         Optional<User> optionalUser = userRepository.findByEmail(surveyFromLinkDTO.getEmail());
         if (optionalUser.isEmpty()) {
-            resident = new User();
-            resident.setFirstName(surveyFromLinkDTO.getFirstName());
-            resident.setBirthDate(LocalDate.parse(surveyFromLinkDTO.getBirthDate()));
-            resident.setPhoneNumber(surveyFromLinkDTO.getPhoneNumber());
-            resident.setEmail(surveyFromLinkDTO.getEmail());
-            resident.setGender(surveyFromLinkDTO.getGender());
-            resident.setPassword(passwordEncoder.encode(surveyFromLinkDTO.getPassword()));
-            resident.setIsSurveyCompleted(true);
-            resident.setIsVerified(false);
+            user = new User();
+            user.setFirstName(surveyFromLinkDTO.getFirstName());
+            user.setBirthDate(LocalDate.parse(surveyFromLinkDTO.getBirthDate()));
+            user.setPhoneNumber(surveyFromLinkDTO.getPhoneNumber());
+            user.setEmail(surveyFromLinkDTO.getEmail());
+            user.setGender(surveyFromLinkDTO.getGender());
+            user.setPassword(passwordEncoder.encode(surveyFromLinkDTO.getPassword()));
+            user.setIsSurveyCompleted(true);
+            user.setIsVerified(false);
             String code = generateCode();
-            resident.setConfirmationCode(code);
+            user.setConfirmationCode(code);
             try {
                 emailService.sendEmail(surveyFromLinkDTO.getEmail(), "Shanyraq Verify Email", "Your code is: " + code);
             } catch (Exception e) {
                 throw new RuntimeException("Error occurred while sending the verification email.");
             }
-            userRepository.save(resident);
+            userRepository.save(user);
         } else {
-            resident = optionalUser.get();
+            user = optionalUser.get();
         }
-
-        AnnouncementResident announcementResident = new AnnouncementResident();
-        announcementResident.setAnnouncement(announcement);
-        announcementResident.setUser(resident);
-        announcementResidentRepository.save(announcementResident);
-
-        List<UserAnswer> answers = surveyFromLinkDTO.getUserAnswers().stream().map(dto -> {
-            UserAnswer answer = new UserAnswer();
-
-            Question question = new Question();
-            question.setId(dto.getQuestionId());
-            answer.setQuestion(question);
-
-            Option option = new Option();
-            option.setId(dto.getOptionId());
-            answer.setOption(option);
-
-            answer.setUser(resident);
-            return answer;
-        }).toList();
-
-        userAnswerRepository.saveAll(answers);
+        return user;
     }
+
 
     @Override
     public UserDataResponse checkAccountAndGetData(LoginDTO loginDTO) {
