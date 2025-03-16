@@ -21,5 +21,12 @@ public class SurveyFromLinkDTO {
     private String email;
     private String gender;
 
+    @Pattern(
+            regexp = "^(?:$|(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&_#.])(?=.*[a-z])[A-Za-z\\d@$!%*?&_#.]{8,})$",
+            message = "Password должен содержать как минимум одну заглавную букву, одну цифру и один символ, и быть длиной не менее 8 символов"
+    )
+    private String password;
+
+
     private List<UserAnswerDTO> userAnswers;
 }

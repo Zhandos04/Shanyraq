@@ -2,15 +2,12 @@ package by.project.turamyzba.services.impl;
 
 import by.project.turamyzba.dto.requests.LoginDTO;
 import by.project.turamyzba.dto.requests.SurveyFromLinkDTO;
-import by.project.turamyzba.dto.requests.SurveyFromLinkForUnregisteredUsersDTO;
 import by.project.turamyzba.dto.responses.*;
 import by.project.turamyzba.entities.Announcement;
 import by.project.turamyzba.entities.AnnouncementResident;
 import by.project.turamyzba.entities.User;
 import by.project.turamyzba.entities.anketa.*;
-import by.project.turamyzba.exceptions.AnnouncementNotFoundException;
 import by.project.turamyzba.exceptions.SurveyInvitationNotFoundException;
-import by.project.turamyzba.repositories.AnnouncementRepository;
 import by.project.turamyzba.repositories.AnnouncementResidentRepository;
 import by.project.turamyzba.repositories.UserRepository;
 import by.project.turamyzba.repositories.anketa.QuestionRepository;
@@ -27,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -36,7 +34,6 @@ public class SurveyServiceImpl implements SurveyService {
     private final UserAnswerRepository userAnswerRepository;
     private final UserRepository userRepository;
     private final SurveyInvitationRepository surveyInvitationRepository;
-    private final AnnouncementRepository announcementRepository;
     private final AnnouncementResidentRepository announcementResidentRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
@@ -105,26 +102,31 @@ public class SurveyServiceImpl implements SurveyService {
         SurveyInvitation surveyInvitation = surveyInvitationRepository.findByToken(surveyFromLinkDTO.getToken())
                 .orElseThrow(() -> new SurveyInvitationNotFoundException("Survey invitation not found!"));
 
-        Announcement announcement = announcementRepository.findById(surveyInvitation.getAnnouncementId())
-                .orElseThrow(() -> new AnnouncementNotFoundException("Survey not found!"));
+        Announcement announcement = surveyInvitation.getAnnouncement();
 
-        User resident = new User();
-        resident.setFirstName(surveyFromLinkDTO.getFirstName());
-        resident.setBirthDate(LocalDate.parse(surveyFromLinkDTO.getBirthDate()));
-        resident.setPhoneNumber(surveyFromLinkDTO.getPhoneNumber());
-        resident.setEmail(surveyFromLinkDTO.getEmail());
-        resident.setGender(surveyFromLinkDTO.getGender());
-        resident.setPassword(passwordEncoder.encode(surveyFromLinkDTO.getPassword()));
-        resident.setIsSurveyCompleted(true);
-        resident.setIsVerified(false);
-        String code = generateCode();
-        resident.setConfirmationCode(code);
-        try {
-            emailService.sendEmail(surveyFromLinkDTO.getEmail(), "Shanyraq Verify Email", "Your code is: " + code);
-        } catch (Exception e) {
-            throw new RuntimeException("Error occurred while sending the verification email.");
+        User resident;
+        Optional<User> optionalUser = userRepository.findByEmail(surveyFromLinkDTO.getEmail());
+        if (optionalUser.isEmpty()) {
+            resident = new User();
+            resident.setFirstName(surveyFromLinkDTO.getFirstName());
+            resident.setBirthDate(LocalDate.parse(surveyFromLinkDTO.getBirthDate()));
+            resident.setPhoneNumber(surveyFromLinkDTO.getPhoneNumber());
+            resident.setEmail(surveyFromLinkDTO.getEmail());
+            resident.setGender(surveyFromLinkDTO.getGender());
+            resident.setPassword(passwordEncoder.encode(surveyFromLinkDTO.getPassword()));
+            resident.setIsSurveyCompleted(true);
+            resident.setIsVerified(false);
+            String code = generateCode();
+            resident.setConfirmationCode(code);
+            try {
+                emailService.sendEmail(surveyFromLinkDTO.getEmail(), "Shanyraq Verify Email", "Your code is: " + code);
+            } catch (Exception e) {
+                throw new RuntimeException("Error occurred while sending the verification email.");
+            }
+            userRepository.save(resident);
+        } else {
+            resident = optionalUser.get();
         }
-        userRepository.save(resident);
 
         AnnouncementResident announcementResident = new AnnouncementResident();
         announcementResident.setAnnouncement(announcement);
