@@ -111,13 +111,8 @@ public class Announcement {
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
-
     @Column(name = "considering_only_n_people")
     private Boolean consideringOnlyNPeople;
-
-    @OneToMany(mappedBy = "announcement", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<User> residents;
-
 
     @PrePersist
     private void prePersist() {

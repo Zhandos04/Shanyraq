@@ -56,9 +56,6 @@ public class User implements UserDetails {
     @Column(name = "is_deleted")
     private Boolean isDeleted;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<AnnouncementUser> announcementUsers;
-
     @Column(name = "profile_photo")
     private String profilePhoto;
     @Column(name = "is_survey_completed")
