@@ -1,5 +1,6 @@
 package by.project.turamyzba.dto.responses;
 
+import by.project.turamyzba.entities.ResidentData;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -93,7 +94,7 @@ public class AnnouncementResponse {
 
     private Boolean consideringOnlyNPeople;
 
-    private Map<String, List<String>> residentsDataResponse;
+    private List<ResidentDataResponseDTO> residentsDataResponse;
 
     private List<ResidentResponseDTO> residentsSurvey;
 

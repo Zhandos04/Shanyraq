@@ -1,16 +1,12 @@
 package by.project.turamyzba.services.impl;
 
 import by.project.turamyzba.dto.requests.AnnouncementRequest;
-import by.project.turamyzba.dto.responses.AnnouncementResponse;
-import by.project.turamyzba.dto.responses.AnnouncementResponseForAll;
-import by.project.turamyzba.dto.responses.ResidentResponseDTO;
-import by.project.turamyzba.dto.responses.SurveyAnswerDTO;
+import by.project.turamyzba.dto.responses.*;
 import by.project.turamyzba.entities.*;
 import by.project.turamyzba.mappers.AnnouncementMapper;
 import by.project.turamyzba.repositories.AnnouncementRepository;
-import by.project.turamyzba.repositories.ResidentRepository;
+import by.project.turamyzba.repositories.AnnouncementResidentRepository;
 import by.project.turamyzba.repositories.UserRepository;
-import by.project.turamyzba.repositories.anketa.ResidentAnswerRepository;
 import by.project.turamyzba.repositories.anketa.UserAnswerRepository;
 import by.project.turamyzba.services.AnnouncementService;
 import by.project.turamyzba.services.UserService;
@@ -33,9 +29,7 @@ import org.springframework.web.client.RestTemplate;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -59,9 +53,7 @@ public class AnnouncementServiceImpl implements AnnouncementService {
 
     private final RestTemplate restTemplate;
 
-    private final ResidentRepository residentRepository;
-
-    private final ResidentAnswerRepository residentAnswerRepository;
+    private final AnnouncementResidentRepository announcementResidentRepository;
 
     private final UserAnswerRepository userAnswerRepository;
     @Transactional
@@ -397,11 +389,11 @@ public class AnnouncementServiceImpl implements AnnouncementService {
                 .map(AnnouncementMapper::toImageResponse)
                 .collect(Collectors.toList()));
         response.setUser(AnnouncementMapper.toUserResponse(announcement.getUser()));
-        Map<String, List<String>> map = new HashMap<>();
+        List<ResidentDataResponseDTO> residentDataList = new ArrayList<>();
         for (ResidentData residentData : announcement.getResidentData()) {
-            map.put(residentData.getName(), residentData.getPhoneNumbers());
+            residentDataList.add(new ResidentDataResponseDTO(residentData.getName(), residentData.getPhoneNumbers()));
         }
-        response.setResidentsDataResponse(map);
+        response.setResidentsDataResponse(residentDataList);
 
         List<SurveyAnswerDTO> creatorSurveyAnswers = userAnswerRepository.findAllByUser(announcement.getUser())
                 .stream()
@@ -415,12 +407,15 @@ public class AnnouncementServiceImpl implements AnnouncementService {
 
         response.setCreatorSurveyAnswers(creatorSurveyAnswers);
 
-        List<Resident> residents = residentRepository.findAllByAnnouncementId(announcement.getId());
+        List<AnnouncementResident> residents = announcementResidentRepository.findAllByAnnouncement(announcement);
 
         List<ResidentResponseDTO> residentsSurvey = new ArrayList<>();
         if (!residents.isEmpty()) {
-            for (Resident resident : residents) {
-                response.getResidentsDataResponse().remove(resident.getFirstName());
+            for (AnnouncementResident announcementResident : residents) {
+                User resident = announcementResident.getUser();
+                response.getResidentsDataResponse().removeIf(dto ->
+                        dto.getName().equals(resident.getFirstName())
+                );
                 ResidentResponseDTO residentResponseDTO = new ResidentResponseDTO();
                 residentResponseDTO.setFirstName(resident.getFirstName());
                 residentResponseDTO.setLastName(resident.getLastName());
@@ -429,7 +424,7 @@ public class AnnouncementServiceImpl implements AnnouncementService {
                 residentResponseDTO.setPhoneNumber(resident.getPhoneNumber());
                 residentResponseDTO.setBirthDate(resident.getBirthDate());
 
-                List<SurveyAnswerDTO> answers = residentAnswerRepository.findAllByResident(resident)
+                List<SurveyAnswerDTO> answers = userAnswerRepository.findAllByUser(resident)
                         .stream()
                         .map(residentAnswer -> {
                             SurveyAnswerDTO surveyAnswerDTO = new SurveyAnswerDTO();
