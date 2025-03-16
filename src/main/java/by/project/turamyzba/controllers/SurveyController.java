@@ -50,14 +50,9 @@ public class SurveyController {
         return ResponseEntity.ok(surveyService.viewSurvey(id));
     }
 
-    @GetMapping("/get-names-for-announcement-link/{token}")
+    @GetMapping("/get-names-for-link/{token}")
     public ResponseEntity<List<String>> getResidentNames(@PathVariable String token) {
         return ResponseEntity.ok(surveyInvitationService.getNamesFromToken(token));
-    }
-
-    @GetMapping("/get-names-for-group-link/{token}")
-    public ResponseEntity<List<String>> getGroupMemberNames(@PathVariable String token) {
-        return ResponseEntity.ok(groupService.getNamesFromToken(token));
     }
 
     @PostMapping("/submit-from-link")

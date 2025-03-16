@@ -4,14 +4,11 @@ import by.project.turamyzba.dto.requests.GroupCreateDTO;
 import by.project.turamyzba.dto.requests.ResidentDataRequest;
 import by.project.turamyzba.dto.responses.LinkForSurveyDTO;
 import by.project.turamyzba.entities.*;
-import by.project.turamyzba.entities.anketa.SurveyInvitationForGroup;
 import by.project.turamyzba.exceptions.AnnouncementNotFoundException;
-import by.project.turamyzba.exceptions.SurveyInvitationNotFoundException;
 import by.project.turamyzba.repositories.AnnouncementRepository;
 import by.project.turamyzba.repositories.GroupMemberRepository;
 import by.project.turamyzba.repositories.GroupRepository;
 import by.project.turamyzba.repositories.ResponseRepository;
-import by.project.turamyzba.repositories.anketa.SurveyInvitationForGroupRepository;
 import by.project.turamyzba.services.GroupService;
 import by.project.turamyzba.services.SurveyInvitationForGroupService;
 import by.project.turamyzba.services.UserService;
@@ -20,9 +17,9 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.Period;
 
 @Service
 @RequiredArgsConstructor
@@ -33,7 +30,6 @@ public class GroupServiceImpl implements GroupService {
     private final UserService userService;
     private final GroupMemberRepository groupMemberRepository;
     private final SurveyInvitationForGroupService surveyInvitationForGroupService;
-    private final SurveyInvitationForGroupRepository surveyInvitationForGroupRepository;
     private final ResponseRepository responseRepository;
 
     @Override
@@ -53,9 +49,13 @@ public class GroupServiceImpl implements GroupService {
         Group savedGroup = groupRepository.save(group);
 
         GroupMember creatorMember = new GroupMember();
+        creatorMember.setName(user.getFirstName());
         creatorMember.setGroup(savedGroup);
+        creatorMember.setAge(Period.between(user.getBirthDate(), LocalDate.now()).getYears());
         creatorMember.setUser(user);
         creatorMember.setJoinedAt(LocalDateTime.now());
+        creatorMember.setStatus(GroupMemberStatus.APPROVED);
+
         groupMemberRepository.save(creatorMember);
 
         LinkForSurveyDTO link = new LinkForSurveyDTO();
@@ -66,7 +66,6 @@ public class GroupServiceImpl implements GroupService {
                 groupMember.setPhoneNumbers(groupMembers.getPhoneNumbers());
                 groupMember.setGroup(savedGroup);
                 groupMember.setJoinedAt(LocalDateTime.now());
-
                 groupMemberRepository.save(groupMember);
             }
             link.setToken(surveyInvitationForGroupService.createInvitationForGroup(savedGroup.getId()));
@@ -81,21 +80,5 @@ public class GroupServiceImpl implements GroupService {
             link.setMessage("Заявка на созданий группу отправлена");
         }
         return link;
-    }
-
-    @Override
-    public List<String> getNamesFromToken(String token) {
-        SurveyInvitationForGroup surveyInvitation = surveyInvitationForGroupRepository.findByToken(token)
-                .orElseThrow(() -> new SurveyInvitationNotFoundException("Survey invitation not found!"));
-
-        Group group = surveyInvitation.getGroup();
-        List<GroupMember> groupMembers = groupMemberRepository.findAllByGroup(group);
-        List<String> names = new ArrayList<>();
-        for (GroupMember groupMember : groupMembers) {
-            if (groupMember.getUser() == null) {
-                names.add(groupMember.getName());
-            }
-        }
-        return names;
     }
 }

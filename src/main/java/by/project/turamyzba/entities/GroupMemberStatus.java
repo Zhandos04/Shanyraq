@@ -1,6 +1,6 @@
 package by.project.turamyzba.entities;
 
-public enum ResponseStatus {
+public enum GroupMemberStatus {
     PENDING,
     APPROVED
 }

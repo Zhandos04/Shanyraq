@@ -6,10 +6,7 @@ import by.project.turamyzba.dto.responses.*;
 import by.project.turamyzba.entities.*;
 import by.project.turamyzba.entities.anketa.*;
 import by.project.turamyzba.exceptions.SurveyInvitationNotFoundException;
-import by.project.turamyzba.repositories.AnnouncementResidentRepository;
-import by.project.turamyzba.repositories.GroupMemberRepository;
-import by.project.turamyzba.repositories.ResponseRepository;
-import by.project.turamyzba.repositories.UserRepository;
+import by.project.turamyzba.repositories.*;
 import by.project.turamyzba.repositories.anketa.QuestionRepository;
 import by.project.turamyzba.repositories.anketa.SurveyInvitationForGroupRepository;
 import by.project.turamyzba.repositories.anketa.SurveyInvitationRepository;
@@ -141,7 +138,9 @@ public class SurveyServiceImpl implements SurveyService {
             List<GroupMember> groupMembers = groupMemberRepository.findAllByGroup(group);
             for (GroupMember groupMember : groupMembers) {
                 if (groupMember.getName().equals(surveyFromLinkDTO.getFirstName())) {
+                    groupMember.setAge(surveyFromLinkDTO.getAge());
                     groupMember.setUser(member);
+                    groupMember.setStatus(GroupMemberStatus.APPROVED);
                     groupMemberRepository.save(groupMember);
                     break;
                 }

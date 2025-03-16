@@ -20,6 +20,7 @@ public class SurveyFromLinkDTO {
     @Email
     private String email;
     private String gender;
+    private Integer age;
 
     @Pattern(
             regexp = "^(?:$|(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&_#.])(?=.*[a-z])[A-Za-z\\d@$!%*?&_#.]{8,})$",

@@ -25,11 +25,19 @@ public class GroupMember {
 
     private String name;
 
+    private Integer age;
+
     @ElementCollection
     @CollectionTable(name = "group_member_phone_numbers", joinColumns = @JoinColumn(name = "group_member_id"))
     @Column(name = "phone_number")
     private List<String> phoneNumbers;
 
+    @Enumerated(EnumType.STRING)
+    private GroupMemberStatus status;
+
+    @Column(name = "applied_date")
+    private LocalDateTime appliedDate;
+
     @Column(name = "joined_at", nullable = false, updatable = false)
-    private LocalDateTime joinedAt = LocalDateTime.now();
+    private LocalDateTime joinedAt;
 }
