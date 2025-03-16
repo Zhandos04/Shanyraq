@@ -8,6 +8,7 @@ import java.util.List;
 public class ApplicationForAnnouncementDTO {
     List<GroupMemberResponse> groupMembers;
     List<NewApplicationResponse> newApplications;
+    List<NewApplicationWithPeopleResponse> newApplicationsWithPeople;
     private Integer capacityOfGroup;
     private Boolean isApproved;
 }

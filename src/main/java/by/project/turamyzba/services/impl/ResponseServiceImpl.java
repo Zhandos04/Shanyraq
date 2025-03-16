@@ -1,15 +1,10 @@
 package by.project.turamyzba.services.impl;
 
 import by.project.turamyzba.dto.responses.SurveyAnswerDTO;
-import by.project.turamyzba.dto.responses.application.ApplicationForAnnouncementDTO;
-import by.project.turamyzba.dto.responses.application.ApplicationResponseDTO;
-import by.project.turamyzba.dto.responses.application.GroupMemberResponse;
-import by.project.turamyzba.dto.responses.application.NewApplicationResponse;
+import by.project.turamyzba.dto.responses.application.*;
 import by.project.turamyzba.entities.*;
 import by.project.turamyzba.exceptions.AnnouncementNotFoundException;
-import by.project.turamyzba.repositories.AnnouncementRepository;
-import by.project.turamyzba.repositories.GroupRepository;
-import by.project.turamyzba.repositories.ResponseRepository;
+import by.project.turamyzba.repositories.*;
 import by.project.turamyzba.repositories.anketa.UserAnswerRepository;
 import by.project.turamyzba.services.ResponseService;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +23,8 @@ public class ResponseServiceImpl implements ResponseService {
     private final GroupRepository groupRepository;
     private final UserAnswerRepository userAnswerRepository;
     private final ResponseRepository responseRepository;
+    private final ApplicationResponseRepository applicationResponseRepository;
+    private final ApplicationRepository applicationRepository;
 
     @Override
     public ApplicationResponseDTO getAllResponsesForMyAnnouncement(Long announcementId) {
@@ -54,6 +51,7 @@ public class ResponseServiceImpl implements ResponseService {
 
         List<GroupMemberResponse> groupMemberResponses = new ArrayList<>();
         List<NewApplicationResponse> newApplicationResponses = new ArrayList<>();
+        List<NewApplicationWithPeopleResponse> newApplicationWithPeopleResponses = new ArrayList<>();
 
         for (Group group : groups) {
             Optional<Response> optionalResponse = responseRepository.findByAnnouncementAndGroup(announcement, group);
@@ -103,7 +101,39 @@ public class ResponseServiceImpl implements ResponseService {
                         newApplicationResponses.add(newApplicationResponse);
                     }
                 }
+
+                NewApplicationWithPeopleResponse newApplicationWithPeopleResponse = new NewApplicationWithPeopleResponse();
+
+                List<ApplicationResponse> applicationResponses = applicationResponseRepository.findAllByGroup(group);
+                for (ApplicationResponse applicationResponse : applicationResponses) {
+                    List<EachPersonInNewApplicationWithPeopleResponse> people = new ArrayList<>();
+                    List<Application> applications1 = applicationRepository.findAllByApplicationBatchId(applicationResponse.getApplicationBatchId());
+                    for (Application application : applications1) {
+                        EachPersonInNewApplicationWithPeopleResponse person = new EachPersonInNewApplicationWithPeopleResponse();
+                        person.setAge(application.getAge());
+                        person.setName(application.getName());
+                        person.setEmail(application.getUser().getEmail());
+                        person.setPhoneNumbers(application.getPhoneNumbers());
+                        person.setApplicationDate(application.getAppliedDate().toLocalDate());
+
+                        List<SurveyAnswerDTO> userAnswers = userAnswerRepository.findAllByUser(application.getUser())
+                                .stream()
+                                .map(userAnswer -> {
+                                    SurveyAnswerDTO surveyAnswerDTO = new SurveyAnswerDTO();
+                                    surveyAnswerDTO.setQuestion(userAnswer.getQuestion().getText());
+                                    surveyAnswerDTO.setAnswer(userAnswer.getOption().getText());
+                                    return surveyAnswerDTO;
+                                })
+                                .toList();
+
+                        person.setAnswers(userAnswers);
+                        people.add(person);
+                    }
+                    newApplicationWithPeopleResponse.setPeople(people);
+                    newApplicationWithPeopleResponses.add(newApplicationWithPeopleResponse);
+                }
                 ApplicationForAnnouncementDTO application = new ApplicationForAnnouncementDTO();
+                application.setNewApplicationsWithPeople(newApplicationWithPeopleResponses);
                 application.setGroupMembers(groupMemberResponses);
                 application.setNewApplications(newApplicationResponses);
                 application.setCapacityOfGroup(group.getCapacity());
@@ -132,6 +162,7 @@ public class ResponseServiceImpl implements ResponseService {
                     groupMemberResponses.add(groupMemberResponse);
                 }
                 ApplicationForAnnouncementDTO application = new ApplicationForAnnouncementDTO();
+                application.setNewApplicationsWithPeople(newApplicationWithPeopleResponses);
                 application.setGroupMembers(groupMemberResponses);
                 application.setNewApplications(newApplicationResponses);
                 application.setCapacityOfGroup(group.getCapacity());

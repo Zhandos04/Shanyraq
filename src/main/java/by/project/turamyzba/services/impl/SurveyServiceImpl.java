@@ -7,10 +7,7 @@ import by.project.turamyzba.entities.*;
 import by.project.turamyzba.entities.anketa.*;
 import by.project.turamyzba.exceptions.SurveyInvitationNotFoundException;
 import by.project.turamyzba.repositories.*;
-import by.project.turamyzba.repositories.anketa.QuestionRepository;
-import by.project.turamyzba.repositories.anketa.SurveyInvitationForGroupRepository;
-import by.project.turamyzba.repositories.anketa.SurveyInvitationRepository;
-import by.project.turamyzba.repositories.anketa.UserAnswerRepository;
+import by.project.turamyzba.repositories.anketa.*;
 import by.project.turamyzba.services.EmailService;
 import by.project.turamyzba.services.SurveyService;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,6 +36,9 @@ public class SurveyServiceImpl implements SurveyService {
     private final SurveyInvitationForGroupRepository surveyInvitationForGroupRepository;
     private final GroupMemberRepository groupMemberRepository;
     private final ResponseRepository responseRepository;
+    private final SurveyInvitationForApplicationRepository surveyInvitationForApplicationRepository;
+    private final ApplicationRepository applicationRepository;
+    private final ApplicationResponseRepository applicationResponseRepository;
 
     @Override
     public List<QuestionDTO> getAllQuestions() {
@@ -101,8 +102,9 @@ public class SurveyServiceImpl implements SurveyService {
     public void saveSurveyAnswersFromLink(SurveyFromLinkDTO surveyFromLinkDTO) {
         Optional<SurveyInvitation> optionalSurveyInvitation = surveyInvitationRepository.findByToken(surveyFromLinkDTO.getToken());
         Optional<SurveyInvitationForGroup> optionalSurveyInvitationForGroup = surveyInvitationForGroupRepository.findByToken(surveyFromLinkDTO.getToken());
+        Optional<SurveyInvitationForApplication> optionalSurveyInvitationForApplication = surveyInvitationForApplicationRepository.findByToken(surveyFromLinkDTO.getToken());
 
-        if (optionalSurveyInvitation.isEmpty() && optionalSurveyInvitationForGroup.isEmpty()) {
+        if (optionalSurveyInvitation.isEmpty() && optionalSurveyInvitationForGroup.isEmpty() && optionalSurveyInvitationForApplication.isEmpty()) {
             throw new SurveyInvitationNotFoundException("Survey invitation not found!");
         } else if (optionalSurveyInvitation.isPresent()) {
             Announcement announcement = optionalSurveyInvitation.get().getAnnouncement();
@@ -130,7 +132,7 @@ public class SurveyServiceImpl implements SurveyService {
             }).toList();
 
             userAnswerRepository.saveAll(answers);
-        } else {
+        } else if (optionalSurveyInvitationForGroup.isPresent()) {
             Group group = optionalSurveyInvitationForGroup.get().getGroup();
 
             User member = getUser(surveyFromLinkDTO);
@@ -145,18 +147,36 @@ public class SurveyServiceImpl implements SurveyService {
                     break;
                 }
             }
-            int count = 0;
-            for (GroupMember groupMember : groupMembers) {
-                if (groupMember.getUser() != null) {
-                    count++;
-                }
-            }
-            if (groupMembers.size() == count) {
+            boolean allFilled = groupMembers.stream().allMatch(gm -> gm.getUser() != null);
+            if (allFilled) {
                 Response response = new Response();
                 response.setAnnouncement(group.getAnnouncement());
                 response.setGroup(group);
                 response.setStatus(ResponseStatus.PENDING);
                 responseRepository.save(response);
+            }
+        } else {
+            User user = getUser(surveyFromLinkDTO);
+
+            List<Application> applications = applicationRepository.findAllByApplicationBatchId(optionalSurveyInvitationForApplication.get().getApplicationBatchId());
+
+            for (Application application : applications) {
+                if (application.getName().equals(surveyFromLinkDTO.getFirstName())) {
+                    application.setAge(surveyFromLinkDTO.getAge());
+                    application.setUser(user);
+                    application.setAppliedDate(LocalDateTime.now());
+                    applicationRepository.save(application);
+                    break;
+                }
+            }
+            boolean allCompleted = applications.stream().allMatch(app -> app.getUser() != null);
+            if (allCompleted) {
+                ApplicationResponse response = new ApplicationResponse();
+                response.setGroup(applications.get(0).getGroup());
+                response.setApplicationBatchId(applications.get(0).getApplicationBatchId());
+                response.setCreatedAt(LocalDateTime.now());
+                response.setStatus(ResponseStatus.PENDING);
+                applicationResponseRepository.save(response);
             }
         }
     }
