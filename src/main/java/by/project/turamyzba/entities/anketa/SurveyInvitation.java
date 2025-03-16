@@ -1,5 +1,6 @@
 package by.project.turamyzba.entities.anketa;
 
+import by.project.turamyzba.entities.Announcement;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -14,8 +15,9 @@ public class SurveyInvitation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Идентификатор объявления, для которого создается ссылка
-    private Long announcementId;
+    @OneToOne
+    @JoinColumn(name = "announcement_id", nullable = false, unique = true)
+    private Announcement announcement;
 
     // Уникальный токен для формирования ссылки
     private String token;

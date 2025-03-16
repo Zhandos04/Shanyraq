@@ -84,16 +84,12 @@ public class AnnouncementRequest {
     private Integer areaOfTheApartment;
 
     private Boolean forALongTime;
-    @Pattern(
-            regexp = "^$|^(\\+7)\\d{10}$",
-            message = "Phone number должен соответствовать формату +7XXXXXXXXXX"
-    )
 
     private String ownersName;
 
     private List<String> ownersPhoneNumbers;
 
-    private Map<String, List<String>> residentsData;
+    private List<ResidentDataRequest> residentsData;
 
     private List<String> preferences;
 

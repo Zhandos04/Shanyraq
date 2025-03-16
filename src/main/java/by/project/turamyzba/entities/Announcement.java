@@ -116,7 +116,7 @@ public class Announcement {
     private Boolean consideringOnlyNPeople;
 
     @OneToMany(mappedBy = "announcement", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Resident> residents;
+    private List<User> residents;
 
 
     @PrePersist

@@ -7,5 +7,5 @@ import java.util.List;
 @Data
 public class LinkForSurveyDTO {
     private String token;
-    private List<String> namesOfResidents;
+//    private List<String> namesOfResidents;
 }

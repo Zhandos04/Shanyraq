@@ -11,11 +11,11 @@ import java.util.List;
 public class AnnouncementMapper {
 
     public static Announcement toEntity(AnnouncementRequest request, String[] coords) {
-        List<ResidentData> residents = request.getResidentsData().entrySet().stream()
-                .map(entry -> {
+        List<ResidentData> residents = request.getResidentsData().stream()
+                .map(residentDataRequest -> {
                     ResidentData resident = new ResidentData();
-                    resident.setName(entry.getKey());
-                    resident.setPhoneNumbers(entry.getValue());
+                    resident.setName(residentDataRequest.getName());
+                    resident.setPhoneNumbers(residentDataRequest.getPhoneNumbers());
                     return resident;
                 })
                 .toList();
@@ -123,11 +123,11 @@ public class AnnouncementMapper {
         announcement.setAreaOfTheApartment(request.getAreaOfTheApartment());
         announcement.setForALongTime(request.getForALongTime());
         announcement.setOwnersName(request.getOwnersName());
-        List<ResidentData> residents = request.getResidentsData().entrySet().stream()
-                .map(entry -> {
+        List<ResidentData> residents = request.getResidentsData().stream()
+                .map(residentDataRequest -> {
                     ResidentData resident = new ResidentData();
-                    resident.setName(entry.getKey());
-                    resident.setPhoneNumbers(entry.getValue());
+                    resident.setName(residentDataRequest.getName());
+                    resident.setPhoneNumbers(residentDataRequest.getPhoneNumbers());
                     return resident;
                 })
                 .toList();

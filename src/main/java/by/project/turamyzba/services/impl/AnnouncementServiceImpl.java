@@ -75,8 +75,6 @@ public class AnnouncementServiceImpl implements AnnouncementService {
         User user =  userRepository.findByEmail(userService.getCurrentUser().getUsername())
                 .orElseThrow(() -> new IllegalArgumentException("User not found"));
 
-        log.info("User: {}", user);
-
         Announcement announcement = AnnouncementMapper.toEntity(announcementRequest, coords);
 
         List<Image> images = AnnouncementMapper.toImages(announcementRequest.getImages(), announcement);

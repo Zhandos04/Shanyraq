@@ -1,22 +1,27 @@
 package by.project.turamyzba.services.impl;
 
+import by.project.turamyzba.dto.requests.LoginDTO;
 import by.project.turamyzba.dto.requests.SurveyFromLinkDTO;
+import by.project.turamyzba.dto.requests.SurveyFromLinkForUnregisteredUsersDTO;
 import by.project.turamyzba.dto.responses.*;
 import by.project.turamyzba.entities.Announcement;
-import by.project.turamyzba.entities.Resident;
+import by.project.turamyzba.entities.AnnouncementResident;
 import by.project.turamyzba.entities.User;
 import by.project.turamyzba.entities.anketa.*;
 import by.project.turamyzba.exceptions.AnnouncementNotFoundException;
 import by.project.turamyzba.exceptions.SurveyInvitationNotFoundException;
 import by.project.turamyzba.repositories.AnnouncementRepository;
-import by.project.turamyzba.repositories.ResidentRepository;
+import by.project.turamyzba.repositories.AnnouncementResidentRepository;
 import by.project.turamyzba.repositories.UserRepository;
 import by.project.turamyzba.repositories.anketa.QuestionRepository;
-import by.project.turamyzba.repositories.anketa.ResidentAnswerRepository;
 import by.project.turamyzba.repositories.anketa.SurveyInvitationRepository;
 import by.project.turamyzba.repositories.anketa.UserAnswerRepository;
+import by.project.turamyzba.services.EmailService;
 import by.project.turamyzba.services.SurveyService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,9 +36,10 @@ public class SurveyServiceImpl implements SurveyService {
     private final UserAnswerRepository userAnswerRepository;
     private final UserRepository userRepository;
     private final SurveyInvitationRepository surveyInvitationRepository;
-    private final ResidentAnswerRepository residentAnswerRepository;
-    private final ResidentRepository residentRepository;
     private final AnnouncementRepository announcementRepository;
+    private final AnnouncementResidentRepository announcementResidentRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
 
     // Получение всех вопросов с преобразованием в DTO
     @Override
@@ -102,19 +108,31 @@ public class SurveyServiceImpl implements SurveyService {
         Announcement announcement = announcementRepository.findById(surveyInvitation.getAnnouncementId())
                 .orElseThrow(() -> new AnnouncementNotFoundException("Survey not found!"));
 
-        Resident resident = new Resident();
+        User resident = new User();
         resident.setFirstName(surveyFromLinkDTO.getFirstName());
-        resident.setLastName(surveyFromLinkDTO.getLastName());
         resident.setBirthDate(LocalDate.parse(surveyFromLinkDTO.getBirthDate()));
         resident.setPhoneNumber(surveyFromLinkDTO.getPhoneNumber());
         resident.setEmail(surveyFromLinkDTO.getEmail());
         resident.setGender(surveyFromLinkDTO.getGender());
-        resident.setAnnouncement(announcement);
+        resident.setPassword(passwordEncoder.encode(surveyFromLinkDTO.getPassword()));
+        resident.setIsSurveyCompleted(true);
+        resident.setIsVerified(false);
+        String code = generateCode();
+        resident.setConfirmationCode(code);
+        try {
+            emailService.sendEmail(surveyFromLinkDTO.getEmail(), "Shanyraq Verify Email", "Your code is: " + code);
+        } catch (Exception e) {
+            throw new RuntimeException("Error occurred while sending the verification email.");
+        }
+        userRepository.save(resident);
 
-        residentRepository.save(resident);
+        AnnouncementResident announcementResident = new AnnouncementResident();
+        announcementResident.setAnnouncement(announcement);
+        announcementResident.setUser(resident);
+        announcementResidentRepository.save(announcementResident);
 
-        List<ResidentAnswer> answers = surveyFromLinkDTO.getUserAnswers().stream().map(dto -> {
-            ResidentAnswer answer = new ResidentAnswer();
+        List<UserAnswer> answers = surveyFromLinkDTO.getUserAnswers().stream().map(dto -> {
+            UserAnswer answer = new UserAnswer();
 
             Question question = new Question();
             question.setId(dto.getQuestionId());
@@ -124,12 +142,44 @@ public class SurveyServiceImpl implements SurveyService {
             option.setId(dto.getOptionId());
             answer.setOption(option);
 
-            answer.setResident(resident);
+            answer.setUser(resident);
             return answer;
         }).toList();
 
-        residentAnswerRepository.saveAll(answers);
+        userAnswerRepository.saveAll(answers);
     }
+
+    @Override
+    public UserDataResponse checkAccountAndGetData(LoginDTO loginDTO) {
+        User user = userRepository.findByEmail(loginDTO.getEmail())
+                .orElseThrow(() -> new UsernameNotFoundException("User with this email not found!"));
+        if (!passwordEncoder.matches(loginDTO.getPassword(), user.getPassword())) {
+            throw new BadCredentialsException("Неправильный пароль!");
+        }
+        UserDataResponse userDataResponse = new UserDataResponse();
+        userDataResponse.setFirstName(user.getFirstName());
+        userDataResponse.setPhoneNumber(user.getPhoneNumber());
+        userDataResponse.setBirthDate(user.getBirthDate().toString());
+        userDataResponse.setGender(user.getGender());
+
+        List<SurveyAnswerDTO> answers = userAnswerRepository.findAllByUser(user)
+                .stream()
+                .map(userAnswer -> {
+                    SurveyAnswerDTO surveyAnswerDTO = new SurveyAnswerDTO();
+                    surveyAnswerDTO.setQuestion(userAnswer.getQuestion().getText());
+                    surveyAnswerDTO.setAnswer(userAnswer.getOption().getText());
+                    return surveyAnswerDTO;
+                })
+                .toList();
+
+        userDataResponse.setSurveyAnswers(answers);
+        return userDataResponse;
+    }
+
+    private String generateCode() {
+        return Integer.toString((int)(Math.random() * 900000) + 100000);
+    }
+
 
     // Вспомогательный метод для преобразования Question в DTO
     private QuestionDTO convertToDTO(Question question) {
