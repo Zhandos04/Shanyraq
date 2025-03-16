@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "groups")
@@ -12,11 +14,9 @@ public class Group {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(nullable = false)
-    private String name;
     @ManyToOne
-    @JoinColumn(name = "created_by", nullable = false)
-    private User createdBy;
+    @JoinColumn(name = "creator_id", nullable = false)
+    private User creator;
     @ManyToOne
     @JoinColumn(name = "announcement_id", nullable = false)
     private Announcement announcement;
@@ -24,4 +24,6 @@ public class Group {
     private LocalDateTime createdAt = LocalDateTime.now();
     @Column(name = "capacity")
     private Integer capacity;
+    @OneToMany(mappedBy = "group", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<GroupMember> members = new ArrayList<>();
 }

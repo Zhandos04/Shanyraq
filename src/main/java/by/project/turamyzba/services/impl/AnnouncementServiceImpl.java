@@ -3,6 +3,7 @@ package by.project.turamyzba.services.impl;
 import by.project.turamyzba.dto.requests.AnnouncementRequest;
 import by.project.turamyzba.dto.responses.*;
 import by.project.turamyzba.entities.*;
+import by.project.turamyzba.exceptions.AnnouncementNotFoundException;
 import by.project.turamyzba.mappers.AnnouncementMapper;
 import by.project.turamyzba.repositories.AnnouncementRepository;
 import by.project.turamyzba.repositories.AnnouncementResidentRepository;
@@ -390,57 +391,13 @@ public class AnnouncementServiceImpl implements AnnouncementService {
                 .collect(Collectors.toList()));
         response.setUser(AnnouncementMapper.toUserResponse(announcement.getUser()));
         List<ResidentDataResponseDTO> residentDataList = new ArrayList<>();
+        if (announcement.getDoYouLiveInThisHouse()) {
+            residentDataList.add(new ResidentDataResponseDTO(announcement.getOwnersName(), announcement.getOwnersPhoneNumbers(), ResidentType.OWNER));
+        }
         for (ResidentData residentData : announcement.getResidentData()) {
-            residentDataList.add(new ResidentDataResponseDTO(residentData.getName(), residentData.getPhoneNumbers()));
+            residentDataList.add(new ResidentDataResponseDTO(residentData.getName(), residentData.getPhoneNumbers(), ResidentType.RESIDENT));
         }
         response.setResidentsDataResponse(residentDataList);
-
-        List<SurveyAnswerDTO> creatorSurveyAnswers = userAnswerRepository.findAllByUser(announcement.getUser())
-                .stream()
-                .map(userAnswer -> {
-                    SurveyAnswerDTO surveyAnswerDTO = new SurveyAnswerDTO();
-                    surveyAnswerDTO.setQuestion(userAnswer.getQuestion().getText());
-                    surveyAnswerDTO.setAnswer(userAnswer.getOption().getText());
-                    return surveyAnswerDTO;
-                })
-                .toList();
-
-        response.setCreatorSurveyAnswers(creatorSurveyAnswers);
-
-        List<AnnouncementResident> residents = announcementResidentRepository.findAllByAnnouncement(announcement);
-
-        List<ResidentResponseDTO> residentsSurvey = new ArrayList<>();
-        if (!residents.isEmpty()) {
-            for (AnnouncementResident announcementResident : residents) {
-                User resident = announcementResident.getUser();
-                response.getResidentsDataResponse().removeIf(dto ->
-                        dto.getName().equals(resident.getFirstName())
-                );
-                ResidentResponseDTO residentResponseDTO = new ResidentResponseDTO();
-                residentResponseDTO.setFirstName(resident.getFirstName());
-                residentResponseDTO.setLastName(resident.getLastName());
-                residentResponseDTO.setGender(resident.getGender());
-                residentResponseDTO.setEmail(resident.getEmail());
-                residentResponseDTO.setPhoneNumber(resident.getPhoneNumber());
-                residentResponseDTO.setBirthDate(resident.getBirthDate());
-
-                List<SurveyAnswerDTO> answers = userAnswerRepository.findAllByUser(resident)
-                        .stream()
-                        .map(residentAnswer -> {
-                            SurveyAnswerDTO surveyAnswerDTO = new SurveyAnswerDTO();
-                            surveyAnswerDTO.setQuestion(residentAnswer.getQuestion().getText());
-                            surveyAnswerDTO.setAnswer(residentAnswer.getOption().getText());
-                            return surveyAnswerDTO;
-                        })
-                        .toList();
-
-                residentResponseDTO.setSurveyAnswer(answers);
-
-                residentsSurvey.add(residentResponseDTO);
-            }
-        }
-        response.setResidentsSurvey(residentsSurvey);
-
         return response;
     }
 
@@ -460,6 +417,68 @@ public class AnnouncementServiceImpl implements AnnouncementService {
         announcementResponseForAll.setCoordsX(announcement.getCoordsX());
         announcementResponseForAll.setCoordsY(announcement.getCoordsY());
         return announcementResponseForAll;
+    }
+
+    @Override
+    public ResidentResponseDTO getSurveyAnswers(Long id, String name) {
+        Announcement announcement = announcementRepository.findById(id)
+                .orElseThrow(() -> new AnnouncementNotFoundException("Announcement not found!"));
+        ResidentResponseDTO residentResponseDTO = new ResidentResponseDTO();
+        User creator = announcement.getUser();
+        List<SurveyAnswerDTO> creatorSurveyAnswers = userAnswerRepository.findAllByUser(creator)
+                .stream()
+                .map(userAnswer -> {
+                    SurveyAnswerDTO surveyAnswerDTO = new SurveyAnswerDTO();
+                    surveyAnswerDTO.setQuestion(userAnswer.getQuestion().getText());
+                    surveyAnswerDTO.setAnswer(userAnswer.getOption().getText());
+                    return surveyAnswerDTO;
+                })
+                .toList();
+        if (name.equals(announcement.getOwnersName())) {
+            residentResponseDTO.setEmail(creator.getEmail());
+            residentResponseDTO.setGender(creator.getGender());
+            residentResponseDTO.setFirstName(creator.getFirstName());
+            residentResponseDTO.setPhoneNumber(creator.getPhoneNumber());
+            residentResponseDTO.setBirthDate(creator.getBirthDate());
+            residentResponseDTO.setLastName(creator.getLastName());
+            residentResponseDTO.setSurveyAnswer(creatorSurveyAnswers);
+        } else {
+            List<AnnouncementResident> residents = announcementResidentRepository.findAllByAnnouncement(announcement);
+
+            if (!residents.isEmpty()) {
+                boolean found = false;
+                for (AnnouncementResident announcementResident : residents) {
+                    User resident = announcementResident.getUser();
+                    if (resident.getFirstName().equals(name)) {
+                        residentResponseDTO.setFirstName(resident.getFirstName());
+                        residentResponseDTO.setLastName(resident.getLastName());
+                        residentResponseDTO.setGender(resident.getGender());
+                        residentResponseDTO.setEmail(resident.getEmail());
+                        residentResponseDTO.setPhoneNumber(resident.getPhoneNumber());
+                        residentResponseDTO.setBirthDate(resident.getBirthDate());
+                        List<SurveyAnswerDTO> answers = userAnswerRepository.findAllByUser(resident)
+                                .stream()
+                                .map(residentAnswer -> {
+                                    SurveyAnswerDTO surveyAnswerDTO = new SurveyAnswerDTO();
+                                    surveyAnswerDTO.setQuestion(residentAnswer.getQuestion().getText());
+                                    surveyAnswerDTO.setAnswer(residentAnswer.getOption().getText());
+                                    return surveyAnswerDTO;
+                                })
+                                .toList();
+
+                        residentResponseDTO.setSurveyAnswer(answers);
+                        found = true;
+                        break;
+                    }
+                }
+                if (!found) {
+                    residentResponseDTO.setSurveyAnswer(creatorSurveyAnswers);
+                }
+            } else {
+                residentResponseDTO.setSurveyAnswer(creatorSurveyAnswers);
+            }
+        }
+        return residentResponseDTO;
     }
 }
 

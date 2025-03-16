@@ -76,11 +76,6 @@ public class AnnouncementResponse {
 
     private Boolean forALongTime;
 
-    private String ownersName;
-
-    private List<String> ownersPhoneNumbers;
-
-    private String phoneNumber;
 
     private List<String> preferences;
 
@@ -94,9 +89,13 @@ public class AnnouncementResponse {
 
     private Boolean consideringOnlyNPeople;
 
+//    private String ownersName;
+//
+//    private List<String> ownersPhoneNumbers;
+
     private List<ResidentDataResponseDTO> residentsDataResponse;
 
-    private List<ResidentResponseDTO> residentsSurvey;
+//    private List<ResidentResponseDTO> residentsSurvey;
 
-    private List<SurveyAnswerDTO> creatorSurveyAnswers;
+//    private List<SurveyAnswerDTO> creatorSurveyAnswers;
 }

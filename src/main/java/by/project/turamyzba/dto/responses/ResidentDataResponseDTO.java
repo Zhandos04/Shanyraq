@@ -10,4 +10,5 @@ import java.util.List;
 public class ResidentDataResponseDTO {
     private String name;
     private List<String> phoneNumbers;
+    private ResidentType residentType;
 }

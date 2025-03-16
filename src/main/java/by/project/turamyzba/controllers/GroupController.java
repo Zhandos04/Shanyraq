@@ -12,7 +12,8 @@ import org.springframework.web.bind.annotation.*;
 public class GroupController {
     private final GroupService groupService;
     @PostMapping("/create/{announcementId}")
-    public ResponseEntity<?> createGroup(@PathVariable Long announcementId, @RequestBody GroupCreateDTO groupCreateDTO) {
+    public ResponseEntity<String> createGroup(@PathVariable Long announcementId, @RequestBody GroupCreateDTO groupCreateDTO) {
         groupService.createGroup(announcementId, groupCreateDTO);
+        return ResponseEntity.ok("Ваша заявка на создание группы была успешно отправлена.");
     }
 }

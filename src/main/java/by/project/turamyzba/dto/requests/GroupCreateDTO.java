@@ -6,7 +6,7 @@ import java.util.List;
 
 @Data
 public class GroupCreateDTO {
-    private String name;
-    private List<String> memberNames;
     private Integer capacity;
+    private Integer countOfPeople;
+    private ResidentDataRequest memberData;
 }

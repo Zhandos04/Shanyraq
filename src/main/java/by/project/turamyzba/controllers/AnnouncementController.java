@@ -4,6 +4,7 @@ import by.project.turamyzba.dto.requests.AnnouncementRequest;
 import by.project.turamyzba.dto.responses.AnnouncementResponse;
 import by.project.turamyzba.dto.responses.AnnouncementResponseForAll;
 import by.project.turamyzba.dto.responses.LinkForSurveyDTO;
+import by.project.turamyzba.dto.responses.ResidentResponseDTO;
 import by.project.turamyzba.entities.Announcement;
 import by.project.turamyzba.services.AnnouncementService;
 import by.project.turamyzba.services.SurveyInvitationService;
@@ -93,6 +94,11 @@ public class AnnouncementController {
             " вот сол айдишканы осы эндпоинт жибересиндер детально алу ушин.")
     public ResponseEntity<AnnouncementResponse> detail(@PathVariable Long id) {
         return ResponseEntity.ok(announcementService.getAnnouncementById(id));
+    }
+
+    @GetMapping("/get-survey-answers/{id}")
+    public ResponseEntity<ResidentResponseDTO> getSurveyAnswers(@PathVariable Long id, @RequestParam String name) {
+        return ResponseEntity.ok(announcementService.getSurveyAnswers(id, name));
     }
 
     @Operation(summary = "Определенный пользовательдин активный объявлениелерин алу.", description = "Ешкандай зат жибермейсиндер кроме токена токен аркылы кай " +

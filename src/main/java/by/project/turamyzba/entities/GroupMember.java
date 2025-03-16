@@ -4,10 +4,10 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
-@Table(name = "group_members",
-        uniqueConstraints = {@UniqueConstraint(columnNames = {"group_id", "user_id"})})
+@Table(name = "group_members")
 @Data
 public class GroupMember {
 
@@ -22,6 +22,13 @@ public class GroupMember {
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    private String name;
+
+    @ElementCollection
+    @CollectionTable(name = "group_member_phone_numbers", joinColumns = @JoinColumn(name = "group_member_id"))
+    @Column(name = "phone_number")
+    private List<String> phoneNumbers;
 
     @Column(name = "joined_at", nullable = false, updatable = false)
     private LocalDateTime joinedAt = LocalDateTime.now();

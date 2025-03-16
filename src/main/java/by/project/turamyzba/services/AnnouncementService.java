@@ -4,13 +4,13 @@ package by.project.turamyzba.services;
 import by.project.turamyzba.dto.requests.AnnouncementRequest;
 import by.project.turamyzba.dto.responses.AnnouncementResponse;
 import by.project.turamyzba.dto.responses.AnnouncementResponseForAll;
+import by.project.turamyzba.dto.responses.ResidentResponseDTO;
 import by.project.turamyzba.entities.Announcement;
 import org.apache.coyote.BadRequestException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
 import java.io.IOException;
-import java.time.LocalDate;
 import java.util.List;
 
 public interface AnnouncementService {
@@ -40,4 +40,5 @@ public interface AnnouncementService {
     void deleteAnnouncement(Long announcementId) throws BadRequestException;
     AnnouncementResponse toAnnouncementResponse(Announcement announcement);
     AnnouncementResponseForAll toAnnouncementResponseForAll(Announcement announcement);
+    ResidentResponseDTO getSurveyAnswers(Long id, String name);
 }

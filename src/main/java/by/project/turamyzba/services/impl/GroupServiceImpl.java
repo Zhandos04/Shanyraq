@@ -33,12 +33,12 @@ public class GroupServiceImpl implements GroupService {
                 .orElseThrow(() -> new AnnouncementNotFoundException("Объявление не найдено"));
         User user = userService.getUserByEmail(userService.getCurrentUser().getUsername())
                 .orElseThrow(() -> new UsernameNotFoundException("Пользователь не найден"));
+
         Group group = new Group();
         group.setCreatedAt(LocalDateTime.now());
-        group.setName(groupCreateDTO.getName());
         group.setAnnouncement(announcement);
         group.setCapacity(group.getCapacity());
-        group.setCreatedBy(user);
+        group.setCreator(user);
 
         Group savedGroup = groupRepository.save(group);
 
@@ -46,6 +46,8 @@ public class GroupServiceImpl implements GroupService {
         creatorMember.setGroup(savedGroup);
         creatorMember.setUser(user);
         creatorMember.setJoinedAt(LocalDateTime.now());
+
+
 
         groupMemberRepository.save(creatorMember);
     }
