@@ -2,12 +2,11 @@ package by.project.turamyzba.services.impl;
 
 import by.project.turamyzba.dto.requests.AnnouncementRequest;
 import by.project.turamyzba.dto.responses.*;
+import by.project.turamyzba.dto.responses.application.GroupMemberResponse;
 import by.project.turamyzba.entities.*;
 import by.project.turamyzba.exceptions.AnnouncementNotFoundException;
 import by.project.turamyzba.mappers.AnnouncementMapper;
-import by.project.turamyzba.repositories.AnnouncementRepository;
-import by.project.turamyzba.repositories.AnnouncementResidentRepository;
-import by.project.turamyzba.repositories.UserRepository;
+import by.project.turamyzba.repositories.*;
 import by.project.turamyzba.repositories.anketa.UserAnswerRepository;
 import by.project.turamyzba.services.AnnouncementService;
 import by.project.turamyzba.services.UserService;
@@ -57,6 +56,8 @@ public class AnnouncementServiceImpl implements AnnouncementService {
     private final AnnouncementResidentRepository announcementResidentRepository;
 
     private final UserAnswerRepository userAnswerRepository;
+
+    private final ResponseRepository responseRepository;
     @Transactional
     @Override
     public Announcement createAnnouncement(AnnouncementRequest announcementRequest) throws IOException {
@@ -385,11 +386,11 @@ public class AnnouncementServiceImpl implements AnnouncementService {
 
 
     public AnnouncementResponse toAnnouncementResponse(Announcement announcement) {
-        AnnouncementResponse response = modelMapper.map(announcement, AnnouncementResponse.class);
-        response.setPhotos(announcement.getPhotos().stream()
+        AnnouncementResponse announcementResponse = modelMapper.map(announcement, AnnouncementResponse.class);
+        announcementResponse.setPhotos(announcement.getPhotos().stream()
                 .map(AnnouncementMapper::toImageResponse)
                 .collect(Collectors.toList()));
-        response.setUser(AnnouncementMapper.toUserResponse(announcement.getUser()));
+        announcementResponse.setUser(AnnouncementMapper.toUserResponse(announcement.getUser()));
         List<ResidentDataResponseDTO> residentDataList = new ArrayList<>();
         if (announcement.getDoYouLiveInThisHouse()) {
             residentDataList.add(new ResidentDataResponseDTO(announcement.getOwnersName(), announcement.getOwnersPhoneNumbers(), ResidentType.OWNER));
@@ -397,26 +398,46 @@ public class AnnouncementServiceImpl implements AnnouncementService {
         for (ResidentData residentData : announcement.getResidentData()) {
             residentDataList.add(new ResidentDataResponseDTO(residentData.getName(), residentData.getPhoneNumbers(), ResidentType.RESIDENT));
         }
-        response.setResidentsDataResponse(residentDataList);
-        return response;
-    }
+        announcementResponse.setResidentsDataResponse(residentDataList);
 
-    @Override
-    public AnnouncementResponseForAll toAnnouncementResponseForAll(Announcement announcement) {
-        AnnouncementResponseForAll announcementResponseForAll = new AnnouncementResponseForAll();
-        announcementResponseForAll.setAnnouncementId(announcement.getId());
-        announcementResponseForAll.setImage(announcement.getPhotos().get(0).getUrl());
-        announcementResponseForAll.setTitle(announcement.getTitle());
-        announcementResponseForAll.setSelectedGender(announcement.getSelectedGender());
-        announcementResponseForAll.setAddress(announcement.getAddress());
-        announcementResponseForAll.setCost(announcement.getCost());
-        announcementResponseForAll.setRoommates(announcement.getNumberOfPeopleAreYouAccommodating());
-        announcementResponseForAll.setArriveDate(announcement.getArriveDate());
-        announcementResponseForAll.setRoomCount(announcement.getQuantityOfRooms());
-        announcementResponseForAll.setCost(announcement.getCost());
-        announcementResponseForAll.setCoordsX(announcement.getCoordsX());
-        announcementResponseForAll.setCoordsY(announcement.getCoordsY());
-        return announcementResponseForAll;
+        List<Group> groups = responseRepository.findApprovedGroupsByAnnouncement(announcement);
+
+        List<GroupDataResponseDTO> groupDataResponseDTOS = new ArrayList<>();
+
+        for (Group group : groups) {
+            GroupDataResponseDTO groupDataResponseDTO = new GroupDataResponseDTO();
+            List<GroupMemberResponse> groupMemberResponses = new ArrayList<>();
+            for (GroupMember groupMember : group.getMembers()) {
+                if (groupMember.getStatus().equals(GroupMemberStatus.APPROVED)) {
+                    GroupMemberResponse groupMemberResponse = new GroupMemberResponse();
+                    groupMemberResponse.setName(groupMember.getName());
+                    groupMemberResponse.setAge(groupMember.getAge());
+                    groupMemberResponse.setEmail(groupMember.getUser().getEmail());
+                    groupMemberResponse.setPhoneNumbers(groupMember.getPhoneNumbers());
+                    groupMemberResponse.setJoinedDate(groupMember.getJoinedAt().toLocalDate());
+
+                    List<SurveyAnswerDTO> userAnswers = userAnswerRepository.findAllByUser(groupMember.getUser())
+                            .stream()
+                            .map(userAnswer -> {
+                                SurveyAnswerDTO surveyAnswerDTO = new SurveyAnswerDTO();
+                                surveyAnswerDTO.setQuestion(userAnswer.getQuestion().getText());
+                                surveyAnswerDTO.setAnswer(userAnswer.getOption().getText());
+                                return surveyAnswerDTO;
+                            })
+                            .toList();
+
+                    groupMemberResponse.setAnswers(userAnswers);
+
+                    groupMemberResponses.add(groupMemberResponse);
+                }
+            }
+            groupDataResponseDTO.setGroupMembers(groupMemberResponses);
+
+            groupDataResponseDTOS.add(groupDataResponseDTO);
+        }
+        announcementResponse.setGroupDataResponse(groupDataResponseDTOS);
+
+        return announcementResponse;
     }
 
     @Override
@@ -479,6 +500,24 @@ public class AnnouncementServiceImpl implements AnnouncementService {
             }
         }
         return residentResponseDTO;
+    }
+
+    @Override
+    public AnnouncementResponseForAll toAnnouncementResponseForAll(Announcement announcement) {
+        AnnouncementResponseForAll announcementResponseForAll = new AnnouncementResponseForAll();
+        announcementResponseForAll.setAnnouncementId(announcement.getId());
+        announcementResponseForAll.setImage(announcement.getPhotos().get(0).getUrl());
+        announcementResponseForAll.setTitle(announcement.getTitle());
+        announcementResponseForAll.setSelectedGender(announcement.getSelectedGender());
+        announcementResponseForAll.setAddress(announcement.getAddress());
+        announcementResponseForAll.setCost(announcement.getCost());
+        announcementResponseForAll.setRoommates(announcement.getNumberOfPeopleAreYouAccommodating());
+        announcementResponseForAll.setArriveDate(announcement.getArriveDate());
+        announcementResponseForAll.setRoomCount(announcement.getQuantityOfRooms());
+        announcementResponseForAll.setCost(announcement.getCost());
+        announcementResponseForAll.setCoordsX(announcement.getCoordsX());
+        announcementResponseForAll.setCoordsY(announcement.getCoordsY());
+        return announcementResponseForAll;
     }
 }
 

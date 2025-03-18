@@ -95,7 +95,7 @@ public class AnnouncementResponse {
 
     private List<ResidentDataResponseDTO> residentsDataResponse;
 
-//    private List<ResidentResponseDTO> residentsSurvey;
+    private List<GroupDataResponseDTO> groupDataResponse;
 
 //    private List<SurveyAnswerDTO> creatorSurveyAnswers;
 }

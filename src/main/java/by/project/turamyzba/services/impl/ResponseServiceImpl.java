@@ -7,7 +7,9 @@ import by.project.turamyzba.exceptions.AnnouncementNotFoundException;
 import by.project.turamyzba.repositories.*;
 import by.project.turamyzba.repositories.anketa.UserAnswerRepository;
 import by.project.turamyzba.services.ResponseService;
+import by.project.turamyzba.services.UserService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,11 +27,19 @@ public class ResponseServiceImpl implements ResponseService {
     private final ResponseRepository responseRepository;
     private final ApplicationResponseRepository applicationResponseRepository;
     private final ApplicationRepository applicationRepository;
+    private final UserService userService;
 
     @Override
     public ApplicationResponseDTO getAllResponsesForMyAnnouncement(Long announcementId) {
         Announcement announcement = announcementRepository.findById(announcementId)
                 .orElseThrow(() -> new AnnouncementNotFoundException("Announcement not found!"));
+
+        User currentUser = userService.getUserByEmail(userService.getCurrentUser().getUsername())
+                .orElseThrow(() -> new UsernameNotFoundException("User not found!"));
+
+        if (announcement.getUser().getId().equals(currentUser.getId())) {
+            throw new IllegalArgumentException("It's not your announcement!");
+        }
 
         List<Group> groups = groupRepository.findAllByAnnouncement(announcement);
 

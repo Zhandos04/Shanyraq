@@ -66,6 +66,7 @@ public class GroupServiceImpl implements GroupService {
                 groupMember.setPhoneNumbers(groupMembers.getPhoneNumbers());
                 groupMember.setGroup(savedGroup);
                 groupMember.setJoinedAt(LocalDateTime.now());
+                groupMember.setStatus(GroupMemberStatus.PENDING);
                 groupMemberRepository.save(groupMember);
             }
             link.setToken(surveyInvitationForGroupService.createInvitationForGroup(savedGroup.getId()));
